@@ -3,6 +3,7 @@
 import { Activity, BookOpen, Brain, Dumbbell, Eye, Glasses, HeartPulse, Target, Video, View, Wind, Sparkles, CalendarCheck, ScanEye, Zap, ListTodo, Contrast, Layers } from "lucide-react";
 import type { Test, Reminder, ActivityLog, Exercise, Circuit, AdherenceLog } from "./types";
 import type { SVGProps } from "react";
+import { StereopsisIcon } from "@/components/icons";
 
 export const MOCK_REMINDERS: Reminder[] = [
   { id: 1, title: 'Blinking exercise', time: 'in 30 minutes', type: 'exercise', enabled: true },
@@ -39,31 +40,6 @@ export const MOCK_VISION_SCORE_HISTORY = [
   { date: 'Jun', score: 90 },
   { date: 'Jul', score: 92 },
 ];
-
-
-const StereopsisIcon = (props: SVGProps<SVGSVGElement>) => (
-    <svg
-      {...props}
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M1 11.5A8.5 8.5 0 0 1 8.5 3h7a8.5 8.5 0 0 1 7.5 8.5" />
-      <path d="M2.5 11.5 2 21" />
-      <path d="m14 3 1-1" />
-      <path d="m10 3 1-1" />
-      <path d="m22 21-1.5-9.5" />
-      <path d="M8.5 3a4.5 4.5 0 0 0-4.27 3" />
-      <path d="M15.5 3a4.5 4.5 0 0 1 4.27 3" />
-      <path d="M2 21h20" />
-    </svg>
-);
-
 
 export const MOCK_TESTS: Test[] = [
     {
