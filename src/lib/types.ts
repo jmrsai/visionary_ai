@@ -1,3 +1,4 @@
+
 import type { LucideIcon } from 'lucide-react';
 import { Timestamp } from "firebase/firestore";
 
@@ -74,6 +75,7 @@ export type Reminder = {
     title: string;
     time: string;
     type: 'exercise' | 'medication' | 'appointment';
+    enabled: boolean;
 };
 
 export type ActivityLog = {
