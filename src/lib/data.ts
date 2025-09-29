@@ -1,5 +1,5 @@
 
-import { Activity, BookOpen, Brain, Dumbbell, Eye, Glasses, HeartPulse, Target, Video, View, Wind, Sparkles, CalendarCheck, ScanEye, Zap, ListTodo } from "lucide-react";
+import { Activity, BookOpen, Brain, Dumbbell, Eye, Glasses, HeartPulse, Target, Video, View, Wind, Sparkles, CalendarCheck, ScanEye, Zap, ListTodo, Contrast } from "lucide-react";
 import type { Test, Reminder, ActivityLog, Exercise, Circuit, AdherenceLog } from "./types";
 
 export const MOCK_REMINDERS: Reminder[] = [
@@ -59,6 +59,13 @@ export const MOCK_TESTS: Test[] = [
         title: "Astigmatism Test",
         description: "Check for astigmatism using a clock dial test.",
         icon: Activity,
+        category: "Core Diagnostics"
+    },
+    {
+        id: "contrast-sensitivity",
+        title: "Contrast Sensitivity Test",
+        description: "Measure your ability to distinguish between different shades.",
+        icon: Contrast,
         category: "Core Diagnostics"
     },
     {
