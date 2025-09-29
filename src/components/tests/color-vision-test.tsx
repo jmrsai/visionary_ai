@@ -8,6 +8,7 @@ import { Check, RefreshCw, X, ArrowLeft, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { generateIshiharaPlate, type IshiharaPlateOutput } from '@/ai/flows/ishihara-plate-generator';
+import { HrrTest } from './hrr-test';
 
 
 const TOTAL_PLATES = 5; // Let's do 5 plates for the AI version
@@ -69,7 +70,7 @@ const IshiharaTest = ({ onBack }: { onBack: () => void }) => {
       <div className="text-center">
         <h3 className="text-xl font-semibold">AI-Powered Ishihara Test</h3>
         <p className="text-muted-foreground mt-2 mb-4">
-          You will be shown a series of unique, AI-generated plates. Click the number you see in the plate.
+          You will be shown a series of unique, AI-generated plates. Click the number you see in the plate. This test primarily screens for red-green color deficiencies.
         </p>
         <div className="flex justify-center gap-4">
             <Button variant="outline" onClick={onBack}><ArrowLeft className="mr-2 h-4 w-4" />Back</Button>
@@ -101,7 +102,7 @@ const IshiharaTest = ({ onBack }: { onBack: () => void }) => {
           {isPass ? (
             <div className="flex items-center justify-center gap-2 text-green-600"><Check /> <p>You likely have normal color vision.</p></div>
           ) : (
-            <div className="flex items-center justify-center gap-2 text-orange-600"><X /> <p>You may have a color vision deficiency.</p></div>
+            <div className="flex items-center justify-center gap-2 text-orange-600"><X /> <p>You may have a red-green color vision deficiency.</p></div>
           )}
           <p className="text-sm text-muted-foreground mt-4 mb-4">This screening is not a substitute for a professional diagnosis. Consult an eye doctor for a comprehensive evaluation.</p>
           <Button onClick={restartTest}>
@@ -324,7 +325,7 @@ const D15Test = ({ onBack }: { onBack: () => void }) => {
 };
 
 export function ColorVisionTest() {
-  const [testType, setTestType] = useState<'selection' | 'ishihara' | 'd15'>('selection');
+  const [testType, setTestType] = useState<'selection' | 'ishihara' | 'd15' | 'hrr'>('selection');
 
   const renderContent = () => {
     switch(testType) {
@@ -332,19 +333,30 @@ export function ColorVisionTest() {
         return <IshiharaTest onBack={() => setTestType('selection')} />;
       case 'd15':
         return <D15Test onBack={() => setTestType('selection')} />;
+      case 'hrr':
+        return <HrrTest onBack={() => setTestType('selection')} />;
       case 'selection':
       default:
         return (
           <div className="text-center space-y-6">
             <h3 className="text-xl font-semibold">Choose a Color Vision Test</h3>
-            <div className="grid md:grid-cols-2 gap-4 max-w-lg mx-auto">
+            <div className="grid md:grid-cols-1 lg:grid-cols-3 gap-4 max-w-4xl mx-auto">
               <Card className="hover:border-primary transition-colors">
                   <CardHeader>
                       <CardTitle>AI Ishihara Plate Test</CardTitle>
-                      <CardDescription>Screens for red-green color deficiencies using unique, AI-generated plates.</CardDescription>
+                      <CardDescription>Screens for red-green color deficiencies using AI-generated plates.</CardDescription>
                   </CardHeader>
                   <CardContent>
                       <Button onClick={() => setTestType('ishihara')} className="w-full">Start Ishihara Test</Button>
+                  </CardContent>
+              </Card>
+               <Card className="hover:border-primary transition-colors">
+                  <CardHeader>
+                      <CardTitle>AI HRR Plate Test</CardTitle>
+                      <CardDescription>A comprehensive test for red-green and blue-yellow deficiencies.</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                      <Button onClick={() => setTestType('hrr')} className="w-full">Start HRR Test</Button>
                   </CardContent>
               </Card>
               <Card className="hover:border-primary transition-colors">
