@@ -33,6 +33,15 @@ const getInstruction = (exercise: Exercise, progress: number): string => {
                 return "Open your eyes and blink normally for 5 seconds.";
             }
             return "Now, close your eyes again for another 2 seconds.";
+        case "saccades":
+            const step = Math.floor(timeElapsed / 5) % 4; // Change target every 5 seconds, 4 positions
+            switch(step) {
+                case 0: return "Quickly look at the top-left corner of your screen.";
+                case 1: return "Now, quickly look at the bottom-right corner.";
+                case 2: return "Quickly look at the top-right corner.";
+                case 3: return "Finally, quickly look at the bottom-left corner.";
+                default: return "Follow the prompts.";
+            }
         default:
             return "Follow the on-screen prompts to complete the exercise.";
     }

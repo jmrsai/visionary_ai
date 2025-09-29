@@ -1,4 +1,4 @@
-import { Activity, BookOpen, Brain, Dumbbell, Eye, Glasses, HeartPulse, Target, Video, View } from "lucide-react";
+import { Activity, BookOpen, Brain, Dumbbell, Eye, Glasses, HeartPulse, Target, Video, View, Wind } from "lucide-react";
 import type { Test, Reminder, ActivityLog, Exercise } from "./types";
 
 export const MOCK_REMINDERS: Reminder[] = [
@@ -101,6 +101,14 @@ export const MOCK_EXERCISES: Exercise[] = [
         description: "Helps rehydrate your eyes and prevent dryness.",
         icon: Video,
         category: "Strain Reduction",
+        duration: "30 seconds"
+    },
+     {
+        id: "saccades",
+        title: "Saccades",
+        description: "Improve the speed and accuracy of your rapid eye movements.",
+        icon: Wind,
+        category: "Focus & Flexibility",
         duration: "30 seconds"
     },
     {
