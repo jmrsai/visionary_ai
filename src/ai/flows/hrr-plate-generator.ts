@@ -58,7 +58,7 @@ const hrrPlateFlow = ai.defineFlow(
 
     try {
         const { media } = await ai.generate({
-            model: 'googleai/gemini-pro-vision',
+            model: 'googleai/imagen-4.0-fast-generate-001',
             prompt: prompt,
         });
 
