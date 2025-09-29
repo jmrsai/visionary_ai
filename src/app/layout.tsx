@@ -1,3 +1,4 @@
+
 import type { Metadata } from "next";
 import { Toaster } from "@/components/ui/toaster";
 import { SidebarNav } from "@/components/sidebar-nav";
@@ -37,7 +38,7 @@ export default function RootLayout({
         >
             <div className="relative flex min-h-screen w-full flex-col bg-background">
             <SidebarNav />
-            <div className="flex flex-1 flex-col md:pl-64">
+            <div className="flex flex-1 flex-col md:pl-64 pb-16 md:pb-0">
                 <Header />
                 <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
                 {children}
