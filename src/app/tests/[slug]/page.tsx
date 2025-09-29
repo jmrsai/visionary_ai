@@ -8,6 +8,7 @@ import { AstigmatismTest } from "@/components/tests/astigmatism-test";
 import { MacularHealthTest } from "@/components/tests/macular-health-test";
 import { PupilResponseTest } from "@/components/tests/pupil-response-test";
 import { ReadingSpeedTest } from "@/components/tests/reading-speed-test";
+import { VisualFieldTest } from "@/components/tests/visual-field-test";
 
 
 export async function generateStaticParams() {
@@ -26,6 +27,8 @@ const TestComponent = ({ slug }: { slug: string }) => {
             return <AstigmatismTest />;
         case 'macular-health':
             return <MacularHealthTest />;
+        case 'visual-field':
+            return <VisualFieldTest />;
         case 'pupil-response':
             return <PupilResponseTest />;
         case 'reading-speed':

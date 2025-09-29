@@ -1,4 +1,4 @@
-import { Activity, BookOpen, Brain, Dumbbell, Eye, Glasses, HeartPulse, Target, Video } from "lucide-react";
+import { Activity, BookOpen, Brain, Dumbbell, Eye, Glasses, HeartPulse, Target, Video, View } from "lucide-react";
 import type { Test, Reminder, ActivityLog, Exercise } from "./types";
 
 export const MOCK_REMINDERS: Reminder[] = [
@@ -53,6 +53,13 @@ export const MOCK_TESTS: Test[] = [
         title: "Macular Health (Amsler)",
         description: "Monitor for macular degeneration with an Amsler grid.",
         icon: HeartPulse,
+        category: "Advanced Screening"
+    },
+    {
+        id: "visual-field",
+        title: "Visual Field Test",
+        description: "A basic screening tool to test your peripheral vision.",
+        icon: View,
         category: "Advanced Screening"
     },
     {
