@@ -10,35 +10,65 @@ import { chat } from "@/ai/flows/chatbot";
 import { useToast } from "@/hooks/use-toast";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { VisionaryLogo } from "@/components/icons";
+import { v4 as uuidv4 } from 'uuid';
 
 type Message = {
+  id?: string; // Optional: To be used with Firestore document ID
   text: string;
   isUser: boolean;
   media?: string;
+  timestamp?: Date;
 };
 
 const userAvatar = PlaceHolderImages.find((img) => img.id === "user-avatar");
 
 export function ChatbotForm() {
   const [messages, setMessages] = useState<Message[]>([]);
+  const [conversationId, setConversationId] = useState<string | null>(null);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
 
+  // In a full implementation, this useEffect would fetch chat history if a conversationId exists.
+  useEffect(() => {
+    if (conversationId) {
+        // TODO: Fetch previous messages for this conversationId from Firestore
+        // e.g., getMessages(`conversations/${conversationId}/messages`)
+        console.log(`Continuing conversation with ID: ${conversationId}`);
+    }
+  }, [conversationId]);
+
+
   const handleSend = async () => {
     if (input.trim() === "") return;
+    
+    let currentConversationId = conversationId;
+    if (!currentConversationId) {
+        currentConversationId = uuidv4();
+        setConversationId(currentConversationId);
+        // This is where you would create a new conversation document in Firestore.
+        console.log(`Starting new conversation with ID: ${currentConversationId}`);
+    }
 
-    const userMessage: Message = { text: input, isUser: true };
+    const userMessage: Message = { text: input, isUser: true, timestamp: new Date() };
     setMessages((prev) => [...prev, userMessage]);
+
+    // TODO: Save userMessage to Firestore
+    // e.g., addMessage(`conversations/${currentConversationId}/messages`, userMessage)
+
     setInput("");
     setIsLoading(true);
 
     try {
       const result = await chat({ message: input });
-      const aiMessage: Message = { text: result.response, isUser: false, media: result.media };
+      const aiMessage: Message = { text: result.response, isUser: false, media: result.media, timestamp: new Date() };
       setMessages((prev) => [...prev, aiMessage]);
+
+      // TODO: Save aiMessage to Firestore
+      // e.g., addMessage(`conversations/${currentConversationId}/messages`, aiMessage)
+
     } catch (error) {
       console.error("Error with chatbot:", error);
       toast({
