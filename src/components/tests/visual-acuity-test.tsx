@@ -66,7 +66,7 @@ export function VisualAcuityTest() {
 
   const currentStimulus = useMemo(() => {
     const typeInfo = chartTypes[testType];
-    const chars = typeInfo.chars.replace(/, /g, '');
+    const chars = typeInfo.chars.split(/,?\s+/).filter(Boolean);
     const char = chars[Math.floor(Math.random() * chars.length)];
     
     if (testType === 'tumblingE') {
@@ -143,19 +143,25 @@ export function VisualAcuityTest() {
             <Button variant="outline" size="lg" className="flex-col h-20" onClick={() => handleAnswer('right')}><ArrowRight className="h-8 w-8" /><span>Right</span></Button>
           </div>
         );
-      case 'pictures':
+      case 'pictures': {
         const PictureIcons = chartTypes.pictures.icons;
+        const options = chartTypes.pictures.chars.split(', ');
+        const correctOption = currentStimulus.char!;
+        const incorrectOptions = options.filter(o => o !== correctOption);
+        const shuffledOptions = [correctOption, ...incorrectOptions.sort(() => 0.5 - Math.random()).slice(0, 3)].sort(() => 0.5 - Math.random());
+
         return (
-          <div className="grid grid-cols-2 gap-4">
-            {Object.keys(PictureIcons).map(pic => {
+            <div className="grid grid-cols-2 gap-4">
+            {shuffledOptions.map(pic => {
                 const Icon = PictureIcons[pic];
                 return <Button key={pic} variant="outline" size="lg" className="flex-col h-20" onClick={() => handleAnswer(pic)}><Icon className="h-8 w-8" /><span>{pic}</span></Button>
             })}
-          </div>
+            </div>
         );
+      }
       case 'letters':
-      case 'numbers':
-        const options = chartTypes[testType].chars.split('').filter(c => c !== ' ');
+      case 'numbers': {
+        const options = chartTypes[testType].chars.split(' ');
         const correctOption = currentStimulus.char!;
         const incorrectOptions = options.filter(o => o !== correctOption);
         const shuffledOptions = [correctOption, ...incorrectOptions.sort(() => 0.5 - Math.random()).slice(0, 3)].sort(() => 0.5 - Math.random());
@@ -167,6 +173,7 @@ export function VisualAcuityTest() {
             ))}
           </div>
         );
+      }
     }
   };
 
