@@ -1,17 +1,22 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Check, RefreshCw, X } from 'lucide-react';
 
 const ishiharaPlates = [
-  { imageUrl: 'https://picsum.photos/seed/ishihara1/300/300', number: 12, options: [12, 74, 28] },
-  { imageUrl: 'https://picsum.photos/seed/ishihara2/300/300', number: 8, options: [8, 3, 5] },
-  { imageUrl: 'https://picsum.photos/seed/ishihara3/300/300', number: 29, options: [29, 70, 88] },
-  { imageUrl: 'https://picsum.photos/seed/ishihara4/300/300', number: 5, options: [5, 2, 8] },
-  { imageUrl: 'https://picsum-photos/seed/ishihara5/300/300', number: 74, options: [74, 21, 14] },
+  { imageUrl: 'https://picsum.photos/seed/ishihara1/300/300', number: 12, options: [12, 74, 28, 35] },
+  { imageUrl: 'https://picsum.photos/seed/ishihara2/300/300', number: 8, options: [8, 3, 5, 6] },
+  { imageUrl: 'https://picsum.photos/seed/ishihara3/300/300', number: 29, options: [29, 70, 88, 39] },
+  { imageUrl: 'https://picsum.photos/seed/ishihara4/300/300', number: 5, options: [5, 2, 8, 3] },
+  { imageUrl: 'https://picsum.photos/seed/ishihara5/300/300', number: 74, options: [74, 21, 14, 71] },
+  { imageUrl: 'https://picsum.photos/seed/ishihara6/300/300', number: 45, options: [45, 15, 95, 42] },
+  { imageUrl: 'https://picsum.photos/seed/ishihara7/300/300', number: 7, options: [7, 1, 4, 9] },
+  { imageUrl: 'https://picsum.photos/seed/ishihara8/300/300', number: 16, options: [16, 75, 18, 15] },
+  { imageUrl: 'https://picsum.photos/seed/ishihara9/300/300', number: 2, options: [2, 5, 3, 8] },
+  { imageUrl: 'https://picsum.photos/seed/ishihara10/300/300', number: 97, options: [97, 87, 37, 91] },
 ];
 
 export function ColorVisionTest() {
@@ -39,6 +44,13 @@ export function ColorVisionTest() {
   const restartTest = () => {
     setStep('instructions');
   };
+  
+  const shuffledOptions = useMemo(() => {
+    if (step !== 'test') return [];
+    const options = ishiharaPlates[currentPlate].options;
+    return [...options].sort(() => Math.random() - 0.5);
+  }, [currentPlate, step]);
+
 
   if (step === 'instructions') {
     return (
@@ -53,7 +65,7 @@ export function ColorVisionTest() {
   }
 
   if (step === 'results') {
-    const isPass = score / ishiharaPlates.length > 0.8;
+    const isPass = score / ishiharaPlates.length >= 0.9; // 9 or more correct
     return (
       <Card className="mx-auto max-w-md text-center">
         <CardHeader>
@@ -85,8 +97,8 @@ export function ColorVisionTest() {
         <Image src={plate.imageUrl} alt="Ishihara plate" layout="fill" objectFit="cover" data-ai-hint="abstract pattern"/>
       </div>
       <p className="font-semibold">What number do you see?</p>
-      <div className="flex gap-4">
-        {plate.options.sort(() => Math.random() - 0.5).map(option => (
+      <div className="grid grid-cols-2 gap-4">
+        {shuffledOptions.map(option => (
           <Button key={option} size="lg" variant="outline" onClick={() => handleAnswer(option)}>
             {option}
           </Button>
