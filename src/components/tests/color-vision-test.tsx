@@ -1,32 +1,140 @@
 "use client";
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Check, RefreshCw, X, ArrowLeft } from 'lucide-react';
+import { Check, RefreshCw, X, ArrowLeft, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useToast } from '@/hooks/use-toast';
+import { generateIshiharaPlate, type IshiharaPlateOutput } from '@/ai/flows/ishihara-plate-generator';
 
-// --- Ishihara Test Data ---
-const ishiharaPlates = [
-  { imageUrl: 'https://i.ibb.co/jDNQ4Rz/ishihara-1.png', number: 12, options: [12, 74, 28, 35] },
-  { imageUrl: 'https://i.ibb.co/q1CjW3Y/ishihara-2.png', number: 8, options: [8, 3, 5, 6] },
-  { imageUrl: 'https://i.ibb.co/b3F3XGY/ishihara-3.png', number: 29, options: [29, 70, 88, 39] },
-  { imageUrl: 'https://i.ibb.co/8D9zY5G/ishihara-4.png', number: 5, options: [5, 2, 8, 3] },
-  { imageUrl: 'https://i.ibb.co/8g3JcZn/ishihara-5.png', number: 3, options: [3, 5, 8, 2] },
-  { imageUrl: 'https://i.ibb.co/kH2T8Kc/ishihara-6.png', number: 15, options: [15, 17, 71, 74] },
-  { imageUrl: 'https://i.ibb.co/pwnL12p/ishihara-7.png', number: 74, options: [74, 21, 14, 71] },
-  { imageUrl: 'https://i.ibb.co/yQvT9yY/ishihara-8.png', number: 6, options: [6, 8, 5, 9] },
-  { imageUrl: 'https://i.ibb.co/f2sS1hH/ishihara-9.png', number: 45, options: [45, 15, 95, 42] },
-  { imageUrl: 'https://i.ibb.co/yPVRpNy/ishihara-10.png', number: 5, options: [5, 3, 6, 8] },
-  { imageUrl: 'https://i.ibb.co/vYF8Pkv/ishihara-11.png', number: 7, options: [7, 1, 4, 9] },
-  { imageUrl: 'https://i.ibb.co/HCrp6B4/ishihara-12.png', number: 16, options: [16, 75, 18, 15] },
-  { imageUrl: 'https://i.ibb.co/RSC51n9/ishihara-13.png', number: 73, options: [73, 13, 18, 23] },
-  { imageUrl: 'https://i.ibb.co/yBv0p1d/ishihara-14.png', number: 2, options: [2, 6, 5, 8] },
-  { imageUrl: 'https://i.ibb.co/xGLd5Y2/ishihara-15.png', number: 97, options: [97, 37, 87, 91] },
-  { imageUrl: 'https://i.ibb.co/kSN5b0Z/ishihara-16.png', number: 42, options: [42, 12, 47, 72] },
-  { imageUrl: 'https://i.ibb.co/GnHwVz9/ishihara-17.png', number: 35, options: [35, 85, 38, 53] },
-];
+
+const TOTAL_PLATES = 5; // Let's do 5 plates for the AI version
+
+const IshiharaTest = ({ onBack }: { onBack: () => void }) => {
+  const [step, setStep] = useState<'instructions' | 'test' | 'results' | 'loading'>('instructions');
+  const [currentPlate, setCurrentPlate] = useState(0);
+  const [score, setScore] = useState(0);
+  const [userAnswers, setUserAnswers] = useState<number[]>([]);
+  const [plateData, setPlateData] = useState<IshiharaPlateOutput | null>(null);
+  const { toast } = useToast();
+
+  const getNextPlate = useCallback(async () => {
+    setStep('loading');
+    try {
+        const data = await generateIshiharaPlate();
+        setPlateData(data);
+        setStep('test');
+    } catch (error) {
+        console.error("Failed to generate Ishihara plate:", error);
+        toast({
+            title: "Error",
+            description: "Could not generate the test plate. Please try again.",
+            variant: "destructive"
+        });
+        setStep('instructions');
+    }
+  }, [toast]);
+
+
+  const startTest = () => {
+    setCurrentPlate(0);
+    setScore(0);
+    setUserAnswers([]);
+    getNextPlate();
+  };
+
+  const handleAnswer = (answer: number) => {
+    if (!plateData) return;
+    setUserAnswers([...userAnswers, answer]);
+    if (answer === plateData.correctNumber) {
+      setScore(score + 1);
+    }
+    
+    if (currentPlate < TOTAL_PLATES - 1) {
+      setCurrentPlate(currentPlate + 1);
+      getNextPlate();
+    } else {
+      setStep('results');
+    }
+  };
+
+  const restartTest = () => {
+    setStep('instructions');
+  };
+
+  if (step === 'instructions') {
+    return (
+      <div className="text-center">
+        <h3 className="text-xl font-semibold">AI-Powered Ishihara Test</h3>
+        <p className="text-muted-foreground mt-2 mb-4">
+          You will be shown a series of unique, AI-generated plates. Click the number you see in the plate.
+        </p>
+        <div className="flex justify-center gap-4">
+            <Button variant="outline" onClick={onBack}><ArrowLeft className="mr-2 h-4 w-4" />Back</Button>
+            <Button onClick={startTest}>Start Test</Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (step === 'loading') {
+    return (
+        <div className="flex flex-col items-center justify-center text-center h-64 space-y-4">
+            <Loader2 className="h-12 w-12 animate-spin text-primary" />
+            <p className="text-muted-foreground">Generating next test plate...</p>
+        </div>
+    )
+  }
+
+  if (step === 'results') {
+    const isPass = score / TOTAL_PLATES >= 0.9;
+    return (
+      <Card className="mx-auto max-w-md text-center">
+        <CardHeader>
+          <CardTitle>Ishihara Test Complete</CardTitle>
+          <CardDescription>You correctly identified:</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p className="text-5xl font-bold my-4">{score} / {TOTAL_PLATES}</p>
+          {isPass ? (
+            <div className="flex items-center justify-center gap-2 text-green-600"><Check /> <p>You likely have normal color vision.</p></div>
+          ) : (
+            <div className="flex items-center justify-center gap-2 text-orange-600"><X /> <p>You may have a color vision deficiency.</p></div>
+          )}
+          <p className="text-sm text-muted-foreground mt-4 mb-4">This screening is not a substitute for a professional diagnosis. Consult an eye doctor for a comprehensive evaluation.</p>
+          <Button onClick={restartTest}>
+            <RefreshCw className="mr-2 h-4 w-4" /> Retake Test
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  
+  return (
+    <div className="flex flex-col items-center space-y-6">
+        {plateData && (
+            <>
+                <p className="text-muted-foreground">Plate {currentPlate + 1} of {TOTAL_PLATES}</p>
+                <div className="w-64 h-64 relative rounded-full overflow-hidden border-4 border-muted">
+                    <Image src={plateData.plateImageUri} alt="AI-generated Ishihara plate" layout="fill" objectFit="cover" data-ai-hint="abstract pattern"/>
+                </div>
+                <p className="font-semibold">What number do you see?</p>
+                <div className="grid grid-cols-2 gap-4">
+                    {plateData.options.map(option => (
+                    <Button key={option} size="lg" variant="outline" onClick={() => handleAnswer(option)}>
+                        {option}
+                    </Button>
+                    ))}
+                </div>
+            </>
+        )}
+    </div>
+  );
+};
+
 
 // --- D-15 Arrangement Test Data ---
 const d15Caps = [
@@ -50,99 +158,6 @@ const d15Caps = [
 
 // Correct order for D-15
 const d15CorrectOrder = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
-
-const IshiharaTest = ({ onBack }: { onBack: () => void }) => {
-  const [step, setStep] = useState<'instructions' | 'test' | 'results'>('instructions');
-  const [currentPlate, setCurrentPlate] = useState(0);
-  const [score, setScore] = useState(0);
-  const [userAnswers, setUserAnswers] = useState<number[]>([]);
-
-  const startTest = () => {
-    setStep('test');
-    setCurrentPlate(0);
-    setScore(0);
-    setUserAnswers([]);
-  };
-
-  const handleAnswer = (answer: number) => {
-    setUserAnswers([...userAnswers, answer]);
-    if (answer === ishiharaPlates[currentPlate].number) {
-      setScore(score + 1);
-    }
-    if (currentPlate < ishiharaPlates.length - 1) {
-      setCurrentPlate(currentPlate + 1);
-    } else {
-      setStep('results');
-    }
-  };
-
-  const restartTest = () => {
-    setStep('instructions');
-  };
-  
-  const shuffledOptions = useMemo(() => {
-    if (step !== 'test') return [];
-    const options = ishiharaPlates[currentPlate].options;
-    return [...options].sort(() => Math.random() - 0.5);
-  }, [currentPlate, step]);
-
-  if (step === 'instructions') {
-    return (
-      <div className="text-center">
-        <h3 className="text-xl font-semibold">Ishihara Plate Instructions</h3>
-        <p className="text-muted-foreground mt-2 mb-4">
-          You will be shown a series of plates. Click the number you see in the plate.
-        </p>
-        <div className="flex justify-center gap-4">
-            <Button variant="outline" onClick={onBack}><ArrowLeft className="mr-2 h-4 w-4" />Back</Button>
-            <Button onClick={startTest}>Start Test</Button>
-        </div>
-      </div>
-    );
-  }
-
-  if (step === 'results') {
-    const isPass = score / ishiharaPlates.length >= 0.9;
-    return (
-      <Card className="mx-auto max-w-md text-center">
-        <CardHeader>
-          <CardTitle>Ishihara Test Complete</CardTitle>
-          <CardDescription>You correctly identified:</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <p className="text-5xl font-bold my-4">{score} / {ishiharaPlates.length}</p>
-          {isPass ? (
-            <div className="flex items-center justify-center gap-2 text-green-600"><Check /> <p>You likely have normal color vision.</p></div>
-          ) : (
-            <div className="flex items-center justify-center gap-2 text-orange-600"><X /> <p>You may have a color vision deficiency.</p></div>
-          )}
-          <p className="text-sm text-muted-foreground mt-4 mb-4">This screening is not a substitute for a professional diagnosis. Consult an eye doctor for a comprehensive evaluation.</p>
-          <Button onClick={restartTest}>
-            <RefreshCw className="mr-2 h-4 w-4" /> Retake Test
-          </Button>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  const plate = ishiharaPlates[currentPlate];
-  return (
-    <div className="flex flex-col items-center space-y-6">
-      <p className="text-muted-foreground">Plate {currentPlate + 1} of {ishiharaPlates.length}</p>
-      <div className="w-64 h-64 relative rounded-full overflow-hidden border-4 border-muted">
-        <Image src={plate.imageUrl} alt="Ishihara plate" layout="fill" objectFit="cover" data-ai-hint="abstract pattern"/>
-      </div>
-      <p className="font-semibold">What number do you see?</p>
-      <div className="grid grid-cols-2 gap-4">
-        {shuffledOptions.map(option => (
-          <Button key={option} size="lg" variant="outline" onClick={() => handleAnswer(option)}>
-            {option}
-          </Button>
-        ))}
-      </div>
-    </div>
-  );
-};
 
 
 const D15Test = ({ onBack }: { onBack: () => void }) => {
@@ -181,7 +196,7 @@ const D15Test = ({ onBack }: { onBack: () => void }) => {
         
         // Check for specific error types (Protan, Deutan, Tritan axes)
         // This is a simplified logic for demonstration
-        if (Math.abs(cap1 - cap2) > 2) {
+        if (Math.abs(cap1 - cap2) > 2 && !(cap1 === 0 && cap2 === 15) && !(cap1 === 15 && cap2 === 0)) {
              lines.push({from: cap1, to: cap2, type: 'error' });
         } else {
              lines.push({from: cap1, to: cap2, type: 'correct' });
@@ -325,8 +340,8 @@ export function ColorVisionTest() {
             <div className="grid md:grid-cols-2 gap-4 max-w-lg mx-auto">
               <Card className="hover:border-primary transition-colors">
                   <CardHeader>
-                      <CardTitle>Ishihara Plate Test</CardTitle>
-                      <CardDescription>Screens for red-green color deficiencies using numeric plates.</CardDescription>
+                      <CardTitle>AI Ishihara Plate Test</CardTitle>
+                      <CardDescription>Screens for red-green color deficiencies using unique, AI-generated plates.</CardDescription>
                   </CardHeader>
                   <CardContent>
                       <Button onClick={() => setTestType('ishihara')} className="w-full">Start Ishihara Test</Button>
