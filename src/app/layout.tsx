@@ -9,6 +9,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Visionary - Your Personal Vision Care App",
   description: "An application for eye health, exercises, and therapies.",
+  manifest: "/manifest.json",
 };
 
 export default function RootLayout({
@@ -25,6 +26,7 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=PT+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap"
           rel="stylesheet"
         />
+        <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
       </head>
       <body className="font-body antialiased">
         <ThemeProvider
