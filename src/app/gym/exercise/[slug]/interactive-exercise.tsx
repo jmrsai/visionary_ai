@@ -147,8 +147,8 @@ export function InteractiveExercise({ exercise }: { exercise: Exercise }) {
   }, [getAIFeedback, exercise.id, hasCameraPermission]);
 
   const handleStart = () => {
+    setExerciseState("running");
     if (hasCameraPermission) {
-      setExerciseState("running");
       getAIFeedback(); // Initial feedback
     }
     startTimers();
