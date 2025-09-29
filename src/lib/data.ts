@@ -103,7 +103,6 @@ export const MOCK_TESTS: Test[] = [
         description: "A screening for depth perception and 3D vision (requires 3D glasses).",
         icon: (props) => (
             <svg
-              {...props}
               width="24"
               height="24"
               viewBox="0 0 24 24"
@@ -112,6 +111,7 @@ export const MOCK_TESTS: Test[] = [
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
+              {...props}
             >
               <path d="M1 11.5A8.5 8.5 0 0 1 8.5 3h7a8.5 8.5 0 0 1 7.5 8.5" />
               <path d="M2.5 11.5 2 21" />
