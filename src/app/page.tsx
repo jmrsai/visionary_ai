@@ -25,26 +25,26 @@ export default function Home() {
     <div className="flex flex-1 flex-col gap-4 md:gap-8">
       {/* Top Row Cards */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="lg:col-span-2 bg-primary/5 dark:bg-primary/10 border-primary/20 animate-fade-in-up">
+         <Card className="lg:col-span-2 bg-primary/5 dark:bg-primary/10 border-primary/20 animate-fade-in-up">
           <CardHeader>
             <div className="flex items-center gap-2 text-primary">
-              <Sparkles className="h-5 w-5" />
-              <CardTitle className="text-lg">Today's Focus</CardTitle>
+              <CalendarCheck className="h-5 w-5" />
+              <CardTitle className="text-lg">Primary Eye Check-up</CardTitle>
             </div>
             <CardDescription>
-              Your AI-recommended activity to keep your vision sharp.
+              Complete your monthly check-up to track your vision health.
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="flex items-center justify-between p-4 rounded-lg bg-background">
               <div>
-                <p className="font-bold text-xl">20-20-20 Rule</p>
+                <p className="font-bold text-xl">Guided 3-Test Suite</p>
                 <p className="text-sm text-muted-foreground">
-                  Complete by 5:00 PM
+                  Takes about 5 minutes.
                 </p>
               </div>
               <Button asChild size="sm">
-                <Link href="/gym/exercise/20-20-20-rule">
+                <Link href="/primary-check-up">
                   Start <ChevronRight className="ml-1 h-4 w-4" />
                 </Link>
               </Button>
