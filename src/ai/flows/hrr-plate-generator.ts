@@ -56,20 +56,25 @@ const hrrPlateFlow = ai.defineFlow(
     The symbol should be clearly visible to someone with normal color vision.
     Do not include any text or labels on the image itself. The output must be the image only.`;
 
-    const { media } = await ai.generate({
-        model: 'googleai/gemini-pro-vision',
-        prompt: prompt,
-    });
+    try {
+        const { media } = await ai.generate({
+            model: 'googleai/gemini-pro-vision',
+            prompt: prompt,
+        });
 
-    if (!media.url) {
-        throw new Error('Image generation failed for HRR plate.');
+        if (!media.url) {
+            throw new Error('Image generation failed for HRR plate.');
+        }
+
+        return {
+            plateImageUri: media.url,
+            correctSymbol: correctSymbol,
+            options: options,
+            deficiencyType: deficiencyType,
+        };
+    } catch (error) {
+        console.error("AI Generation Error in hrrPlateFlow:", error);
+        throw new Error("The AI service is currently unavailable. Please try again later.");
     }
-
-    return {
-        plateImageUri: media.url,
-        correctSymbol: correctSymbol,
-        options: options,
-        deficiencyType: deficiencyType,
-    };
   }
 );

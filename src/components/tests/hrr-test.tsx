@@ -32,8 +32,8 @@ export function HrrTest({ onBack }: { onBack: () => void }) {
     } catch (error) {
         console.error("Failed to generate HRR plate:", error);
         toast({
-            title: "Error",
-            description: "Could not generate the test plate. Please try again.",
+            title: "Error Generating Test",
+            description: "Could not generate the next plate. The AI service may be temporarily unavailable. Please try again.",
             variant: "destructive"
         });
         setStep('instructions');

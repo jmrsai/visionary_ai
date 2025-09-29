@@ -40,25 +40,29 @@ const ishiharaPlateFlow = ai.defineFlow(
     }
     const options = [randomNumber, ...Array.from(distractors)].sort(() => Math.random() - 0.5);
 
-    const { media } = await ai.generate({
-        // Using a more creative model for this visual task
-        model: 'googleai/gemini-pro-vision',
-        prompt: `Generate an image that looks exactly like an Ishihara test plate for color blindness.
-        The plate should be a circle filled with a pattern of multi-colored dots of varying sizes.
-        The dots should primarily be shades of red and green.
-        Subtly embed the number "${randomNumber}" within the dot pattern, using dots of a color that someone with red-green color deficiency would find difficult to distinguish from the background.
-        The number should be clearly visible to someone with normal color vision.
-        Do not include any text or labels on the image itself. The output must be the image only.`,
-    });
+    try {
+        const { media } = await ai.generate({
+            model: 'googleai/gemini-pro-vision',
+            prompt: `Generate an image that looks exactly like an Ishihara test plate for color blindness.
+            The plate should be a circle filled with a pattern of multi-colored dots of varying sizes.
+            The dots should primarily be shades of red and green.
+            Subtly embed the number "${randomNumber}" within the dot pattern, using dots of a color that someone with red-green color deficiency would find difficult to distinguish from the background.
+            The number should be clearly visible to someone with normal color vision.
+            Do not include any text or labels on the image itself. The output must be the image only.`,
+        });
 
-    if (!media.url) {
-        throw new Error('Image generation failed.');
+        if (!media.url) {
+            throw new Error('Image generation failed.');
+        }
+
+        return {
+            plateImageUri: media.url,
+            correctNumber: randomNumber,
+            options: options,
+        };
+    } catch (error) {
+        console.error("AI Generation Error in ishiharaPlateFlow:", error);
+        throw new Error("The AI service is currently unavailable. Please try again later.");
     }
-
-    return {
-        plateImageUri: media.url,
-        correctNumber: randomNumber,
-        options: options,
-    };
   }
 );
