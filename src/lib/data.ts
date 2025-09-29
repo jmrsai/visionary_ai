@@ -1,10 +1,11 @@
 
+
 import { Activity, BookOpen, Brain, Dumbbell, Eye, Glasses, HeartPulse, Target, Video, View, Wind, Sparkles, CalendarCheck, ScanEye, Zap, ListTodo, Contrast, Layers } from "lucide-react";
 import type { Test, Reminder, ActivityLog, Exercise, Circuit, AdherenceLog } from "./types";
 
 export const MOCK_REMINDERS: Reminder[] = [
   { id: 1, title: 'Blinking exercise', time: 'in 30 minutes', type: 'exercise', enabled: true },
-  { id: 2, title: 'Latanoprost', time: '13:00', type: 'Eye Drops', enabled: true, dosage: "1 drop in each eye", frequency: "Daily" },
+  { id: 2, title: 'Latanoprost', time: '13:00', type: 'Eye Drops', enabled: true, dosage: "1 drop in each eye", frequency: "Daily", reason: "For Glaucoma", appearance: { shape: "circle", color: "#60a5fa" } },
   { id: 3, title: '20-20-20 Rule', time: '14:00', type: 'exercise', enabled: false },
   { id: 4, title: 'Annual Eye Exam', time: 'Tomorrow', type: 'appointment', enabled: true },
 ];
@@ -100,7 +101,28 @@ export const MOCK_TESTS: Test[] = [
         id: "stereopsis",
         title: "Stereopsis Test",
         description: "A screening for depth perception and 3D vision (requires 3D glasses).",
-        icon: Layers,
+        icon: (props) => (
+            <svg
+              {...props}
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M1 11.5A8.5 8.5 0 0 1 8.5 3h7a8.5 8.5 0 0 1 7.5 8.5" />
+              <path d="M2.5 11.5 2 21" />
+              <path d="m14 3 1-1" />
+              <path d="m10 3 1-1" />
+              <path d="m22 21-1.5-9.5" />
+              <path d="M8.5 3a4.5 4.5 0 0 0-4.27 3" />
+              <path d="M15.5 3a4.5 4.5 0 0 1 4.27 3" />
+              <path d="M2 21h20" />
+            </svg>
+        ),
         category: "Advanced Screening"
     },
     {
