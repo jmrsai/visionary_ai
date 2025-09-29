@@ -1,22 +1,65 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { RefreshCw, Check, X } from 'lucide-react';
+import { RefreshCw, Check, X, Loader2 } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
+import { generateAmslerGrid, type AmslerGridOutput } from '@/ai/flows/amsler-grid-generator';
+import { useToast } from '@/hooks/use-toast';
 
-const AmslerGrid = () => (
-  <div className="relative w-64 h-64 bg-white p-2">
-    <div className="w-full h-full grid grid-cols-20 grid-rows-20 gap-px border border-black">
-        {[...Array(400)].map((_, i) => (
-        <div key={i} className="bg-black w-full h-full" />
-        ))}
+const AmslerGrid = ({ onGridLoaded }: { onGridLoaded: (isLoaded: boolean) => void }) => {
+  const [gridImage, setGridImage] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    const fetchGrid = async () => {
+      setIsLoading(true);
+      onGridLoaded(false);
+      try {
+        const result = await generateAmslerGrid();
+        setGridImage(result.gridImageUri);
+        onGridLoaded(true);
+      } catch (error) {
+        console.error("Failed to generate Amsler grid:", error);
+        toast({
+          title: "Error",
+          description: "Could not load the Amsler grid. Please try refreshing.",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchGrid();
+  }, [toast, onGridLoaded]);
+
+  if (isLoading) {
+    return (
+      <div className="w-64 h-64 relative bg-muted rounded-lg flex flex-col items-center justify-center">
+        <Loader2 className="h-10 w-10 animate-spin text-primary" />
+        <p className="text-sm text-muted-foreground mt-2">Generating Grid...</p>
+      </div>
+    );
+  }
+
+  if (!gridImage) {
+    return (
+      <div className="w-64 h-64 relative bg-muted rounded-lg flex items-center justify-center">
+        <p className="text-sm text-destructive text-center">Failed to load grid.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="relative w-64 h-64">
+      <Image src={gridImage} alt="AI-generated Amsler Grid" layout="fill" objectFit="contain" />
     </div>
-    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-white border border-black" />
-  </div>
-);
+  );
+};
 
 type Step = 'instructions' | 'test-left' | 'test-right' | 'results';
 type Eye = 'left' | 'right';
@@ -31,6 +74,7 @@ export function MacularHealthTest() {
   const [step, setStep] = useState<Step>('instructions');
   const [leftEyeDistortions, setLeftEyeDistortions] = useState<Distortion>({ wavy: false, blurry: false, dark: false, missing: false });
   const [rightEyeDistortions, setRightEyeDistortions] = useState<Distortion>({ wavy: false, blurry: false, dark: false, missing: false });
+  const [isGridLoaded, setIsGridLoaded] = useState(false);
 
   const startTest = () => {
     setStep('test-left');
@@ -87,7 +131,7 @@ export function MacularHealthTest() {
             <p className="text-muted-foreground">Cover your {eye === 'left' ? 'right' : 'left'} eye and focus only on the center dot.</p>
 
             <div className="p-4 bg-background rounded-md">
-                <AmslerGrid />
+                <AmslerGrid onGridLoaded={setIsGridLoaded} />
             </div>
 
             <Card className="w-full max-w-md">
@@ -112,7 +156,7 @@ export function MacularHealthTest() {
                         <Checkbox id="missing" checked={distortions.missing} onCheckedChange={(c) => setDistortion('missing', !!c)} />
                         <Label htmlFor="missing">Are there any missing areas or blank spots?</Label>
                     </div>
-                    <Button onClick={() => handleFinishEyeTest(eye)} className="w-full mt-4">
+                    <Button onClick={() => handleFinishEyeTest(eye)} className="w-full mt-4" disabled={!isGridLoaded}>
                         {eye === 'left' ? 'Next: Test Right Eye' : 'Finish Test'}
                     </Button>
                 </CardContent>
