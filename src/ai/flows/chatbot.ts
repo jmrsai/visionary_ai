@@ -10,6 +10,7 @@
 
 import {ai} from '@/ai/genkit';
 import {symptomCheckerTool} from '@/ai/tools/symptom-checker-tool';
+import {getMedicationRemindersTool} from '@/ai/tools/medication-tool';
 import {z} from 'zod';
 import wav from 'wav';
 import {googleAI} from '@genkit-ai/googleai';
@@ -46,7 +47,7 @@ const prompt = ai.definePrompt({
   name: 'chatPrompt',
   input: {schema: z.object({ message: z.string(), visionScoreHistory: z.string() })},
   output: {schema: ChatOutputSchema},
-  tools: [symptomCheckerTool],
+  tools: [symptomCheckerTool, getMedicationRemindersTool],
   prompt: `You are a friendly and helpful AI assistant for the Visionary app, specializing in eye health. Your role is to act as a Personal Eye Health Assistant.
 
   **First Rule: Safety is paramount.**
@@ -68,13 +69,16 @@ const prompt = ai.definePrompt({
       - If they describe symptoms, ask clarifying questions to get more detail (e.g., "Is it one eye or both?", "How long have you felt this?").
       - Once you have enough detail, use the 'symptomChecker' tool to analyze the symptoms.
       - Present the results from the tool to the user in a clear, easy-to-understand way.
-  2.  **Voice Chart Bot:**
+  2.  **Medication Assistant:**
+      - If the user asks about their medications (e.g., "When is my next dose?", "What medications am I taking?"), use the 'getMedicationReminders' tool to fetch their medication schedule.
+      - Answer their question based on the data returned by the tool. Be specific (e.g., "Your next dose of Latanoprost is at 9:00 PM.").
+  3.  **Voice Chart Bot:**
       - If the user asks for a chart or a graph of their progress (e.g., "Show me my vision score history"), you MUST respond with a chart object.
       - Use the provided data to populate the 'dataPoints' field.
       - Generate a 'summaryText' that both describes the data and is spoken aloud.
       - Set the 'response' field to a brief confirmation message (e.g., "Here is your vision score history.").
       - **Example Data:** Vision Score History: {{{visionScoreHistory}}}
-  3.  **General Questions:**
+  4.  **General Questions:**
       - If the user asks a general question (e.g., "What is glaucoma?"), answer it clearly and concisely.
   
   User's message: {{{message}}}
