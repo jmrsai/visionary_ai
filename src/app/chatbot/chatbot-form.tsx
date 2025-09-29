@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Loader2, Send, MessageCircle } from "lucide-react";
+import { Loader2, Send, MessageCircle, Mic } from "lucide-react";
 import { chat, type ChartData } from "@/ai/flows/chatbot";
 import { useToast } from "@/hooks/use-toast";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
@@ -86,6 +86,7 @@ export function ChatbotForm() {
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isListening, setIsListening] = useState(false);
   const { toast } = useToast();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -137,6 +138,22 @@ export function ChatbotForm() {
       setIsLoading(false);
     }
   };
+
+  const handleListen = async () => {
+    setIsListening(true);
+    // TODO: Integrate Speech-to-Text (STT) service here.
+    // 1. Start recording audio from the microphone.
+    // 2. Stream the audio to the STT service.
+    // 3. Update the `input` state with the transcribed text in real-time.
+    // 4. When the user stops speaking, finalize the transcription.
+    
+    // For now, we'll simulate a voice input after a short delay.
+    setTimeout(() => {
+        setInput("My eye is red and itchy, what should I do?");
+        setIsListening(false);
+    }, 2000);
+  };
+
 
   useEffect(() => {
     if (scrollAreaRef.current) {
@@ -234,14 +251,22 @@ export function ChatbotForm() {
           }}
           className="flex items-center gap-2"
         >
+           <Button type="button" variant="ghost" size="icon" onClick={handleListen} disabled={isLoading || isListening}>
+            {isListening ? (
+                 <Loader2 className="h-5 w-5 animate-spin text-primary"/>
+            ) : (
+                 <Mic className="h-5 w-5" />
+            )}
+            <span className="sr-only">Use Microphone</span>
+          </Button>
           <Input
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Type your message..."
+            placeholder={isListening ? "Listening..." : "Type your message..."}
             className="flex-1"
-            disabled={isLoading}
+            disabled={isLoading || isListening}
           />
-          <Button type="submit" disabled={isLoading || input.trim() === ""}>
+          <Button type="submit" disabled={isLoading || isListening || input.trim() === ""}>
             {isLoading ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
