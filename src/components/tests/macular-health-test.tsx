@@ -170,7 +170,7 @@ export function MacularHealthTest() {
       <div className="text-center">
         <h3 className="text-xl font-semibold">Amsler Grid Instructions</h3>
         <p className="text-muted-foreground mt-2 mb-4 max-w-md mx-auto">
-          This test can help detect vision problems resulting from damage to the macula. If you wear reading glasses, please put them on. Sit about 12-15 inches away from the screen. You will test each eye separately.
+          The Amsler grid, designed by Swiss ophthalmologist Marc Amsler, is a tool used to detect vision problems resulting from damage to the macula. If you wear reading glasses, please put them on. Sit about 12-15 inches away from the screen. You will test each eye separately.
         </p>
         <Button onClick={startTest}>Start Test</Button>
       </div>
