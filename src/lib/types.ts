@@ -47,7 +47,7 @@ export interface Circuit {
   id: string;
   title: string;
   description: string;
-  icon: LucideIcon;
+  icon: string; // Changed from LucideIcon
   totalDuration: string;
   exercises: {
     id: string;
@@ -65,28 +65,6 @@ export interface Test {
     image?: string;
     icon: LucideIcon;
     category: string;
-}
-
-// --- User Progress Sub-collections ---
-
-export interface CompletedExercise {
-  id: string; // Auto-generated
-  exerciseId: string; // Ref to exercises collection
-  completedAt: Timestamp;
-  duration: number; // in seconds or minutes
-}
-
-export interface CompletedTherapy {
-  id: string; // Auto-generated
-  therapyId: string; // Ref to therapies collection
-  completedAt: Timestamp;
-}
-
-export interface TestResult {
-  id: string; // Auto-generated
-  testId: string; // Ref to tests collection
-  result: { [key: string]: any }; // Flexible result object
-  takenAt: Timestamp;
 }
 
 // --- App-specific Helper Types (Mock Data etc.) ---

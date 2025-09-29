@@ -156,7 +156,7 @@ export const MOCK_CIRCUITS: Circuit[] = [
         id: "5-min-stress-buster",
         title: "5-Min Stress Buster",
         description: "A quick routine to relieve eye strain after prolonged screen time.",
-        icon: ListTodo,
+        icon: "ListTodo",
         totalDuration: "5 minutes",
         exercises: [
             { id: "focus-shift", title: "Focus Shift", duration: 60 },
