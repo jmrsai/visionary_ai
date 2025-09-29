@@ -38,7 +38,7 @@ The output must be the image only, with no other text or artifacts.`;
 
     try {
       const {media} = await ai.generate({
-        model: 'googleai/gemini-pro-vision', // Using vision model for image generation
+        model: 'googleai/imagen-4.0-fast-generate-001',
         prompt: prompt,
       });
 
