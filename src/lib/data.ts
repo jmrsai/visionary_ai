@@ -1,4 +1,4 @@
-import { Activity, BookOpen, Brain, Eye, Glasses, HeartPulse, Video } from "lucide-react";
+import { Activity, BookOpen, Brain, Dumbbell, Eye, Glasses, HeartPulse, Target, Video } from "lucide-react";
 import type { Test, Reminder, ActivityLog, Exercise } from "./types";
 
 export const MOCK_REMINDERS: Reminder[] = [
