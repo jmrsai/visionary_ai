@@ -42,9 +42,9 @@ const stereopsisTestFlow = ai.defineFlow(
     }
     const options = [hiddenShape, ...Array.from(distractors)].sort(() => Math.random() - 0.5) as [typeof SHAPES[number], typeof SHAPES[number], typeof SHAPES[number], typeof SHAPES[number]];
 
-    const prompt = `Generate a random dot stereogram image designed to be viewed with red-cyan 3D glasses.
+    const prompt = `Generate a red and cyan 3D anaglyph image.
 The image must be a square and filled with a dense, random pattern of red and cyan dots.
-When viewed with the appropriate 3D glasses, a simple, solid "${hiddenShape}" shape should appear to float distinctly above the background.
+When viewed with red-cyan 3D glasses, a simple, solid "${hiddenShape}" shape should appear to float distinctly above the background.
 The hidden shape should be large and centrally located.
 Do not include any other text, labels, or artifacts in the image. The output must be the image only.`;
 
