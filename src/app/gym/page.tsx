@@ -53,11 +53,3 @@ export default function GymPage() {
     </div>
   );
 }
-
-// Special handling for AI tool routes
-export async function generateStaticParams() {
-    const aiTools = MOCK_EXERCISES.filter(ex => ex.category === 'AI Tools');
-    return aiTools.map(tool => ({
-        id: tool.id
-    }));
-}

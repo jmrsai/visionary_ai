@@ -119,6 +119,14 @@ export const MOCK_EXERCISES: Exercise[] = [
         duration: "30 seconds"
     },
     {
+        id: "shape-tracer",
+        title: "Shape Tracer",
+        description: "Train your eyes to smoothly follow a moving object.",
+        icon: Wind,
+        category: "Focus & Flexibility",
+        duration: "30 seconds"
+    },
+    {
         id: "symptom-checker",
         title: "Symptom Checker",
         description: "Use our AI to identify potential eye conditions based on your symptoms.",
