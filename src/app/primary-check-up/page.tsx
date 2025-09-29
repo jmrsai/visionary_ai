@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Eye, Glasses, HeartPulse, ChevronRight } from "lucide-react";
+import { Eye, Glasses, HeartPulse, ChevronRight, View, Zap } from "lucide-react";
 import Link from "next/link";
 
 const checkupTests = [
@@ -10,14 +10,24 @@ const checkupTests = [
         description: "Test the sharpness of your vision."
     },
     {
+        title: "Macular Health",
+        icon: HeartPulse,
+        description: "Check for distortions with the Amsler grid."
+    },
+    {
         title: "Color Vision",
         icon: Glasses,
         description: "Screen for color vision deficiencies."
     },
     {
-        title: "Macular Health",
-        icon: HeartPulse,
-        description: "Check for distortions with the Amsler grid."
+        title: "Peripheral Vision",
+        icon: View,
+        description: "Test your side vision awareness."
+    },
+    {
+        title: "Accommodation Speed",
+        icon: Zap,
+        description: "Measures how quickly your eyes can change focus."
     }
 ];
 
@@ -25,7 +35,7 @@ export default function PrimaryCheckupPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold">Primary Eye Check-up</h1>
+        <h1 className="text-3xl font-bold">Comprehensive Eye Health Check-up</h1>
         <p className="text-muted-foreground">
           A guided suite of essential tests to monitor your eye health.
         </p>
@@ -34,7 +44,7 @@ export default function PrimaryCheckupPage() {
       <Card>
         <CardHeader>
             <CardTitle>Your 5-Minute Check-up</CardTitle>
-            <CardDescription>This guided check-up will take you through three core tests. Please find a quiet, well-lit space before you begin.</CardDescription>
+            <CardDescription>This guided check-up will take you through five core tests. Please find a quiet, well-lit space before you begin.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
             <div className="space-y-4 rounded-lg border p-4">

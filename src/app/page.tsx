@@ -29,16 +29,16 @@ export default function Home() {
           <CardHeader>
             <div className="flex items-center gap-2 text-primary">
               <CalendarCheck className="h-5 w-5" />
-              <CardTitle className="text-lg">Primary Eye Check-up</CardTitle>
+              <CardTitle className="text-lg">Comprehensive Eye Health Check-up</CardTitle>
             </div>
             <CardDescription>
-              Complete your monthly check-up to track your vision health.
+              Complete your monthly check-up to track your vision health across 5 key areas.
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="flex items-center justify-between p-4 rounded-lg bg-background">
               <div>
-                <p className="font-bold text-xl">Guided 3-Test Suite</p>
+                <p className="font-bold text-xl">Guided 5-Test Suite</p>
                 <p className="text-sm text-muted-foreground">
                   Takes about 5 minutes.
                 </p>
