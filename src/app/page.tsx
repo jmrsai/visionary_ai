@@ -25,7 +25,7 @@ export default function Home() {
     <div className="flex flex-1 flex-col gap-4 md:gap-8">
       {/* Top Row Cards */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="lg:col-span-2 bg-primary/5 dark:bg-primary/10 border-primary/20">
+        <Card className="lg:col-span-2 bg-primary/5 dark:bg-primary/10 border-primary/20 animate-fade-in-up">
           <CardHeader>
             <div className="flex items-center gap-2 text-primary">
               <Sparkles className="h-5 w-5" />
@@ -51,7 +51,7 @@ export default function Home() {
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="animate-fade-in-up" style={{ animationDelay: '100ms' }}>
           <CardHeader className="pb-2">
              <div className="flex items-center gap-2 text-accent">
                 <HeartPulse className="h-5 w-5" />
@@ -63,7 +63,7 @@ export default function Home() {
             <p className="text-xs text-muted-foreground mt-1">+2 since last week</p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="animate-fade-in-up" style={{ animationDelay: '200ms' }}>
           <CardHeader>
              <CardTitle>Weekly Progress</CardTitle>
             <CardDescription>
@@ -78,7 +78,7 @@ export default function Home() {
 
       {/* Bottom Row Cards */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7">
-        <Card className="col-span-1 lg:col-span-3">
+        <Card className="col-span-1 lg:col-span-3 animate-fade-in-up" style={{ animationDelay: '300ms' }}>
           <CardHeader className="flex flex-row items-center">
              <div className="grid gap-2">
               <CardTitle>Upcoming Reminders</CardTitle>
@@ -115,7 +115,7 @@ export default function Home() {
           </CardContent>
         </Card>
 
-        <Card className="col-span-1 lg:col-span-4">
+        <Card className="col-span-1 lg:col-span-4 animate-fade-in-up" style={{ animationDelay: '400ms' }}>
           <CardHeader>
             <CardTitle>Recent Activity</CardTitle>
             <CardDescription>
