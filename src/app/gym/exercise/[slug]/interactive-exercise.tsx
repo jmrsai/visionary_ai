@@ -6,7 +6,6 @@ import { PlayCircle, PauseCircle, RotateCcw, Loader2 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
-import type { Exercise } from "@/lib/types";
 import { aiFormFeedback } from "@/ai/ai-form-feedback";
 
 const EXERCISE_DURATION_S = 30; // 30 seconds
@@ -14,11 +13,11 @@ const FEEDBACK_INTERVAL_MS = 3000; // 3 seconds
 
 type ExerciseState = "idle" | "running" | "paused" | "finished";
 
-const getInstruction = (exercise: Exercise, progress: number): string => {
+const getInstruction = (exerciseId: string, progress: number): string => {
     const totalDuration = EXERCISE_DURATION_S;
     const timeElapsed = totalDuration * (progress / 100);
 
-    switch (exercise.id) {
+    switch (exerciseId) {
         case "focus-shift":
             if (timeElapsed < totalDuration / 2) {
                 return "Focus on a distant object (at least 20 feet away).";
@@ -47,7 +46,7 @@ const getInstruction = (exercise: Exercise, progress: number): string => {
     }
 };
 
-export function InteractiveExercise({ exercise }: { exercise: Exercise }) {
+export function InteractiveExercise({ id, title }: { id: string, title: string }) {
   const [exerciseState, setExerciseState] = useState<ExerciseState>("idle");
   const [progress, setProgress] = useState(0);
   const [feedback, setFeedback] = useState("AI feedback will appear here.");
@@ -110,10 +109,10 @@ export function InteractiveExercise({ exercise }: { exercise: Exercise }) {
     
     setIsFeedbackLoading(true);
     try {
-        const instruction = getInstruction(exercise, progress);
+        const instruction = getInstruction(id, progress);
         const result = await aiFormFeedback({
             cameraFeedDataUri: dataUri,
-            exerciseType: exercise.title,
+            exerciseType: title,
             userInstructions: instruction
         });
         setFeedback(result.feedback);
@@ -123,10 +122,10 @@ export function InteractiveExercise({ exercise }: { exercise: Exercise }) {
     } finally {
         setIsFeedbackLoading(false);
     }
-  }, [captureFrame, exercise, progress]);
+  }, [captureFrame, id, title, progress]);
 
   const startTimers = useCallback(() => {
-    const duration = exercise.id === '20-20-20-rule' ? 20 : EXERCISE_DURATION_S;
+    const duration = id === '20-20-20-rule' ? 20 : EXERCISE_DURATION_S;
 
     timerRef.current = setInterval(() => {
       setProgress((prev) => {
@@ -144,7 +143,7 @@ export function InteractiveExercise({ exercise }: { exercise: Exercise }) {
     if (hasCameraPermission) {
         feedbackTimerRef.current = setInterval(getAIFeedback, FEEDBACK_INTERVAL_MS);
     }
-  }, [getAIFeedback, exercise.id, hasCameraPermission]);
+  }, [getAIFeedback, id, hasCameraPermission]);
 
   const handleStart = () => {
     setExerciseState("running");
@@ -173,8 +172,8 @@ export function InteractiveExercise({ exercise }: { exercise: Exercise }) {
     if(feedbackTimerRef.current) clearInterval(feedbackTimerRef.current);
   };
 
-  const instruction = getInstruction(exercise, progress);
-  const duration = exercise.id === '20-20-20-rule' ? 20 : EXERCISE_DURATION_S;
+  const instruction = getInstruction(id, progress);
+  const duration = id === '20-20-20-rule' ? 20 : EXERCISE_DURATION_S;
 
 
   return (
@@ -240,7 +239,7 @@ export function InteractiveExercise({ exercise }: { exercise: Exercise }) {
       {exerciseState === "finished" && (
         <Alert className="mt-4 text-center">
           <AlertTitle>Great job!</AlertTitle>
-          <AlertDescription>You've completed the {exercise.title}.</AlertDescription>
+          <AlertDescription>You've completed the {title}.</AlertDescription>
         </Alert>
       )}
     </div>

@@ -34,7 +34,7 @@ export default function ExercisePage({ params }: { params: { slug: string } }) {
           <CardDescription>Follow the instructions on the screen to complete the exercise.</CardDescription>
         </CardHeader>
         <CardContent>
-          <InteractiveExercise exercise={exercise} />
+          <InteractiveExercise id={exercise.id} title={exercise.title} />
         </CardContent>
       </Card>
     </div>
