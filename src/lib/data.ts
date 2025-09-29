@@ -1,7 +1,7 @@
 
 
 import { Activity, BookOpen, Brain, Dumbbell, Eye, Glasses, HeartPulse, Target, Video, View, Wind, Sparkles, CalendarCheck, ScanEye, Zap, ListTodo, Contrast, Layers } from "lucide-react";
-import type { Test, Reminder, ActivityLog, Exercise, Circuit, AdherenceLog } from "./types";
+import type { Test, Reminder, ActivityLog, Exercise, Circuit, AdherenceLog, CheckupReport } from "./types";
 import type { SVGProps } from "react";
 import { StereopsisIcon } from "@/components/icons";
 
@@ -204,3 +204,28 @@ export const MOCK_CIRCUITS: Circuit[] = [
         ]
     }
 ];
+
+export const MOCK_CHECKUP_HISTORY: CheckupReport[] = [
+    {
+        id: 'history-1',
+        date: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days ago
+        results: [
+            { testId: 'visual-acuity', value: '20/20', status: 'good' },
+            { testId: 'macular-health', value: 'No Issues', status: 'good' },
+            { testId: 'color-vision', value: 'Normal', status: 'good' },
+            { testId: 'visual-field', value: '10/10', status: 'good' },
+            { testId: 'accommodation-flexibility', value: '380ms', status: 'good' },
+        ]
+    },
+    {
+        id: 'history-2',
+        date: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString(), // 60 days ago
+        results: [
+            { testId: 'visual-acuity', value: '20/25', status: 'warning' },
+            { testId: 'macular-health', value: 'No Issues', status: 'good' },
+            { testId: 'color-vision', value: 'Normal', status: 'good' },
+            { testId: 'visual-field', value: '9/10', status: 'warning' },
+            { testId: 'accommodation-flexibility', value: '510ms', status: 'warning' },
+        ]
+    }
+]

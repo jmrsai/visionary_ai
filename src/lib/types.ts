@@ -68,6 +68,18 @@ export interface Test {
     category: string;
 }
 
+export type TestResult = {
+    testId: string;
+    value: string;
+    status: 'good' | 'warning' | 'danger';
+};
+
+export type CheckupReport = {
+    id: string;
+    date: string; // ISO string
+    results: TestResult[];
+};
+
 // --- App-specific Helper Types (Mock Data etc.) ---
 
 export type Reminder = {
