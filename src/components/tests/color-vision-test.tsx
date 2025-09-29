@@ -20,6 +20,10 @@ const ishiharaPlates = [
   { imageUrl: 'https://i.ibb.co/vYF8Pkv/ishihara-11.png', number: 7, options: [7, 1, 4, 9] },
   { imageUrl: 'https://i.ibb.co/HCrp6B4/ishihara-12.png', number: 16, options: [16, 75, 18, 15] },
   { imageUrl: 'https://i.ibb.co/RSC51n9/ishihara-13.png', number: 73, options: [73, 13, 18, 23] },
+  { imageUrl: 'https://i.ibb.co/yBv0p1d/ishihara-14.png', number: 2, options: [2, 6, 5, 8] }, // Often mistaken by red-green deficient
+  { imageUrl: 'https://i.ibb.co/xGLd5Y2/ishihara-15.png', number: 97, options: [97, 37, 87, 91] }, // Often mistaken by red-green deficient
+  { imageUrl: 'https://i.ibb.co/kSN5b0Z/ishihara-16.png', number: 42, options: [42, 12, 47, 72] }, // Blue-yellow test plate example
+  { imageUrl: 'https://i.ibb.co/GnHwVz9/ishihara-17.png', number: 35, options: [35, 85, 38, 53] }, // Blue-yellow test plate example
 ];
 
 export function ColorVisionTest() {
