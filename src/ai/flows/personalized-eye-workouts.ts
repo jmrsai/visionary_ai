@@ -24,7 +24,7 @@ export type PersonalizedEyeWorkoutInput = z.infer<typeof PersonalizedEyeWorkoutI
 const PersonalizedEyeWorkoutOutputSchema = z.object({
   workoutRoutine: z
     .string()
-    .describe('The generated personalized eye workout routine.'),
+    .describe('The generated personalized eye workout routine, formatted as a markdown list. Each item should include the exercise name, duration/reps, and sets.'),
 });
 export type PersonalizedEyeWorkoutOutput = z.infer<typeof PersonalizedEyeWorkoutOutputSchema>;
 
@@ -38,13 +38,15 @@ const prompt = ai.definePrompt({
   name: 'personalizedEyeWorkoutPrompt',
   input: {schema: PersonalizedEyeWorkoutInputSchema},
   output: {schema: PersonalizedEyeWorkoutOutputSchema},
-  prompt: `You are a personal eye health assistant, skilled in creating personalized eye workout routines based on user test results and preferences.
+  prompt: `You are a personal eye health assistant, skilled in creating personalized eye workout routines.
 
-  Based on the user's eye test results and preferences, generate a workout routine.
-Eye Test Results: {{{testResults}}}
+Based on the user's vision needs and preferences, generate a detailed workout routine.
+The routine should be formatted as a markdown list. Each list item must specify the exercise, duration or repetitions, and the number of sets.
+
+Vision Needs & Goals: {{{testResults}}}
 Preferences: {{{preferences}}}
 
-Workout Routine:`, // No function calls, no asynchronous operations.
+Your generated routine:`,
 });
 
 const generatePersonalizedEyeWorkoutFlow = ai.defineFlow(

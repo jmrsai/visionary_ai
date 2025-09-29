@@ -1,5 +1,3 @@
-// This is an AI-powered module for providing real-time feedback on eye exercise form using the device's camera.
-
 'use server';
 
 /**
@@ -20,7 +18,7 @@ const AiFormFeedbackInputSchema = z.object({
   cameraFeedDataUri: z
     .string()
     .describe(
-      'The current frame from the camera feed as a data URI that must include a MIME type and use Base64 encoding. Expected format: \'data:<mimetype>;base64,<encoded_data>\'.' // Example: data:image/jpeg;base64,/9j/4AAQSk...
+      "The current frame from the camera feed as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."
     ),
   userInstructions: z.string().describe('The instructions that the user is following.'),
 });
@@ -30,11 +28,8 @@ const AiFormFeedbackOutputSchema = z.object({
   feedback: z
     .string()
     .describe(
-      'Real-time feedback on the user\'s form and technique during the eye exercise. Be concise and actionable. Focus on head position and eye movement relative to the instructions. If the user is doing well, provide encouragement.'
+      'Real-time feedback on the user\'s form and technique. Be concise and actionable (max 1-2 sentences). Focus on head position and eye movement relative to the instructions. If the user is doing well, provide encouragement.'
     ),
-  confidenceLevel: z
-    .number()
-    .describe('A numerical value (0-1) indicating the confidence level of the feedback provided.'),
 });
 export type AiFormFeedbackOutput = z.infer<typeof AiFormFeedbackOutputSchema>;
 
@@ -46,22 +41,20 @@ const aiFormFeedbackPrompt = ai.definePrompt({
   name: 'aiFormFeedbackPrompt',
   input: {schema: AiFormFeedbackInputSchema},
   output: {schema: AiFormFeedbackOutputSchema},
-  prompt: `You are an AI-powered form coach providing real-time feedback on eye exercises. Your goal is to help the user maintain correct form by analyzing their head and eye position from a camera feed.
+  prompt: `You are an AI-powered form coach for an eye exercise app. Analyze the user's head and eye position from a camera feed to provide real-time, concise, and encouraging feedback.
 
-You will receive the type of exercise, a frame from the user's camera, and the instructions they are currently following.
+Your feedback should be 1-2 sentences max.
 
-Based on this information, provide concise and actionable feedback. The feedback should be encouraging.
-
-- If the user's head is tilted or not straight, gently correct them (e.g., "Try to keep your head level.").
-- If the user seems to be moving their head instead of their eyes, remind them (e.g., "Remember to only move your eyes, not your head.").
-- If the user's form looks good, provide positive reinforcement (e.g., "Great job keeping your head still!", "Excellent focus.").
-- Tailor the feedback to the specific instruction. For example, if the instruction is to "Focus on a distant object", and the user's eyes appear to be looking downwards, you might say "Try to look straight ahead at a distant point."
+- If head is tilted/not straight, gently correct them (e.g., "Try to keep your head level.").
+- If head is moving instead of eyes, remind them (e.g., "Remember to only move your eyes, not your head.").
+- If form looks good, give positive reinforcement (e.g., "Great job keeping your head still!", "Excellent focus.").
+- Tailor feedback to the specific instruction. For example, if the instruction is "Focus on a distant object" and eyes appear to be looking down, say "Try looking straight ahead at a distant point."
 
 Exercise Type: {{{exerciseType}}}
 User Instructions: {{{userInstructions}}}
 Camera Feed: {{media url=cameraFeedDataUri}}
 
-Analyze the camera feed and provide feedback and a confidence score.`,
+Analyze the camera feed and provide your feedback.`,
 });
 
 

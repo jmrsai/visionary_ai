@@ -17,11 +17,11 @@ import {
 } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Loader2, AlertTriangle, Lightbulb } from "lucide-react";
-import { symptomChecker } from "@/ai/flows/symptom-checker";
+import { symptomChecker, type SymptomCheckerOutput } from "@/ai/flows/symptom-checker";
 import { useToast } from "@/hooks/use-toast";
+import { Progress } from "@/components/ui/progress";
 
 const formSchema = z.object({
   symptoms: z.string().min(10, {
@@ -30,7 +30,7 @@ const formSchema = z.object({
 });
 
 export function SymptomCheckerForm() {
-  const [result, setResult] = useState<string | null>(null);
+  const [result, setResult] = useState<SymptomCheckerOutput | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
@@ -46,20 +46,18 @@ export function SymptomCheckerForm() {
     setResult(null);
     try {
       const response = await symptomChecker(values);
-      setResult(response.possibleConditions);
+      setResult(response);
     } catch (error) {
       console.error("Error checking symptoms:", error);
       toast({
         title: "Error",
-        description: "Failed to check symptoms. Please try again.",
+        description: "Failed to check symptoms. The AI service may be unavailable. Please try again.",
         variant: "destructive",
       });
     } finally {
       setIsLoading(false);
     }
   }
-
-  const possibleConditions = result?.split(',').map(s => s.trim()).filter(Boolean) || [];
 
   return (
     <div className="grid gap-8 md:grid-cols-2">
@@ -106,42 +104,46 @@ export function SymptomCheckerForm() {
       <Card className="min-h-[400px]">
         <CardHeader>
           <CardTitle>Possible Conditions</CardTitle>
-          <CardDescription>Based on the symptoms you provided.</CardDescription>
+          <CardDescription>AI-powered insights based on your symptoms.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <Alert variant="destructive">
-            <AlertTriangle className="h-4 w-4" />
-            <AlertTitle>Disclaimer</AlertTitle>
-            <AlertDescription>
-              This is not a medical diagnosis. Consult a healthcare professional for any health concerns.
-            </AlertDescription>
-          </Alert>
-
-          {isLoading && (
-            <div className="flex flex-col items-center justify-center space-y-4 pt-10">
-              <Loader2 className="h-12 w-12 animate-spin text-primary" />
-              <p className="text-muted-foreground">Analyzing symptoms...</p>
-            </div>
-          )}
-
-          {result && (
-             <div className="flex flex-wrap gap-2 pt-4">
-                {possibleConditions.map((condition, index) => (
-                    <Badge key={index} variant="secondary" className="text-base px-3 py-1">
-                        {condition}
-                    </Badge>
-                ))}
-            </div>
-          )}
-
-          {!isLoading && !result && (
-            <div className="flex flex-col items-center justify-center space-y-4 pt-10 text-center">
-                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted">
-                    <Lightbulb className="h-8 w-8 text-muted-foreground"/>
+            {isLoading && (
+                <div className="flex flex-col items-center justify-center space-y-4 pt-10">
+                <Loader2 className="h-12 w-12 animate-spin text-primary" />
+                <p className="text-muted-foreground">Analyzing symptoms...</p>
                 </div>
-              <p className="text-muted-foreground">Potential conditions will be shown here.</p>
-            </div>
-          )}
+            )}
+
+            {result && (
+                <>
+                    <Alert variant="destructive">
+                        <AlertTriangle className="h-4 w-4" />
+                        <AlertTitle>Disclaimer</AlertTitle>
+                        <AlertDescription>{result.disclaimer}</AlertDescription>
+                    </Alert>
+                    <div className="space-y-4 pt-4">
+                        {result.possibleConditions.sort((a, b) => b.likelihood - a.likelihood).map((item) => (
+                            <div key={item.condition}>
+                                <div className="flex justify-between items-center mb-1">
+                                    <h4 className="font-semibold">{item.condition}</h4>
+                                    <span className="text-sm font-medium text-muted-foreground">{item.likelihood}%</span>
+                                </div>
+                                <Progress value={item.likelihood} className="h-2" />
+                                <p className="text-sm text-muted-foreground mt-1">{item.description}</p>
+                            </div>
+                        ))}
+                    </div>
+                </>
+            )}
+
+            {!isLoading && !result && (
+                <div className="flex flex-col items-center justify-center space-y-4 pt-10 text-center">
+                    <div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted">
+                        <Lightbulb className="h-8 w-8 text-muted-foreground"/>
+                    </div>
+                <p className="text-muted-foreground">Potential conditions and their likelihood will appear here.</p>
+                </div>
+            )}
         </CardContent>
       </Card>
     </div>
