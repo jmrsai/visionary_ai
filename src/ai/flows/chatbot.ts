@@ -11,6 +11,8 @@
 import {ai} from '@/ai/genkit';
 import {symptomCheckerTool} from '@/ai/tools/symptom-checker-tool';
 import {z} from 'zod';
+import wav from 'wav';
+import {googleAI} from '@genkit-ai/googleai';
 
 const ChatInputSchema = z.object({
   message: z.string().describe("The user's message or question."),
@@ -19,6 +21,7 @@ export type ChatInput = z.infer<typeof ChatInputSchema>;
 
 const ChatOutputSchema = z.object({
   response: z.string().describe("The AI's response to the user's message."),
+  media: z.string().optional().describe('A data URI of the audio response.'),
 });
 export type ChatOutput = z.infer<typeof ChatOutputSchema>;
 
@@ -28,8 +31,8 @@ export async function chat(input: ChatInput): Promise<ChatOutput> {
 
 const prompt = ai.definePrompt({
   name: 'chatPrompt',
-  input: {schema: ChatInputSchema},
-  output: {schema: ChatOutputSchema},
+  input: {schema: z.object({ message: z.string() })},
+  output: {schema: z.object({ response: z.string()})},
   tools: [symptomCheckerTool],
   prompt: `You are a friendly and helpful AI assistant for the Visionary app, specializing in eye health. Your role is to act as a Personal Eye Health Assistant.
 
@@ -58,6 +61,33 @@ const prompt = ai.definePrompt({
   Your response:`,
 });
 
+async function toWav(
+    pcmData: Buffer,
+    channels = 1,
+    rate = 24000,
+    sampleWidth = 2
+  ): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const writer = new wav.Writer({
+        channels,
+        sampleRate: rate,
+        bitDepth: sampleWidth * 8,
+      });
+  
+      let bufs = [] as any[];
+      writer.on('error', reject);
+      writer.on('data', function (d) {
+        bufs.push(d);
+      });
+      writer.on('end', function () {
+        resolve(Buffer.concat(bufs).toString('base64'));
+      });
+  
+      writer.write(pcmData);
+      writer.end();
+    });
+}
+
 const chatFlow = ai.defineFlow(
   {
     name: 'chatFlow',
@@ -74,7 +104,34 @@ const chatFlow = ai.defineFlow(
           "I'm sorry, I'm having trouble processing that request. Please try rephrasing your question. Remember, for any urgent medical concerns, please contact a healthcare professional.",
       };
     }
+    
+    // Generate TTS
+    const { media: audioMedia } = await ai.generate({
+        model: googleAI.model('gemini-2.5-flash-preview-tts'),
+        config: {
+          responseModalities: ['AUDIO'],
+          speechConfig: {
+            voiceConfig: {
+              prebuiltVoiceConfig: { voiceName: 'Algenib' },
+            },
+          },
+        },
+        prompt: output.response,
+      });
 
-    return output;
+    if (!audioMedia?.url) {
+        return { response: output.response };
+    }
+
+    const audioBuffer = Buffer.from(
+        audioMedia.url.substring(audioMedia.url.indexOf(',') + 1),
+        'base64'
+    );
+    const wavBase64 = await toWav(audioBuffer);
+
+    return {
+        response: output.response,
+        media: 'data:audio/wav;base64,' + wavBase64
+    };
   }
 );

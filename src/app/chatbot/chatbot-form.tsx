@@ -14,6 +14,7 @@ import { VisionaryLogo } from "@/components/icons";
 type Message = {
   text: string;
   isUser: boolean;
+  media?: string;
 };
 
 const userAvatar = PlaceHolderImages.find((img) => img.id === "user-avatar");
@@ -24,6 +25,7 @@ export function ChatbotForm() {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const audioRef = useRef<HTMLAudioElement>(null);
 
   const handleSend = async () => {
     if (input.trim() === "") return;
@@ -35,7 +37,7 @@ export function ChatbotForm() {
 
     try {
       const result = await chat({ message: input });
-      const aiMessage: Message = { text: result.response, isUser: false };
+      const aiMessage: Message = { text: result.response, isUser: false, media: result.media };
       setMessages((prev) => [...prev, aiMessage]);
     } catch (error) {
       console.error("Error with chatbot:", error);
@@ -59,10 +61,18 @@ export function ChatbotForm() {
             viewport.scrollTop = viewport.scrollHeight;
         }
     }
+    
+    // Play audio for the last message if it exists
+    const lastMessage = messages[messages.length - 1];
+    if (lastMessage && !lastMessage.isUser && lastMessage.media && audioRef.current) {
+        audioRef.current.src = lastMessage.media;
+        audioRef.current.play().catch(e => console.error("Audio playback failed:", e));
+    }
   }, [messages]);
 
   return (
     <div className="flex flex-col h-[calc(100vh-200px)]">
+      <audio ref={audioRef} className="hidden" />
       <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
         <div className="space-y-6">
           {messages.length === 0 ? (
@@ -95,6 +105,12 @@ export function ChatbotForm() {
                   }`}
                 >
                   <p className="text-sm">{message.text}</p>
+                  {!message.isUser && message.media && (
+                      <audio controls className="w-full mt-2 h-8">
+                          <source src={message.media} type="audio/wav" />
+                          Your browser does not support the audio element.
+                      </audio>
+                  )}
                 </div>
                 {message.isUser && (
                   <Avatar className="h-9 w-9">
