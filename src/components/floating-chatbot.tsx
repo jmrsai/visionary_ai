@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useRef, useEffect } from "react";
@@ -5,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Loader2, Send, MessageCircle, Mic } from "lucide-react";
+import { Loader2, Send, MessageCircle, Mic, X } from "lucide-react";
 import { chat, type ChartData } from "@/ai/flows/chatbot";
 import { useToast } from "@/hooks/use-toast";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
@@ -14,6 +15,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Line, LineChart, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
 import { ChartConfig, ChartContainer, ChartTooltipContent } from "@/components/ui/chart";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger, SheetFooter, SheetClose } from "@/components/ui/sheet";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 type Message = {
   id?: string;
@@ -41,7 +44,7 @@ const ChatChart = ({ chartData }: { chartData: ChartData }) => {
     ];
 
     return (
-        <Card className="max-w-md w-full">
+        <Card className="max-w-md w-full bg-background/50">
             <CardHeader>
                 <CardTitle>Vision Score History</CardTitle>
                 <CardDescription>Your progress over time.</CardDescription>
@@ -81,7 +84,7 @@ const ChatChart = ({ chartData }: { chartData: ChartData }) => {
     )
 }
 
-export function ChatbotForm() {
+function ChatInterface() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [input, setInput] = useState("");
@@ -171,7 +174,7 @@ export function ChatbotForm() {
   }, [messages]);
 
   return (
-    <div className="flex flex-col h-[calc(100vh-200px)]">
+    <div className="flex flex-col h-full">
       <audio ref={audioRef} className="hidden" />
       <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
         <div className="space-y-6">
@@ -243,7 +246,7 @@ export function ChatbotForm() {
             )}
         </div>
       </ScrollArea>
-      <div className="p-4 border-t">
+      <div className="p-4 border-t bg-background">
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -278,4 +281,34 @@ export function ChatbotForm() {
       </div>
     </div>
   );
+}
+
+export function FloatingChatbot() {
+    const [open, setOpen] = useState(false);
+    const isMobile = useIsMobile();
+    
+    return (
+        <Sheet open={open} onOpenChange={setOpen}>
+            <SheetTrigger asChild>
+                <Button
+                    variant="default"
+                    size="icon"
+                    className="fixed bottom-6 right-6 h-16 w-16 rounded-full shadow-lg z-50"
+                >
+                    <MessageCircle className="h-8 w-8" />
+                    <span className="sr-only">Open Chat</span>
+                </Button>
+            </SheetTrigger>
+            <SheetContent 
+                side={isMobile ? "bottom" : "right"} 
+                className={`p-0 ${isMobile ? 'h-[80%]' : 'w-[400px] sm:max-w-md'}`}
+            >
+                <SheetHeader className="p-4 border-b">
+                    <SheetTitle>AI Assistant</SheetTitle>
+                    <SheetDescription>Ask our AI assistant about eye health, exercises, or your progress.</SheetDescription>
+                </SheetHeader>
+                <ChatInterface />
+            </SheetContent>
+        </Sheet>
+    )
 }

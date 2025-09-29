@@ -5,6 +5,7 @@ import { SidebarNav } from "@/components/sidebar-nav";
 import { MobileNav } from "@/components/mobile-nav";
 import { Header } from "@/components/header";
 import { ThemeProvider } from "@/components/theme-provider";
+import { FloatingChatbot } from "@/components/floating-chatbot";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -46,6 +47,7 @@ export default function RootLayout({
             </div>
             </div>
             <MobileNav />
+            <FloatingChatbot />
             <Toaster />
         </ThemeProvider>
       </body>
