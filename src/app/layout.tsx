@@ -43,8 +43,8 @@ export default function RootLayout({
                 {children}
                 </main>
             </div>
-            <MobileNav />
             </div>
+            <MobileNav />
             <Toaster />
         </ThemeProvider>
       </body>

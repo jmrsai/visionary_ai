@@ -211,7 +211,7 @@ export function ChatbotForm() {
                   )}
 
                   {!message.isUser && message.media && (
-                      <audio controls className="w-full mt-2 h-8">
+                      <audio controls autoPlay className="w-full mt-2 h-8 hidden">
                           <source src={message.media} type="audio/wav" />
                           Your browser does not support the audio element.
                       </audio>

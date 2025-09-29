@@ -34,12 +34,11 @@ export function Header() {
 
   const getTitle = () => {
     if (pathname === "/") return "Dashboard";
+    if (pathname.startsWith("/gym/exercise")) return "Guided Exercise";
+    if (pathname.startsWith("/tests/")) return "Diagnostic Tests";
+    if (pathname.startsWith("/profile/adherence")) return "Adherence History";
     const navItem = NAV_ITEMS.find((item) => pathname.startsWith(item.href) && item.href !== '/');
     if (navItem) return navItem.label;
-    if (pathname.startsWith("/gym/exercise")) return "Guided Exercise";
-    if (pathname.startsWith("/gym")) return "Eye Gym";
-    if (pathname.startsWith("/tests")) return "Diagnostic Tests";
-    if (pathname.startsWith("/profile/adherence")) return "Adherence History";
     return "Visionary";
   };
   
