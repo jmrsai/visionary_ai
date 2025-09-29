@@ -47,7 +47,6 @@ const chartTypes = {
 
 type TestType = keyof typeof chartTypes;
 type Direction = 'up' | 'down' | 'left' | 'right';
-type Picture = 'Apple' | 'Home' | 'Square' | 'Circle';
 
 const getRotationClass = (direction: Direction) => {
   switch (direction) {
