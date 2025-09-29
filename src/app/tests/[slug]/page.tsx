@@ -10,6 +10,7 @@ import { PupilResponseTest } from "@/components/tests/pupil-response-test";
 import { ReadingSpeedTest } from "@/components/tests/reading-speed-test";
 import { VisualFieldTest } from "@/components/tests/visual-field-test";
 import { RednessIrritationScan } from "@/components/tests/redness-irritation-scan";
+import { AccommodationFlexibilityTest } from "@/components/tests/accommodation-flexibility-test";
 
 
 export async function generateStaticParams() {
@@ -36,6 +37,8 @@ const TestComponent = ({ slug }: { slug: string }) => {
             return <ReadingSpeedTest />;
         case 'redness-scan':
             return <RednessIrritationScan />;
+        case 'accommodation-flexibility':
+            return <AccommodationFlexibilityTest />;
         default:
             return <p>Test not found.</p>;
     }

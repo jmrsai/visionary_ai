@@ -1,4 +1,4 @@
-import { Activity, BookOpen, Brain, Dumbbell, Eye, Glasses, HeartPulse, Target, Video, View, Wind, Sparkles, CalendarCheck, ScanEye } from "lucide-react";
+import { Activity, BookOpen, Brain, Dumbbell, Eye, Glasses, HeartPulse, Target, Video, View, Wind, Sparkles, CalendarCheck, ScanEye, Zap } from "lucide-react";
 import type { Test, Reminder, ActivityLog, Exercise } from "./types";
 
 export const MOCK_REMINDERS: Reminder[] = [
@@ -82,6 +82,13 @@ export const MOCK_TESTS: Test[] = [
         description: "Assess your visual processing and reading efficiency.",
         icon: BookOpen,
         category: "Visual Processing"
+    },
+    {
+        id: 'accommodation-flexibility',
+        title: 'Accommodation Flexibility Test',
+        description: 'Quantify how quickly your eyes can change focus.',
+        icon: Zap,
+        category: 'Visual Processing'
     }
 ];
 
