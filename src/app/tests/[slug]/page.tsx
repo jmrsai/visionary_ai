@@ -2,7 +2,13 @@ import { MOCK_TESTS } from "@/lib/data";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Construction } from "lucide-react";
+import { VisualAcuityTest } from "@/components/tests/visual-acuity-test";
+import { ColorVisionTest } from "@/components/tests/color-vision-test";
+import { AstigmatismTest } from "@/components/tests/astigmatism-test";
+import { MacularHealthTest } from "@/components/tests/macular-health-test";
+import { PupilResponseTest } from "@/components/tests/pupil-response-test";
+import { ReadingSpeedTest } from "@/components/tests/reading-speed-test";
+
 
 export async function generateStaticParams() {
   return MOCK_TESTS.map((test) => ({
@@ -10,7 +16,26 @@ export async function generateStaticParams() {
   }));
 }
 
-export default function TestPage({ params }: { params: { slug: string } }) {
+const TestComponent = ({ slug }: { slug: string }) => {
+    switch (slug) {
+        case 'visual-acuity':
+            return <VisualAcuityTest />;
+        case 'color-vision':
+            return <ColorVisionTest />;
+        case 'astigmatism':
+            return <AstigmatismTest />;
+        case 'macular-health':
+            return <MacularHealthTest />;
+        case 'pupil-response':
+            return <PupilResponseTest />;
+        case 'reading-speed':
+            return <ReadingSpeedTest />;
+        default:
+            return <p>Test not found.</p>;
+    }
+};
+
+export default function TestPage({ params }: { params: { slug:string } }) {
   const test = MOCK_TESTS.find((e) => e.id === params.slug);
 
   if (!test) {
@@ -30,16 +55,10 @@ export default function TestPage({ params }: { params: { slug: string } }) {
       <Card>
         <CardHeader>
           <CardTitle>Test Area</CardTitle>
-          <CardDescription>The interactive test will be displayed here.</CardDescription>
+          <CardDescription>Follow the instructions to complete the test.</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/30 p-12 text-center min-h-[300px]">
-            <Construction className="h-16 w-16 text-muted-foreground/50" />
-            <h2 className="mt-6 text-xl font-semibold">Feature Coming Soon</h2>
-            <p className="mt-2 text-muted-foreground">
-              This interactive test is currently under construction.
-            </p>
-          </div>
+          <TestComponent slug={params.slug} />
         </CardContent>
       </Card>
     </div>
