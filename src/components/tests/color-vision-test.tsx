@@ -7,30 +7,36 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Check, RefreshCw, X } from 'lucide-react';
 
 const ishiharaPlates = [
-  { imageUrl: 'https://picsum.photos/seed/ishihara1/300/300', number: 12, options: [12, 74, 28, 35] },
-  { imageUrl: 'https://picsum.photos/seed/ishihara2/300/300', number: 8, options: [8, 3, 5, 6] },
-  { imageUrl: 'https://picsum.photos/seed/ishihara3/300/300', number: 29, options: [29, 70, 88, 39] },
-  { imageUrl: 'https://picsum.photos/seed/ishihara4/300/300', number: 5, options: [5, 2, 8, 3] },
-  { imageUrl: 'https://picsum.photos/seed/ishihara5/300/300', number: 74, options: [74, 21, 14, 71] },
-  { imageUrl: 'https://picsum.photos/seed/ishihara6/300/300', number: 45, options: [45, 15, 95, 42] },
-  { imageUrl: 'https://picsum.photos/seed/ishihara7/300/300', number: 7, options: [7, 1, 4, 9] },
-  { imageUrl: 'https://picsum.photos/seed/ishihara8/300/300', number: 16, options: [16, 75, 18, 15] },
-  { imageUrl: 'https://picsum.photos/seed/ishihara9/300/300', number: 2, options: [2, 5, 3, 8] },
-  { imageUrl: 'https://picsum.photos/seed/ishihara10/300/300', number: 97, options: [97, 87, 37, 91] },
+  { imageUrl: 'https://i.ibb.co/jDNQ4Rz/ishihara-1.png', number: 12, options: [12, 74, 28, 35] },
+  { imageUrl: 'https://i.ibb.co/q1CjW3Y/ishihara-2.png', number: 8, options: [8, 3, 5, 6] },
+  { imageUrl: 'https://i.ibb.co/b3F3XGY/ishihara-3.png', number: 29, options: [29, 70, 88, 39] },
+  { imageUrl: 'https://i.ibb.co/8D9zY5G/ishihara-4.png', number: 5, options: [5, 2, 8, 3] },
+  { imageUrl: 'https://i.ibb.co/8g3JcZn/ishihara-5.png', number: 3, options: [3, 5, 8, 2] },
+  { imageUrl: 'https://i.ibb.co/kH2T8Kc/ishihara-6.png', number: 15, options: [15, 17, 71, 74] },
+  { imageUrl: 'https://i.ibb.co/pwnL12p/ishihara-7.png', number: 74, options: [74, 21, 14, 71] },
+  { imageUrl: 'https://i.ibb.co/yQvT9yY/ishihara-8.png', number: 6, options: [6, 8, 5, 9] },
+  { imageUrl: 'https://i.ibb.co/f2sS1hH/ishihara-9.png', number: 45, options: [45, 15, 95, 42] },
+  { imageUrl: 'https://i.ibb.co/yPVRpNy/ishihara-10.png', number: 5, options: [5, 3, 6, 8] },
+  { imageUrl: 'https://i.ibb.co/vYF8Pkv/ishihara-11.png', number: 7, options: [7, 1, 4, 9] },
+  { imageUrl: 'https://i.ibb.co/HCrp6B4/ishihara-12.png', number: 16, options: [16, 75, 18, 15] },
+  { imageUrl: 'https://i.ibb.co/RSC51n9/ishihara-13.png', number: 73, options: [73, 13, 18, 23] },
 ];
 
 export function ColorVisionTest() {
   const [step, setStep] = useState<'instructions' | 'test' | 'results'>('instructions');
   const [currentPlate, setCurrentPlate] = useState(0);
   const [score, setScore] = useState(0);
+  const [userAnswers, setUserAnswers] = useState<number[]>([]);
 
   const startTest = () => {
     setStep('test');
     setCurrentPlate(0);
     setScore(0);
+    setUserAnswers([]);
   };
 
   const handleAnswer = (answer: number) => {
+    setUserAnswers([...userAnswers, answer]);
     if (answer === ishiharaPlates[currentPlate].number) {
       setScore(score + 1);
     }
@@ -65,7 +71,7 @@ export function ColorVisionTest() {
   }
 
   if (step === 'results') {
-    const isPass = score / ishiharaPlates.length >= 0.9; // 9 or more correct
+    const isPass = score / ishiharaPlates.length >= 0.9;
     return (
       <Card className="mx-auto max-w-md text-center">
         <CardHeader>
