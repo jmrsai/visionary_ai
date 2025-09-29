@@ -30,7 +30,7 @@ const AiFormFeedbackOutputSchema = z.object({
   feedback: z
     .string()
     .describe(
-      'Real-time feedback on the user\'s form and technique during the eye exercise. Be concise and actionable.'
+      'Real-time feedback on the user\'s form and technique during the eye exercise. Be concise and actionable. Focus on head position and eye movement relative to the instructions. If the user is doing well, provide encouragement.'
     ),
   confidenceLevel: z
     .number()
@@ -46,14 +46,33 @@ const aiFormFeedbackPrompt = ai.definePrompt({
   name: 'aiFormFeedbackPrompt',
   input: {schema: AiFormFeedbackInputSchema},
   output: {schema: AiFormFeedbackOutputSchema},
-  prompt: `You are an AI-powered form coach providing real-time feedback on eye exercises.
+  prompt: `You are an AI-powered form coach providing real-time feedback on eye exercises. Your goal is to help the user maintain correct form by analyzing their head and eye position from a camera feed.
 
-You will receive the type of exercise, a frame from the user's camera, and the instructions they are following.
+You will receive the type of exercise, a frame from the user's camera, and the instructions they are currently following.
 
-Based on this information, provide concise and actionable feedback to help the user maintain correct form and technique.
+Based on this information, provide concise and actionable feedback. The feedback should be encouraging.
+
+- If the user's head is tilted or not straight, gently correct them (e.g., "Try to keep your head level.").
+- If the user seems to be moving their head instead of their eyes, remind them (e.g., "Remember to only move your eyes, not your head.").
+- If the user's form looks good, provide positive reinforcement (e.g., "Great job keeping your head still!", "Excellent focus.").
+- Tailor the feedback to the specific instruction. For example, if the instruction is to "Focus on a distant object", and the user's eyes appear to be looking downwards, you might say "Try to look straight ahead at a distant point."
 
 Exercise Type: {{{exerciseType}}}
-Camera Feed: {{media url=cameraFeedDataUri}}
 User Instructions: {{{userInstructions}}}
+Camera Feed: {{media url=cameraFeedDataUri}}
 
-Respond with feedback and confidence level, so the user can improve their form. For example, 
+Analyze the camera feed and provide feedback and a confidence score.`,
+});
+
+
+const aiFormFeedbackFlow = ai.defineFlow(
+    {
+      name: 'aiFormFeedbackFlow',
+      inputSchema: AiFormFeedbackInputSchema,
+      outputSchema: AiFormFeedbackOutputSchema,
+    },
+    async (input) => {
+      const { output } = await aiFormFeedbackPrompt(input);
+      return output!;
+    }
+);
