@@ -1,5 +1,5 @@
-import { Activity, BookOpen, Brain, Dumbbell, Eye, Glasses, HeartPulse, Target, Video, View, Wind, Sparkles, CalendarCheck, ScanEye, Zap } from "lucide-react";
-import type { Test, Reminder, ActivityLog, Exercise } from "./types";
+import { Activity, BookOpen, Brain, Dumbbell, Eye, Glasses, HeartPulse, Target, Video, View, Wind, Sparkles, CalendarCheck, ScanEye, Zap, ListTodo } from "lucide-react";
+import type { Test, Reminder, ActivityLog, Exercise, Circuit } from "./types";
 
 export const MOCK_REMINDERS: Reminder[] = [
   { id: 1, title: 'Blinking exercise', time: 'in 30 minutes', type: 'exercise' },
@@ -149,4 +149,21 @@ export const MOCK_EXERCISES: Exercise[] = [
         category: "AI Tools",
         duration: "Varies"
     }
-]
+];
+
+export const MOCK_CIRCUITS: Circuit[] = [
+    {
+        id: "5-min-stress-buster",
+        title: "5-Min Stress Buster",
+        description: "A quick routine to relieve eye strain after prolonged screen time.",
+        icon: ListTodo,
+        totalDuration: "5 minutes",
+        exercises: [
+            { id: "focus-shift", title: "Focus Shift", duration: 60 },
+            { id: "saccades", title: "Saccades", duration: 60 },
+            { id: "blinking-exercise", title: "Blinking Exercise", duration: 30 },
+            { id: "focus-shift", title: "Focus Shift (Round 2)", duration: 60 },
+            { id: "blinking-exercise", title: "Blinking Exercise (Final)", duration: 30 },
+        ]
+    }
+];

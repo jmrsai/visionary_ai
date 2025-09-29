@@ -43,6 +43,19 @@ export interface Exercise {
     duration: string;
 }
 
+export interface Circuit {
+  id: string;
+  title: string;
+  description: string;
+  icon: LucideIcon;
+  totalDuration: string;
+  exercises: {
+    id: string;
+    title: string;
+    duration: number; // in seconds
+  }[];
+}
+
 export interface Test {
     id: string;
     title: string;

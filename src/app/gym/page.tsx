@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { MOCK_EXERCISES } from "@/lib/data";
+import { MOCK_EXERCISES, MOCK_CIRCUITS } from "@/lib/data";
 import { ChevronRight } from "lucide-react";
 
 export default function GymPage() {
-  const categories = [...new Set(MOCK_EXERCISES.map(ex => ex.category))];
+  const exerciseCategories = [...new Set(MOCK_EXERCISES.map(ex => ex.category))];
 
   return (
     <div className="space-y-8">
@@ -14,8 +14,38 @@ export default function GymPage() {
           Strengthen your eyes and reduce strain with guided exercises and tools.
         </p>
       </div>
+      
+      <div>
+          <h2 className="text-2xl font-semibold mb-4">Eye Movement Circuits</h2>
+           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {MOCK_CIRCUITS.map((circuit) => (
+              <Link key={circuit.id} href={`/gym/circuits/${circuit.id}`} className="group">
+                <Card className="h-full transition-all group-hover:border-primary group-hover:shadow-lg">
+                  <CardHeader>
+                    <div className="flex items-start justify-between">
+                        <div className="flex items-center gap-4">
+                            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                                <circuit.icon className="h-6 w-6" />
+                            </div>
+                            <div>
+                                <CardTitle>{circuit.title}</CardTitle>
+                                <CardDescription>{circuit.totalDuration}</CardDescription>
+                            </div>
+                        </div>
+                        <ChevronRight className="h-5 w-5 text-muted-foreground transition-transform group-hover:translate-x-1" />
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground">{circuit.description}</p>
+                  </CardContent>
+                </Card>
+              </Link>
+            ))}
+          </div>
+      </div>
 
-      {categories.map(category => (
+
+      {exerciseCategories.map(category => (
         <div key={category}>
           <h2 className="text-2xl font-semibold mb-4">{category}</h2>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
