@@ -25,6 +25,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { NAV_ITEMS } from "@/lib/constants";
 import { VisionaryLogo } from "./icons";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
+import { ThemeToggle } from "./theme-toggle";
 
 const userAvatar = PlaceHolderImages.find((img) => img.id === "user-avatar");
 
@@ -76,6 +77,7 @@ export function Header() {
       <div className="flex-1">
         <h1 className="text-xl font-semibold">{getTitle()}</h1>
       </div>
+      <ThemeToggle />
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" size="icon" className="overflow-hidden rounded-full">
