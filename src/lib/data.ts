@@ -1,8 +1,7 @@
 
 
 import { Activity, BookOpen, Brain, Dumbbell, Eye, Glasses, HeartPulse, Target, Video, View, Wind, Sparkles, CalendarCheck, ScanEye, Zap, ListTodo, Contrast, Layers } from "lucide-react";
-import type { Test, Reminder, ActivityLog, Exercise, Circuit, AdherenceLog, CheckupReport } from "./types";
-import type { SVGProps } from "react";
+import type { Test, Reminder, ActivityLog, Exercise, Circuit, AdherenceLog, CheckupReport, HrrPlate } from "./types";
 import { StereopsisIcon } from "@/components/icons";
 
 export const MOCK_REMINDERS: Reminder[] = [
@@ -39,6 +38,45 @@ export const MOCK_VISION_SCORE_HISTORY = [
   { date: 'May', score: 88 },
   { date: 'Jun', score: 90 },
   { date: 'Jul', score: 92 },
+];
+
+export const MOCK_HRR_PLATES: HrrPlate[] = [
+    {
+        plateImageUri: "https://i.ibb.co/1MjvL0w/hrr-rg-triangle.png",
+        correctSymbol: "triangle",
+        options: ["circle", "cross", "triangle", "none"],
+        deficiencyType: "Red-Green",
+    },
+    {
+        plateImageUri: "https://i.ibb.co/C0hCjL7/hrr-by-cross.png",
+        correctSymbol: "cross",
+        options: ["circle", "cross", "triangle", "none"],
+        deficiencyType: "Blue-Yellow",
+    },
+    {
+        plateImageUri: "https://i.ibb.co/GcLb7k9/hrr-rg-circle.png",
+        correctSymbol: "circle",
+        options: ["circle", "cross", "triangle", "none"],
+        deficiencyType: "Red-Green",
+    },
+    {
+        plateImageUri: "https://i.ibb.co/Y0Y3fym/hrr-by-triangle.png",
+        correctSymbol: "triangle",
+        options: ["circle", "cross", "triangle", "none"],
+        deficiencyType: "Blue-Yellow",
+    },
+    {
+        plateImageUri: "https://i.ibb.co/vYvYmGq/hrr-rg-cross.png",
+        correctSymbol: "cross",
+        options: ["circle", "cross", "triangle", "none"],
+        deficiencyType: "Red-Green",
+    },
+    {
+        plateImageUri: "https://i.ibb.co/hZ2v1c5/hrr-by-circle.png",
+        correctSymbol: "circle",
+        options: ["circle", "cross", "triangle", "none"],
+        deficiencyType: "Blue-Yellow",
+    }
 ];
 
 export const MOCK_TESTS: Test[] = [

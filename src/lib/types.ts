@@ -80,6 +80,14 @@ export type CheckupReport = {
     results: TestResult[];
 };
 
+export type HrrPlate = {
+    plateImageUri: string;
+    correctSymbol: "circle" | "cross" | "triangle";
+    options: ("circle" | "cross" | "triangle" | "none")[];
+    deficiencyType: "Red-Green" | "Blue-Yellow";
+};
+
+
 // --- App-specific Helper Types (Mock Data etc.) ---
 
 export type Reminder = {
@@ -110,5 +118,5 @@ export type ActivityLog = {
     id: number;
     description: string;
     timestamp: string;
-    score?: string;
+score?: string;
 };

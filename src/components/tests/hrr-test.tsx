@@ -6,9 +6,11 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Check, RefreshCw, X, ArrowLeft, Loader2, Circle, XIcon, Triangle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { generateHrrPlate, type HrrPlateOutput } from '@/ai/flows/hrr-plate-generator';
+import { MOCK_HRR_PLATES } from '@/lib/data';
+import type { HrrPlate } from '@/lib/types';
 
-const TOTAL_PLATES = 6;
+
+const TOTAL_PLATES = MOCK_HRR_PLATES.length;
 
 const symbolMap = {
     circle: Circle,
@@ -17,44 +19,26 @@ const symbolMap = {
 };
 
 export function HrrTest({ onBack }: { onBack: () => void }) {
-  const [step, setStep] = useState<'instructions' | 'test' | 'results' | 'loading'>('instructions');
-  const [currentPlate, setCurrentPlate] = useState(0);
-  const [results, setResults] = useState<{ plate: HrrPlateOutput, answer: string, correct: boolean }[]>([]);
-  const [plateData, setPlateData] = useState<HrrPlateOutput | null>(null);
+  const [step, setStep] = useState<'instructions' | 'test' | 'results'>('instructions');
+  const [currentPlateIndex, setCurrentPlateIndex] = useState(0);
+  const [results, setResults] = useState<{ plate: HrrPlate, answer: string, correct: boolean }[]>([]);
   const { toast } = useToast();
 
-  const getNextPlate = useCallback(async () => {
-    setStep('loading');
-    try {
-        const data = await generateHrrPlate();
-        setPlateData(data);
-        setStep('test');
-    } catch (error) {
-        console.error("Failed to generate HRR plate:", error);
-        toast({
-            title: "Error Generating Test",
-            description: "Could not generate the next plate. The AI service may be temporarily unavailable. Please try again.",
-            variant: "destructive"
-        });
-        setStep('instructions');
-    }
-  }, [toast]);
-
   const startTest = () => {
-    setCurrentPlate(0);
+    setCurrentPlateIndex(0);
     setResults([]);
-    getNextPlate();
+    setStep('test');
   };
 
   const handleAnswer = (answer: string) => {
+    const plateData = MOCK_HRR_PLATES[currentPlateIndex];
     if (!plateData) return;
 
     const correct = answer === plateData.correctSymbol;
     setResults(prev => [...prev, { plate: plateData, answer, correct }]);
 
-    if (currentPlate < TOTAL_PLATES - 1) {
-      setCurrentPlate(currentPlate + 1);
-      getNextPlate();
+    if (currentPlateIndex < TOTAL_PLATES - 1) {
+      setCurrentPlateIndex(prev => prev + 1);
     } else {
       setStep('results');
     }
@@ -67,9 +51,9 @@ export function HrrTest({ onBack }: { onBack: () => void }) {
   if (step === 'instructions') {
     return (
       <div className="text-center">
-        <h3 className="text-xl font-semibold">AI-Powered HRR Test</h3>
+        <h3 className="text-xl font-semibold">Hardy-Rand-Rittler (HRR) Test</h3>
         <p className="text-muted-foreground mt-2 mb-4 max-w-lg mx-auto">
-          You will be shown a series of unique, AI-generated plates. Click the symbol you see. If you see multiple symbols, click on all of them. If you see no symbol, click 'None'. This test screens for both red-green and blue-yellow color vision deficiencies.
+          You will be shown a series of plates with colored symbols. Click the symbol you see. If you see no symbol, click 'None'. This test screens for both red-green and blue-yellow color vision deficiencies.
         </p>
         <div className="flex justify-center gap-4">
             <Button variant="outline" onClick={onBack}><ArrowLeft className="mr-2 h-4 w-4" />Back</Button>
@@ -79,19 +63,10 @@ export function HrrTest({ onBack }: { onBack: () => void }) {
     );
   }
 
-  if (step === 'loading') {
-    return (
-        <div className="flex flex-col items-center justify-center text-center h-64 space-y-4">
-            <Loader2 className="h-12 w-12 animate-spin text-primary" />
-            <p className="text-muted-foreground">Generating comprehensive test plate...</p>
-        </div>
-    );
-  }
-
   if (step === 'results') {
     const score = results.filter(r => r.correct).length;
-    const redGreenErrors = results.filter(r => !r.correct && r.plate.deficiencyType.includes('Red-Green')).length;
-    const blueYellowErrors = results.filter(r => !r.correct && r.plate.deficiencyType.includes('Blue-Yellow')).length;
+    const redGreenErrors = results.filter(r => !r.correct && r.plate.deficiencyType === 'Red-Green').length;
+    const blueYellowErrors = results.filter(r => !r.correct && r.plate.deficiencyType === 'Blue-Yellow').length;
 
     let resultText = "You appear to have normal color vision.";
     if (redGreenErrors > 1 && blueYellowErrors > 1) {
@@ -120,14 +95,16 @@ export function HrrTest({ onBack }: { onBack: () => void }) {
       </Card>
     );
   }
+  
+  const plateData = MOCK_HRR_PLATES[currentPlateIndex];
 
   return (
     <div className="flex flex-col items-center space-y-6">
         {plateData && (
             <>
-                <p className="text-muted-foreground">Plate {currentPlate + 1} of {TOTAL_PLATES}</p>
+                <p className="text-muted-foreground">Plate {currentPlateIndex + 1} of {TOTAL_PLATES}</p>
                 <div className="w-64 h-64 relative rounded-full overflow-hidden border-4 border-muted">
-                    <Image src={plateData.plateImageUri} alt="AI-generated HRR plate" layout="fill" objectFit="cover" data-ai-hint="abstract pattern"/>
+                    <Image src={plateData.plateImageUri} alt="HRR plate" layout="fill" objectFit="cover" data-ai-hint="abstract pattern"/>
                 </div>
                 <p className="font-semibold">What symbol do you see?</p>
                 <div className="grid grid-cols-2 gap-4">
