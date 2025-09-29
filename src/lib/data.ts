@@ -1,10 +1,10 @@
 
 import { Activity, BookOpen, Brain, Dumbbell, Eye, Glasses, HeartPulse, Target, Video, View, Wind, Sparkles, CalendarCheck, ScanEye, Zap, ListTodo } from "lucide-react";
-import type { Test, Reminder, ActivityLog, Exercise, Circuit } from "./types";
+import type { Test, Reminder, ActivityLog, Exercise, Circuit, AdherenceLog } from "./types";
 
 export const MOCK_REMINDERS: Reminder[] = [
   { id: 1, title: 'Blinking exercise', time: 'in 30 minutes', type: 'exercise', enabled: true },
-  { id: 2, title: 'Take eye drops', time: '13:00', type: 'Eye Drops', enabled: true, dosage: "1 drop in each eye", frequency: "Twice a day" },
+  { id: 2, title: 'Latanoprost', time: '13:00', type: 'Eye Drops', enabled: true, dosage: "1 drop in each eye", frequency: "Daily" },
   { id: 3, title: '20-20-20 Rule', time: '14:00', type: 'exercise', enabled: false },
   { id: 4, title: 'Annual Eye Exam', time: 'Tomorrow', type: 'appointment', enabled: true },
 ];
@@ -15,6 +15,18 @@ export const MOCK_ACTIVITIES: ActivityLog[] = [
     { id: 3, description: "Vision Score increased to 92.", timestamp: "1 day ago", score: "+2" },
     { id: 4, description: "Took Color Vision test.", timestamp: "2 days ago", score: "9/10" },
 ];
+
+export const MOCK_ADHERENCE_HISTORY: AdherenceLog[] = [
+    { id: '1', medication: 'Latanoprost', type: 'Eye Drops', status: 'taken', time: '09:00', date: 'Today' },
+    { id: '2', medication: 'Vitamin C', type: 'Capsule', status: 'taken', time: '09:05', date: 'Today' },
+    { id: '3', medication: 'Latanoprost', type: 'Eye Drops', status: 'upcoming', time: '21:00', date: 'Today' },
+    { id: '4', medication: 'Latanoprost', type: 'Eye Drops', status: 'skipped', time: '21:00', date: 'Yesterday' },
+    { id: '5', medication: 'Vitamin C', type: 'Capsule', status: 'taken', time: '09:02', date: 'Yesterday' },
+    { id: '6', medication: 'Latanoprost', type: 'Eye Drops', status: 'taken', time: '08:58', date: 'Yesterday' },
+    { id: '7', medication: 'Latanoprost', type: 'Eye Drops', status: 'taken_late', time: '10:30', date: '2 days ago' },
+    { id: '8', medication: 'Vitamin C', type: 'Capsule', status: 'taken', time: '09:01', date: '2 days ago' },
+];
+
 
 export const MOCK_VISION_SCORE_HISTORY = [
   { date: 'Jan', score: 80 },

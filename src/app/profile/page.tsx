@@ -1,15 +1,13 @@
+
 "use client";
 
 import {
   Bar,
   BarChart,
-  Line,
-  LineChart,
   ResponsiveContainer,
   XAxis,
   YAxis,
   Tooltip,
-  CartesianGrid,
 } from "recharts";
 import {
   Card,
@@ -25,23 +23,9 @@ import {
 } from "@/components/ui/chart";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { Lightbulb, ChevronRight } from "lucide-react";
-
-const visionScoreHistory = [
-  { month: "Jan", score: 80 },
-  { month: "Feb", score: 82 },
-  { month: "Mar", score: 85 },
-  { month: "Apr", score: 84 },
-  { month: "May", score: 88 },
-  { month: "Jun", score: 90 },
-  { month: "Jul", score: 92 },
-];
-const visionScoreChartConfig = {
-  score: {
-    label: "Score",
-    color: "hsl(var(--primary))",
-  },
-} satisfies ChartConfig;
+import { Lightbulb, ChevronRight, CheckCircle } from "lucide-react";
+import { AdherenceChart } from "@/components/adherence-chart";
+import { ProgressCircle } from "@/components/ui/progress-circle";
 
 const exerciseHistory = [
   { day: "Mon", minutes: 15 },
@@ -60,6 +44,8 @@ const exerciseChartConfig = {
 } satisfies ChartConfig;
 
 export default function ProfilePage() {
+  const adherenceScore = 92; // Mock score
+
   return (
     <div className="space-y-8">
       <div>
@@ -71,89 +57,67 @@ export default function ProfilePage() {
 
       <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-2">
         <Card>
-            <CardHeader>
-                <CardTitle>AI Health Insights</CardTitle>
-                <CardDescription>
-                Discover AI-powered insights connecting your habits to your eye health.
-                </CardDescription>
-            </CardHeader>
-            <CardContent>
-                <div className="flex flex-col items-center justify-center text-center p-6 bg-muted rounded-lg">
-                    <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 mb-4">
-                        <Lightbulb className="h-8 w-8 text-primary" />
-                    </div>
-                    <p className="text-muted-foreground mb-4">Let our AI analyze your activity and provide personalized recommendations.</p>
-                    <Button asChild>
-                        <Link href="/profile/insights">
-                            Generate My Insights <ChevronRight className="ml-2 h-4 w-4" />
-                        </Link>
-                    </Button>
-                </div>
-            </CardContent>
-        </Card>
-        
-        <Card>
           <CardHeader>
-            <CardTitle>Vision Score Over Time</CardTitle>
+            <CardTitle>AI Health Insights</CardTitle>
             <CardDescription>
-              Your vision score progress over the last 7 months.
+              Discover AI-powered insights connecting your habits to your eye
+              health.
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <ChartContainer config={visionScoreChartConfig} className="h-[250px] w-full">
-              <ResponsiveContainer>
-                <LineChart data={visionScoreHistory} margin={{ left: -20, right: 20 }}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis
-                    dataKey="month"
-                    tickLine={false}
-                    axisLine={false}
-                    tickMargin={8}
-                  />
-                  <YAxis
-                    tickLine={false}
-                    axisLine={false}
-                    tickMargin={8}
-                    domain={[75, 100]}
-                  />
-                  <Tooltip content={<ChartTooltipContent />} />
-                  <Line
-                    dataKey="score"
-                    type="monotone"
-                    stroke="var(--color-score)"
-                    strokeWidth={2}
-                    dot={true}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </ChartContainer>
+            <div className="flex flex-col items-center justify-center text-center p-6 bg-muted rounded-lg">
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 mb-4">
+                <Lightbulb className="h-8 w-8 text-primary" />
+              </div>
+              <p className="text-muted-foreground mb-4">
+                Let our AI analyze your activity and provide personalized
+                recommendations.
+              </p>
+              <Button asChild>
+                <Link href="/profile/insights">
+                  Generate My Insights{" "}
+                  <ChevronRight className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <CheckCircle className="h-5 w-5 text-primary" />
+              Medication Adherence
+            </CardTitle>
+            <CardDescription>
+              Your adherence score for the last 7 days.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-col items-center gap-6">
+            <div className="relative">
+              <ProgressCircle value={adherenceScore} />
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <span className="text-4xl font-bold">{adherenceScore}%</span>
+                  <span className="text-xs text-muted-foreground">Adherence</span>
+              </div>
+            </div>
+             <Button asChild variant="outline" className="w-full">
+                <Link href="/profile/adherence">
+                    View Full History <ChevronRight className="ml-2 h-4 w-4" />
+                </Link>
+            </Button>
           </CardContent>
         </Card>
 
         <Card className="lg:col-span-2">
           <CardHeader>
-            <CardTitle>Exercise Consistency</CardTitle>
+            <CardTitle>Weekly Activity</CardTitle>
             <CardDescription>
-              Total minutes of eye exercises this week.
+              Total minutes of eye exercises and adherence this week.
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <ChartContainer config={exerciseChartConfig} className="h-[250px] w-full">
-              <ResponsiveContainer>
-                <BarChart data={exerciseHistory} margin={{ left: -20, right: 20 }}>
-                <CartesianGrid vertical={false} />
-                  <XAxis
-                    dataKey="day"
-                    tickLine={false}
-                    axisLine={false}
-                    tickMargin={8}
-                  />
-                  <YAxis tickLine={false} axisLine={false} tickMargin={8} />
-                  <Tooltip cursor={false} content={<ChartTooltipContent indicator="dot" />} />
-                  <Bar dataKey="minutes" fill="var(--color-minutes)" radius={8} />
-                </BarChart>
-              </ResponsiveContainer>
-            </ChartContainer>
+            <AdherenceChart />
           </CardContent>
         </Card>
       </div>

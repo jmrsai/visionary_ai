@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -37,6 +38,7 @@ export function Header() {
     if (pathname.startsWith("/gym/exercise")) return "Guided Exercise";
     if (pathname.startsWith("/gym")) return "Eye Gym";
     if (pathname.startsWith("/tests")) return "Diagnostic Tests";
+    if (pathname.startsWith("/profile/adherence")) return "Adherence History";
     return "Visionary";
   };
   

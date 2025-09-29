@@ -85,6 +85,15 @@ export type Reminder = {
     }
 };
 
+export type AdherenceLog = {
+    id: string;
+    medication: string;
+    type: 'Eye Drops' | 'Pill' | 'Capsule' | 'Liquid';
+    status: 'taken' | 'skipped' | 'upcoming' | 'taken_late';
+    time: string;
+    date: string;
+};
+
 export type ActivityLog = {
     id: number;
     description: string;
