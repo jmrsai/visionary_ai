@@ -27,7 +27,12 @@ const getInstruction = (exercise: Exercise, progress: number): string => {
         case "20-20-20-rule":
             return "Look at something 20 feet away for 20 seconds.";
         case "blinking-exercise":
-            return "Blink slowly and deliberately every 2-3 seconds.";
+             if (timeElapsed < totalDuration / 3) {
+                return "Close your eyes gently for 2 seconds.";
+            } else if (timeElapsed < (totalDuration * 2) / 3) {
+                return "Open your eyes and blink normally for 5 seconds.";
+            }
+            return "Now, close your eyes again for another 2 seconds.";
         default:
             return "Follow the on-screen prompts to complete the exercise.";
     }
@@ -112,9 +117,11 @@ export function InteractiveExercise({ exercise }: { exercise: Exercise }) {
   }, [captureFrame, exercise, progress]);
 
   const startTimers = useCallback(() => {
+    const duration = exercise.id === '20-20-20-rule' ? 20 : EXERCISE_DURATION_S;
+
     timerRef.current = setInterval(() => {
       setProgress((prev) => {
-        const newProgress = prev + (100 / EXERCISE_DURATION_S);
+        const newProgress = prev + (100 / duration);
         if (newProgress >= 100) {
           clearInterval(timerRef.current);
           clearInterval(feedbackTimerRef.current);
@@ -126,7 +133,7 @@ export function InteractiveExercise({ exercise }: { exercise: Exercise }) {
     }, 1000);
 
     feedbackTimerRef.current = setInterval(getAIFeedback, FEEDBACK_INTERVAL_MS);
-  }, [getAIFeedback]);
+  }, [getAIFeedback, exercise.id]);
 
   const handleStart = () => {
     if (hasCameraPermission) {
@@ -162,6 +169,8 @@ export function InteractiveExercise({ exercise }: { exercise: Exercise }) {
   };
 
   const instruction = getInstruction(exercise, progress);
+  const duration = exercise.id === '20-20-20-rule' ? 20 : EXERCISE_DURATION_S;
+
 
   return (
     <div className="space-y-4">
@@ -193,6 +202,9 @@ export function InteractiveExercise({ exercise }: { exercise: Exercise }) {
       </div>
 
       <Progress value={progress} />
+      <p className="text-sm text-muted-foreground text-center">
+        {Math.round(progress * duration / 100)}s / {duration}s
+      </p>
 
       <div className="flex items-center justify-center gap-4 pt-4">
         {exerciseState === "idle" && (

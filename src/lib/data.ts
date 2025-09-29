@@ -85,7 +85,7 @@ export const MOCK_EXERCISES: Exercise[] = [
         description: "Improve your eyes' ability to change focus between near and far objects.",
         icon: Target,
         category: "Focus & Flexibility",
-        duration: "3 minutes"
+        duration: "30 seconds"
     },
     {
         id: "20-20-20-rule",
@@ -101,7 +101,7 @@ export const MOCK_EXERCISES: Exercise[] = [
         description: "Helps rehydrate your eyes and prevent dryness.",
         icon: Video,
         category: "Strain Reduction",
-        duration: "1 minute"
+        duration: "30 seconds"
     },
     {
         id: "symptom-checker",
