@@ -1,4 +1,4 @@
-import { Activity, BookOpen, Brain, Dumbbell, Eye, Glasses, HeartPulse, Target, Video, View, Wind, Sparkles, CalendarCheck } from "lucide-react";
+import { Activity, BookOpen, Brain, Dumbbell, Eye, Glasses, HeartPulse, Target, Video, View, Wind, Sparkles, CalendarCheck, ScanEye } from "lucide-react";
 import type { Test, Reminder, ActivityLog, Exercise } from "./types";
 
 export const MOCK_REMINDERS: Reminder[] = [
@@ -67,6 +67,13 @@ export const MOCK_TESTS: Test[] = [
         title: "Pupil Response Test",
         description: "Neurological screening via camera-based pupil measurement. (Experimental)",
         icon: Brain,
+        category: "Advanced Screening"
+    },
+    {
+        id: "redness-scan",
+        title: "Redness & Irritation Scan",
+        description: "AI-powered analysis of eye redness from a photo. (Experimental)",
+        icon: ScanEye,
         category: "Advanced Screening"
     },
     {

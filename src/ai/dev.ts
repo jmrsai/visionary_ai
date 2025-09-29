@@ -9,3 +9,4 @@ import '@/ai/flows/hrr-plate-generator.ts';
 import '@/ai/ai-form-feedback.ts';
 import '@/ai/flows/chatbot.ts';
 import '@/ai/flows/holistic-health-insights.ts';
+import '@/ai/flows/redness-irritation-scan.ts';
