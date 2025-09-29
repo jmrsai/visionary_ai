@@ -23,6 +23,9 @@ import {
   ChartContainer,
   ChartTooltipContent,
 } from "@/components/ui/chart";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { Lightbulb, ChevronRight } from "lucide-react";
 
 const visionScoreHistory = [
   { month: "Jan", score: 80 },
@@ -68,6 +71,28 @@ export default function ProfilePage() {
 
       <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-2">
         <Card>
+            <CardHeader>
+                <CardTitle>AI Health Insights</CardTitle>
+                <CardDescription>
+                Discover AI-powered insights connecting your habits to your eye health.
+                </CardDescription>
+            </CardHeader>
+            <CardContent>
+                <div className="flex flex-col items-center justify-center text-center p-6 bg-muted rounded-lg">
+                    <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 mb-4">
+                        <Lightbulb className="h-8 w-8 text-primary" />
+                    </div>
+                    <p className="text-muted-foreground mb-4">Let our AI analyze your activity and provide personalized recommendations.</p>
+                    <Button asChild>
+                        <Link href="/profile/insights">
+                            Generate My Insights <ChevronRight className="ml-2 h-4 w-4" />
+                        </Link>
+                    </Button>
+                </div>
+            </CardContent>
+        </Card>
+        
+        <Card>
           <CardHeader>
             <CardTitle>Vision Score Over Time</CardTitle>
             <CardDescription>
@@ -105,7 +130,7 @@ export default function ProfilePage() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="lg:col-span-2">
           <CardHeader>
             <CardTitle>Exercise Consistency</CardTitle>
             <CardDescription>
