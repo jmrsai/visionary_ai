@@ -4,7 +4,7 @@ import type { Test, Reminder, ActivityLog, Exercise, Circuit } from "./types";
 
 export const MOCK_REMINDERS: Reminder[] = [
   { id: 1, title: 'Blinking exercise', time: 'in 30 minutes', type: 'exercise', enabled: true },
-  { id: 2, title: 'Take eye drops', time: '1:00 PM', type: 'medication', enabled: true },
+  { id: 2, title: 'Take eye drops', time: '1:00 PM', type: 'medication', enabled: true, dosage: "1 drop in each eye", frequency: "Twice a day" },
   { id: 3, title: '20-20-20 Rule', time: '2:00 PM', type: 'exercise', enabled: false },
   { id: 4, title: 'Annual Eye Exam', time: 'Tomorrow', type: 'appointment', enabled: true },
 ];
@@ -132,6 +132,14 @@ export const MOCK_EXERCISES: Exercise[] = [
         description: "Train your eyes to smoothly follow a moving object.",
         icon: Wind,
         category: "Focus & Flexibility",
+        duration: "30 seconds"
+    },
+    {
+        id: "jungle-explorer",
+        title: "Jungle Explorer",
+        description: "A fun game for kids! Help the jungle explorer spot all the animals by quickly changing your focus.",
+        icon: Sparkles,
+        category: "Kids' Game Zone",
         duration: "30 seconds"
     },
     {
