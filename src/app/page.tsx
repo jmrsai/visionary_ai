@@ -25,33 +25,7 @@ export default function Home() {
     <div className="flex flex-1 flex-col gap-4 md:gap-8">
       {/* Top Row Cards */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-         <Card className="lg:col-span-2 bg-primary/5 dark:bg-primary/10 border-primary/20 animate-fade-in-up">
-          <CardHeader>
-            <div className="flex items-center gap-2 text-primary">
-              <CalendarCheck className="h-5 w-5" />
-              <CardTitle className="text-lg">Comprehensive Eye Health Check-up</CardTitle>
-            </div>
-            <CardDescription>
-              Complete your monthly check-up to track your vision health across 5 key areas.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between p-4 rounded-lg bg-background">
-              <div>
-                <p className="font-bold text-xl">Guided 5-Test Suite</p>
-                <p className="text-sm text-muted-foreground">
-                  Takes about 5 minutes.
-                </p>
-              </div>
-              <Button asChild size="sm">
-                <Link href="/primary-check-up">
-                  Start <ChevronRight className="ml-1 h-4 w-4" />
-                </Link>
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="animate-fade-in-up" style={{ animationDelay: '100ms' }}>
+        <Card className="animate-fade-in-up">
           <CardHeader className="pb-2">
              <div className="flex items-center gap-2 text-accent">
                 <HeartPulse className="h-5 w-5" />
@@ -63,7 +37,7 @@ export default function Home() {
             <p className="text-xs text-muted-foreground mt-1">+2 since last week</p>
           </CardContent>
         </Card>
-        <Card className="animate-fade-in-up" style={{ animationDelay: '200ms' }}>
+        <Card className="animate-fade-in-up lg:col-span-3" style={{ animationDelay: '200ms' }}>
           <CardHeader>
              <CardTitle>Weekly Progress</CardTitle>
             <CardDescription>
