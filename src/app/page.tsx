@@ -1,3 +1,4 @@
+
 import {
   Activity,
   CalendarCheck,
@@ -37,7 +38,21 @@ export default function Home() {
             <p className="text-xs text-muted-foreground mt-1">+2 since last week</p>
           </CardContent>
         </Card>
-        <Card className="animate-fade-in-up lg:col-span-3" style={{ animationDelay: '200ms' }}>
+        <Card className="animate-fade-in-up" style={{ animationDelay: '100ms' }}>
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-lg">Daily Check-up</CardTitle>
+                <CalendarCheck className="h-5 w-5 text-accent" />
+            </CardHeader>
+            <CardContent>
+                <CardDescription className="mb-4">
+                    Complete your 5-minute daily vision health check-up.
+                </CardDescription>
+                <Button asChild className="w-full">
+                    <Link href="/primary-check-up">Start Check-up</Link>
+                </Button>
+            </CardContent>
+        </Card>
+        <Card className="animate-fade-in-up lg:col-span-2" style={{ animationDelay: '200ms' }}>
           <CardHeader>
              <CardTitle>Weekly Progress</CardTitle>
             <CardDescription>
