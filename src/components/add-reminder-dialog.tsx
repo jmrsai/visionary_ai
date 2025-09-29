@@ -23,6 +23,7 @@ import {
 import { Label } from "@/components/ui/label";
 import type { Reminder } from "@/lib/types";
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
+import { ToggleGroup, ToggleGroupItem } from "./ui/toggle-group";
 
 interface AddReminderDialogProps {
   open: boolean;
@@ -43,18 +44,23 @@ export function AddReminderDialog({
   const [time, setTime] = useState("");
   const [type, setType] = useState<Reminder["type"]>("exercise");
   const [dosage, setDosage] = useState("");
-  const [frequency, setFrequency] = useState("");
+  const [frequency, setFrequency] = useState("Daily");
+  const [specificDays, setSpecificDays] = useState<string[]>([]);
   const [reason, setReason] = useState("");
   const [appearance, setAppearance] = useState({ shape: 'pill', color: '#f87171' });
 
   const isMedication = ["Eye Drops", "Pill", "Capsule", "Liquid"].includes(type);
 
   const handleSubmit = () => {
-    if (title && time && type) {
-      const newReminder: Omit<Reminder, "id" | "enabled"> = { title, time, type };
+    let finalFrequency = frequency;
+    if (frequency === "Specific Days" && specificDays.length > 0) {
+        finalFrequency = specificDays.join(', ');
+    }
+      
+    if (title && type && (time || frequency === "As Needed")) {
+      const newReminder: Omit<Reminder, "id" | "enabled"> = { title, time, type, frequency: finalFrequency };
       if (isMedication) {
         newReminder.dosage = dosage;
-        newReminder.frequency = frequency;
         newReminder.reason = reason;
         newReminder.appearance = appearance;
       }
@@ -65,7 +71,8 @@ export function AddReminderDialog({
       setTime("");
       setType("exercise");
       setDosage("");
-      setFrequency("");
+      setFrequency("Daily");
+      setSpecificDays([]);
       setReason("");
       setAppearance({ shape: 'pill', color: '#f87171' });
       onOpenChange(false);
@@ -116,15 +123,6 @@ export function AddReminderDialog({
                   value={dosage}
                   onChange={(e) => setDosage(e.target.value)}
                   placeholder="e.g., 1 drop, 2 pills, 10mg"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="frequency">Frequency</Label>
-                <Input
-                  id="frequency"
-                  value={frequency}
-                  onChange={(e) => setFrequency(e.target.value)}
-                  placeholder="e.g., Twice a day, every 4 hours"
                 />
               </div>
               <div className="space-y-2">
@@ -193,15 +191,52 @@ export function AddReminderDialog({
               </div>
             </>
            )}
-          <div className="space-y-2">
-            <Label htmlFor="time">Time</Label>
-            <Input
-              id="time"
-              type="time"
-              value={time}
-              onChange={(e) => setTime(e.target.value)}
-            />
-          </div>
+            <div className="space-y-2">
+                <Label htmlFor="frequency-type">Frequency</Label>
+                <Select onValueChange={setFrequency} defaultValue={frequency}>
+                    <SelectTrigger id="frequency-type">
+                        <SelectValue placeholder="Select frequency" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="Daily">Daily</SelectItem>
+                        <SelectItem value="Specific Days">Specific Days of the Week</SelectItem>
+                        <SelectItem value="As Needed">As Needed</SelectItem>
+                    </SelectContent>
+                </Select>
+            </div>
+            
+            {frequency === 'Specific Days' && (
+                <div className="space-y-2">
+                    <Label>On Which Days?</Label>
+                    <ToggleGroup 
+                        type="multiple" 
+                        variant="outline" 
+                        className="flex flex-wrap justify-start"
+                        value={specificDays}
+                        onValueChange={setSpecificDays}
+                    >
+                        <ToggleGroupItem value="Sun">S</ToggleGroupItem>
+                        <ToggleGroupItem value="Mon">M</ToggleGroupItem>
+                        <ToggleGroupItem value="Tue">T</ToggleGroupItem>
+                        <ToggleGroupItem value="Wed">W</ToggleGroupItem>
+                        <ToggleGroupItem value="Thu">T</ToggleGroupItem>
+                        <ToggleGroupItem value="Fri">F</ToggleGroupItem>
+                        <ToggleGroupItem value="Sat">S</ToggleGroupItem>
+                    </ToggleGroup>
+                </div>
+            )}
+            
+           {frequency !== 'As Needed' && (
+              <div className="space-y-2">
+                <Label htmlFor="time">Time</Label>
+                <Input
+                  id="time"
+                  type="time"
+                  value={time}
+                  onChange={(e) => setTime(e.target.value)}
+                />
+              </div>
+            )}
         </div>
         <DialogFooter>
           <DialogClose asChild>
