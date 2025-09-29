@@ -133,7 +133,7 @@ export function InteractiveExercise({ exercise }: { exercise: Exercise }) {
         const newProgress = prev + (100 / duration);
         if (newProgress >= 100) {
           clearInterval(timerRef.current);
-          clearInterval(feedbackTimerRef.current);
+          if (feedbackTimerRef.current) clearInterval(feedbackTimerRef.current);
           setExerciseState("finished");
           return 100;
         }
@@ -141,27 +141,23 @@ export function InteractiveExercise({ exercise }: { exercise: Exercise }) {
       });
     }, 1000);
 
-    feedbackTimerRef.current = setInterval(getAIFeedback, FEEDBACK_INTERVAL_MS);
-  }, [getAIFeedback, exercise.id]);
+    if (hasCameraPermission) {
+        feedbackTimerRef.current = setInterval(getAIFeedback, FEEDBACK_INTERVAL_MS);
+    }
+  }, [getAIFeedback, exercise.id, hasCameraPermission]);
 
   const handleStart = () => {
     if (hasCameraPermission) {
       setExerciseState("running");
       getAIFeedback(); // Initial feedback
-      startTimers();
-    } else {
-        toast({
-            variant: "destructive",
-            title: "Cannot Start",
-            description: "Camera permission is required to start the exercise.",
-        });
     }
+    startTimers();
   };
 
   const handlePause = () => {
     setExerciseState("paused");
     clearInterval(timerRef.current);
-    clearInterval(feedbackTimerRef.current);
+    if(feedbackTimerRef.current) clearInterval(feedbackTimerRef.current);
   };
 
   const handleResume = () => {
@@ -174,7 +170,7 @@ export function InteractiveExercise({ exercise }: { exercise: Exercise }) {
     setProgress(0);
     setFeedback("AI feedback will appear here.");
     clearInterval(timerRef.current);
-    clearInterval(feedbackTimerRef.current);
+    if(feedbackTimerRef.current) clearInterval(feedbackTimerRef.current);
   };
 
   const instruction = getInstruction(exercise, progress);
@@ -190,7 +186,7 @@ export function InteractiveExercise({ exercise }: { exercise: Exercise }) {
                 <Alert variant="destructive" className="max-w-md">
                     <AlertTitle>Camera Access Required</AlertTitle>
                     <AlertDescription>
-                        Please allow camera access to use this feature. You may need to refresh the page and grant permissions.
+                        Please allow camera access to use the AI Coach feature. You may need to refresh the page and grant permissions. The exercise will run without video.
                     </AlertDescription>
                 </Alert>
             </div>
@@ -201,14 +197,17 @@ export function InteractiveExercise({ exercise }: { exercise: Exercise }) {
         <p className="font-semibold">Instructions:</p>
         <p className="text-muted-foreground">{instruction}</p>
       </div>
+        
+       {hasCameraPermission && (
+        <div className="space-y-2">
+            <p className="font-semibold flex items-center gap-2">
+                AI Coach 
+                {isFeedbackLoading && <Loader2 className="h-4 w-4 animate-spin" />}
+            </p>
+            <p className="text-muted-foreground italic">"{feedback}"</p>
+        </div>
+       )}
 
-       <div className="space-y-2">
-        <p className="font-semibold flex items-center gap-2">
-            AI Coach 
-            {isFeedbackLoading && <Loader2 className="h-4 w-4 animate-spin" />}
-        </p>
-        <p className="text-muted-foreground italic">"{feedback}"</p>
-      </div>
 
       <Progress value={progress} />
       <p className="text-sm text-muted-foreground text-center">
@@ -217,7 +216,7 @@ export function InteractiveExercise({ exercise }: { exercise: Exercise }) {
 
       <div className="flex items-center justify-center gap-4 pt-4">
         {exerciseState === "idle" && (
-          <Button size="lg" onClick={handleStart} disabled={hasCameraPermission !== true}>
+          <Button size="lg" onClick={handleStart}>
             <PlayCircle className="mr-2 h-5 w-5" /> Start Exercise
           </Button>
         )}
