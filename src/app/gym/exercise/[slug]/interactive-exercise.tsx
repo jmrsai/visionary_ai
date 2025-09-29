@@ -20,9 +20,9 @@ const getInstruction = (exerciseId: string, progress: number): string => {
     switch (exerciseId) {
         case "focus-shift":
             if (timeElapsed < totalDuration / 2) {
-                return "Focus on a distant object (at least 20 feet away).";
+                return "For the first half, focus on a distant object (at least 20 feet away).";
             }
-            return "Now, shift your focus to a near object (about 6 inches away).";
+            return "For the second half, shift your focus to a near object (about 6 inches away).";
         case "20-20-20-rule":
             return "Look at something 20 feet away for 20 seconds.";
         case "blinking-exercise":

@@ -89,7 +89,7 @@ export const MOCK_EXERCISES: Exercise[] = [
     {
         id: "focus-shift",
         title: "Focus Shift",
-        description: "Improve your eyes' ability to change focus between near and far objects.",
+        description: "A guided exercise to improve your eyes' ability to change focus between near and far objects.",
         icon: Target,
         category: "Focus & Flexibility",
         duration: "30 seconds"
