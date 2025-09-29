@@ -42,7 +42,7 @@ const ishiharaPlateFlow = ai.defineFlow(
 
     const { media } = await ai.generate({
         // Using a more creative model for this visual task
-        model: 'googleai/gemini-1.5-pro-preview',
+        model: 'googleai/gemini-pro',
         prompt: `Generate an image that looks exactly like an Ishihara test plate for color blindness.
         The plate should be a circle filled with a pattern of multi-colored dots of varying sizes.
         The dots should primarily be shades of red and green.

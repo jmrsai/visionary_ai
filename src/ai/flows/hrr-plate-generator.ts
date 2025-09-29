@@ -57,7 +57,7 @@ const hrrPlateFlow = ai.defineFlow(
     Do not include any text or labels on the image itself. The output must be the image only.`;
 
     const { media } = await ai.generate({
-        model: 'googleai/gemini-1.5-pro-preview',
+        model: 'googleai/gemini-pro',
         prompt: prompt,
     });
 
