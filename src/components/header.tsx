@@ -8,12 +8,6 @@ import {
   Settings,
   LogOut,
   Menu,
-  Sun,
-  Moon,
-  Home,
-  TestTube2,
-  Dumbbell,
-  Bell,
 } from "lucide-react";
 
 import {
@@ -40,15 +34,17 @@ export function Header() {
     if (pathname === "/") return "Dashboard";
     const navItem = NAV_ITEMS.find((item) => pathname.startsWith(item.href) && item.href !== '/');
     if (navItem) return navItem.label;
+    if (pathname.startsWith("/gym/exercise")) return "Guided Exercise";
     if (pathname.startsWith("/gym")) return "Eye Gym";
+    if (pathname.startsWith("/tests")) return "Diagnostic Tests";
     return "Visionary";
   };
   
   return (
-    <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
+    <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background/80 px-4 backdrop-blur-sm sm:px-6">
       <Sheet>
         <SheetTrigger asChild>
-          <Button size="icon" variant="outline" className="sm:hidden">
+          <Button size="icon" variant="outline" className="md:hidden">
             <Menu className="h-5 w-5" />
             <span className="sr-only">Toggle Menu</span>
           </Button>
@@ -80,14 +76,12 @@ export function Header() {
       </div>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline" size="icon" className="overflow-hidden rounded-full">
-            <Avatar>
+          <Button variant="ghost" size="icon" className="overflow-hidden rounded-full">
+            <Avatar className="h-9 w-9">
               {userAvatar && (
                 <AvatarImage
                   src={userAvatar.imageUrl}
                   alt={userAvatar.description}
-                  width={36}
-                  height={36}
                   data-ai-hint={userAvatar.imageHint}
                 />
               )}

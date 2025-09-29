@@ -25,6 +25,7 @@ export type ActivityLog = {
     id: number;
     description: string;
     timestamp: string;
+    score?: string;
 };
 
 export type Exercise = {

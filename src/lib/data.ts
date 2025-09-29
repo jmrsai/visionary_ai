@@ -1,4 +1,4 @@
-import { Activity, BookOpen, Brain, Dumbbell, Eye, Glasses, HeartPulse, Target, Video, View, Wind } from "lucide-react";
+import { Activity, BookOpen, Brain, Dumbbell, Eye, Glasses, HeartPulse, Target, Video, View, Wind, Sparkles, CalendarCheck } from "lucide-react";
 import type { Test, Reminder, ActivityLog, Exercise } from "./types";
 
 export const MOCK_REMINDERS: Reminder[] = [
@@ -9,10 +9,10 @@ export const MOCK_REMINDERS: Reminder[] = [
 ];
 
 export const MOCK_ACTIVITIES: ActivityLog[] = [
-    { id: 1, description: "Completed: Focus Shift exercise.", timestamp: "2 hours ago" },
-    { id: 2, description: "New personalized workout available.", timestamp: "5 hours ago" },
-    { id: 3, description: "Vision Score increased by 2 points.", timestamp: "1 day ago" },
-    { id: 4, description: "Took Color Vision test.", timestamp: "2 days ago" },
+    { id: 1, description: "Completed: Focus Shift exercise.", timestamp: "2 hours ago", score: "+5 pts" },
+    { id: 2, description: "New personalized workout available.", timestamp: "5 hours ago", score: "" },
+    { id: 3, description: "Vision Score increased to 92.", timestamp: "1 day ago", score: "+2" },
+    { id: 4, description: "Took Color Vision test.", timestamp: "2 days ago", score: "9/10" },
 ];
 
 export const MOCK_VISION_SCORE_HISTORY = [
@@ -115,7 +115,7 @@ export const MOCK_EXERCISES: Exercise[] = [
         id: "symptom-checker",
         title: "Symptom Checker",
         description: "Use our AI to identify potential eye conditions based on your symptoms.",
-        icon: Brain,
+        icon: Sparkles,
         category: "AI Tools",
         duration: "Varies"
     },

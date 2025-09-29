@@ -1,8 +1,10 @@
 import {
   Activity,
-  Calendar,
+  CalendarCheck,
   ChevronRight,
   Eye,
+  HeartPulse,
+  Sparkles,
   Target,
 } from "lucide-react";
 import Link from "next/link";
@@ -16,38 +18,56 @@ import {
 import { Button } from "@/components/ui/button";
 import { VisionScoreChart } from "@/components/vision-score-chart";
 import { MOCK_REMINDERS, MOCK_ACTIVITIES } from "@/lib/data";
+import { Badge } from "@/components/ui/badge";
 
 export default function Home() {
   return (
     <div className="flex flex-1 flex-col gap-4 md:gap-8">
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Today's Focus</CardTitle>
-            <Target className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">20-20-20 Rule</div>
-            <p className="text-xs text-muted-foreground">
-              Complete by 5:00 PM
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Vision Score</CardTitle>
-            <Eye className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">92/100</div>
-            <p className="text-xs text-muted-foreground">+2 since last week</p>
-          </CardContent>
-        </Card>
-        <Card className="col-span-1 md:col-span-2">
+      {/* Top Row Cards */}
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <Card className="lg:col-span-2 bg-primary/5 dark:bg-primary/10 border-primary/20">
           <CardHeader>
-            <CardTitle>Your Weekly Progress</CardTitle>
+            <div className="flex items-center gap-2 text-primary">
+              <Sparkles className="h-5 w-5" />
+              <CardTitle className="text-lg">Today's Focus</CardTitle>
+            </div>
             <CardDescription>
-              Consistency is key. Keep up the great work!
+              Your AI-recommended activity to keep your vision sharp.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-between p-4 rounded-lg bg-background">
+              <div>
+                <p className="font-bold text-xl">20-20-20 Rule</p>
+                <p className="text-sm text-muted-foreground">
+                  Complete by 5:00 PM
+                </p>
+              </div>
+              <Button asChild size="sm">
+                <Link href="/gym/exercise/20-20-20-rule">
+                  Start <ChevronRight className="ml-1 h-4 w-4" />
+                </Link>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+             <div className="flex items-center gap-2 text-accent">
+                <HeartPulse className="h-5 w-5" />
+                <CardTitle className="text-lg">Vision Score</CardTitle>
+             </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-5xl font-bold">92<span className="text-3xl text-muted-foreground">/100</span></div>
+            <p className="text-xs text-muted-foreground mt-1">+2 since last week</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+             <CardTitle>Weekly Progress</CardTitle>
+            <CardDescription>
+              You've completed 4/5 exercises this week.
             </CardDescription>
           </CardHeader>
           <CardContent className="h-[100px] w-full">
@@ -56,7 +76,8 @@ export default function Home() {
         </Card>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+      {/* Bottom Row Cards */}
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7">
         <Card className="col-span-1 lg:col-span-3">
           <CardHeader className="flex flex-row items-center">
              <div className="grid gap-2">
@@ -76,10 +97,10 @@ export default function Home() {
             {MOCK_REMINDERS.slice(0, 3).map((reminder) => (
               <div
                 key={reminder.id}
-                className="flex items-center gap-4 rounded-md bg-muted/50 p-3"
+                className="flex items-center gap-4 rounded-lg border p-3"
               >
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent text-accent-foreground">
-                  <Calendar className="h-6 w-6" />
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-secondary text-secondary-foreground">
+                  <CalendarCheck className="h-5 w-5" />
                 </div>
                 <div className="grid gap-1">
                   <p className="text-sm font-medium leading-none">
@@ -104,7 +125,7 @@ export default function Home() {
           <CardContent>
             <div className="space-y-4">
               {MOCK_ACTIVITIES.map((activity) => (
-                <div key={activity.id} className="flex items-start gap-4">
+                <div key={activity.id} className="flex items-center gap-4">
                   <div className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary">
                     <Activity className="h-5 w-5 text-secondary-foreground" />
                   </div>
@@ -116,6 +137,9 @@ export default function Home() {
                       {activity.timestamp}
                     </p>
                   </div>
+                   {activity.score && (
+                      <Badge variant="outline">{activity.score}</Badge>
+                    )}
                 </div>
               ))}
             </div>

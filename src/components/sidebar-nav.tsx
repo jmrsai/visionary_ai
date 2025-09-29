@@ -11,7 +11,7 @@ export function SidebarNav() {
   const pathname = usePathname();
 
   return (
-    <aside className="fixed top-0 left-0 z-40 hidden h-screen w-64 border-r bg-card md:flex md:flex-col">
+    <aside className="fixed top-0 left-0 z-40 hidden h-screen w-64 border-r bg-background md:flex md:flex-col">
       <div className="flex h-16 items-center border-b px-6">
         <Link href="/" className="flex items-center gap-2 font-semibold">
           <VisionaryLogo className="h-6 w-6 text-primary" />
@@ -25,12 +25,13 @@ export function SidebarNav() {
             href={item.href}
             className={cn(
               buttonVariants({
-                variant: (pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href))) ? "default" : "ghost",
+                variant: (pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href))) ? "secondary" : "ghost",
+                size: "lg"
               }),
-              "w-full justify-start"
+              "w-full justify-start text-base"
             )}
           >
-            <item.icon className="mr-2 h-4 w-4" />
+            <item.icon className="mr-3 h-5 w-5" />
             {item.label}
           </Link>
         ))}
