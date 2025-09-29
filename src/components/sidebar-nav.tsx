@@ -26,9 +26,8 @@ export function SidebarNav() {
             className={cn(
               buttonVariants({
                 variant: (pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href))) ? "secondary" : "ghost",
-                size: "lg"
               }),
-              "w-full justify-start text-base"
+              "w-full justify-start text-base h-11"
             )}
           >
             <item.icon className="mr-3 h-5 w-5" />
