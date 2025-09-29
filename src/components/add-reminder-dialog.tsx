@@ -117,9 +117,9 @@ export function AddReminderDialog({
             <Label htmlFor="time">Time</Label>
             <Input
               id="time"
+              type="time"
               value={time}
               onChange={(e) => setTime(e.target.value)}
-              placeholder="e.g., 2:00 PM or in 30 mins"
             />
           </div>
         </div>
