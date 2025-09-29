@@ -3,41 +3,129 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { RefreshCw } from 'lucide-react';
+import { RefreshCw, Check, X } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
 
 const AmslerGrid = () => (
-  <div className="w-64 h-64 bg-white p-2 grid grid-cols-20 grid-rows-20 gap-px border border-black">
-    {[...Array(400)].map((_, i) => (
-      <div key={i} className="bg-black w-full h-full" />
-    ))}
-    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-white" />
+  <div className="relative w-64 h-64 bg-white p-2">
+    <div className="w-full h-full grid grid-cols-20 grid-rows-20 gap-px border border-black">
+        {[...Array(400)].map((_, i) => (
+        <div key={i} className="bg-black w-full h-full" />
+        ))}
+    </div>
+    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-white border border-black" />
   </div>
 );
 
+type Step = 'instructions' | 'test-left' | 'test-right' | 'results';
+type Eye = 'left' | 'right';
+type Distortion = {
+    wavy: boolean;
+    blurry: boolean;
+    dark: boolean;
+    missing: boolean;
+};
+
 export function MacularHealthTest() {
-  const [step, setStep] = useState<'instructions' | 'test' | 'results'>('instructions');
-  const [result, setResult] = useState<string | null>(null);
+  const [step, setStep] = useState<Step>('instructions');
+  const [leftEyeDistortions, setLeftEyeDistortions] = useState<Distortion>({ wavy: false, blurry: false, dark: false, missing: false });
+  const [rightEyeDistortions, setRightEyeDistortions] = useState<Distortion>({ wavy: false, blurry: false, dark: false, missing: false });
 
   const startTest = () => {
-    setStep('test');
-    setResult(null);
+    setStep('test-left');
+    setLeftEyeDistortions({ wavy: false, blurry: false, dark: false, missing: false });
+    setRightEyeDistortions({ wavy: false, blurry: false, dark: false, missing: false });
   };
 
-  const handleResult = (isNormal: boolean) => {
-    setResult(isNormal ? 'No Issues Detected' : 'Potential Issues Detected');
-    setStep('results');
+  const handleFinishEyeTest = (eye: Eye) => {
+    if (eye === 'left') {
+      setStep('test-right');
+    } else {
+      setStep('results');
+    }
   };
 
   const restartTest = () => {
     setStep('instructions');
   };
+  
+  const handleDistortionChange = (eye: Eye, type: keyof Distortion, checked: boolean) => {
+      if (eye === 'left') {
+          setLeftEyeDistortions(prev => ({...prev, [type]: checked}));
+      } else {
+          setRightEyeDistortions(prev => ({...prev, [type]: checked}));
+      }
+  };
+  
+  const getResultForEye = (distortions: Distortion) => {
+      const hasDistortion = Object.values(distortions).some(v => v);
+      return hasDistortion ? 'Potential Issues Detected' : 'No Issues Detected';
+  };
+  
+  const renderResultDetails = (distortions: Distortion) => {
+      const details = Object.entries(distortions)
+        .filter(([, value]) => value)
+        .map(([key]) => key);
+
+      if (details.length === 0) return <p className="text-green-600 flex items-center justify-center gap-2"><Check /> Normal</p>;
+      
+      return (
+        <ul className="text-sm list-disc list-inside text-left">
+            {details.map(d => <li key={d} className="capitalize">{d} areas</li>)}
+        </ul>
+      )
+  }
+
+  const renderTestForEye = (eye: Eye) => {
+    const distortions = eye === 'left' ? leftEyeDistortions : rightEyeDistortions;
+    const setDistortion = (type: keyof Distortion, checked: boolean) => handleDistortionChange(eye, type, checked);
+
+    return (
+        <div className="flex flex-col items-center space-y-6">
+            <h3 className="text-xl font-semibold">Testing {eye === 'left' ? 'Left' : 'Right'} Eye</h3>
+            <p className="text-muted-foreground">Cover your {eye === 'left' ? 'right' : 'left'} eye and focus only on the center dot.</p>
+
+            <div className="p-4 bg-background rounded-md">
+                <AmslerGrid />
+            </div>
+
+            <Card className="w-full max-w-md">
+                <CardHeader>
+                    <CardTitle>While focusing on the center dot, do you notice any of the following?</CardTitle>
+                    <CardDescription>Check all that apply.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <div className="flex items-center space-x-2">
+                        <Checkbox id="wavy" checked={distortions.wavy} onCheckedChange={(c) => setDistortion('wavy', !!c)} />
+                        <Label htmlFor="wavy">Are any lines wavy, bent, or distorted?</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                        <Checkbox id="blurry" checked={distortions.blurry} onCheckedChange={(c) => setDistortion('blurry', !!c)} />
+                        <Label htmlFor="blurry">Are parts of the grid blurry or out of focus?</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                        <Checkbox id="dark" checked={distortions.dark} onCheckedChange={(c) => setDistortion('dark', !!c)} />
+                        <Label htmlFor="dark">Are there any dark or gray areas?</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                        <Checkbox id="missing" checked={distortions.missing} onCheckedChange={(c) => setDistortion('missing', !!c)} />
+                        <Label htmlFor="missing">Are there any missing areas or blank spots?</Label>
+                    </div>
+                    <Button onClick={() => handleFinishEyeTest(eye)} className="w-full mt-4">
+                        {eye === 'left' ? 'Next: Test Right Eye' : 'Finish Test'}
+                    </Button>
+                </CardContent>
+            </Card>
+        </div>
+    )
+  }
 
   if (step === 'instructions') {
     return (
       <div className="text-center">
-        <h3 className="text-xl font-semibold">Instructions</h3>
+        <h3 className="text-xl font-semibold">Amsler Grid Instructions</h3>
         <p className="text-muted-foreground mt-2 mb-4 max-w-md mx-auto">
-          If you wear reading glasses, please put them on. Sit about 12-15 inches away from the screen. Cover one eye, focus on the center dot, and then repeat with the other eye.
+          This test can help detect vision problems resulting from damage to the macula. If you wear reading glasses, please put them on. Sit about 12-15 inches away from the screen. You will test each eye separately.
         </p>
         <Button onClick={startTest}>Start Test</Button>
       </div>
@@ -45,18 +133,38 @@ export function MacularHealthTest() {
   }
 
   if (step === 'results') {
+    const leftResult = getResultForEye(leftEyeDistortions);
+    const rightResult = getResultForEye(rightEyeDistortions);
+
     return (
-      <Card className="mx-auto max-w-md text-center">
+      <Card className="mx-auto max-w-lg text-center">
         <CardHeader>
           <CardTitle>Test Complete</CardTitle>
-          <CardDescription>Your screening result is:</CardDescription>
+          <CardDescription>
+            {leftResult === 'Potential Issues Detected' || rightResult === 'Potential Issues Detected'
+              ? 'Potential issues were detected. Please see a doctor.'
+              : 'No issues were detected during this screening.'}
+          </CardDescription>
         </CardHeader>
         <CardContent>
-          <p className="text-3xl font-bold my-4">{result}</p>
+            <div className="grid grid-cols-2 gap-4 my-4">
+                 <Card className="p-4">
+                    <CardTitle className="text-lg">Left Eye</CardTitle>
+                    <p className={`text-xl font-bold my-2 ${getResultForEye(leftEyeDistortions) === 'No Issues Detected' ? 'text-green-600' : 'text-orange-600'}`}>
+                        {getResultForEye(leftEyeDistortions)}
+                    </p>
+                    {renderResultDetails(leftEyeDistortions)}
+                </Card>
+                 <Card className="p-4">
+                    <CardTitle className="text-lg">Right Eye</CardTitle>
+                    <p className={`text-xl font-bold my-2 ${getResultForEye(rightEyeDistortions) === 'No Issues Detected' ? 'text-green-600' : 'text-orange-600'}`}>
+                        {getResultForEye(rightEyeDistortions)}
+                    </p>
+                    {renderResultDetails(rightEyeDistortions)}
+                </Card>
+            </div>
           <p className="text-sm text-muted-foreground mb-4">
-            {result === 'No Issues Detected'
-              ? 'Your perception of the Amsler grid appears normal. Continue regular eye check-ups.'
-              : 'You noticed some distortions. This could indicate a problem with your macula. Please consult an eye care professional immediately for a comprehensive exam.'}
+            This is a screening tool only. If you noticed any distortions, please consult an eye care professional immediately for a comprehensive exam, even if this test showed no issues.
           </p>
           <Button onClick={restartTest}>
             <RefreshCw className="mr-2 h-4 w-4" /> Restart Test
@@ -67,15 +175,9 @@ export function MacularHealthTest() {
   }
 
   return (
-    <div className="flex flex-col items-center space-y-8">
-      <div className="p-4 bg-background rounded-md">
-        <AmslerGrid />
-      </div>
-      <p className="font-semibold text-center max-w-md">While looking at the center dot, are all lines straight and all squares of equal size? Are there any blank spots or distortions?</p>
-      <div className="flex gap-4">
-        <Button onClick={() => handleResult(true)}>Yes, the grid looks normal</Button>
-        <Button variant="destructive" onClick={() => handleResult(false)}>No, I see distortions</Button>
-      </div>
+    <div>
+      {step === 'test-left' && renderTestForEye('left')}
+      {step === 'test-right' && renderTestForEye('right')}
     </div>
   );
 }

@@ -11,6 +11,7 @@ export function PupilResponseTest() {
   const [step, setStep] = useState<'instructions' | 'testing' | 'results'>('instructions');
   const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
   const [testProgress, setTestProgress] = useState(0);
+  const [testStatusText, setTestStatusText] = useState('Waiting to start...');
   const [result, setResult] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const { toast } = useToast();
@@ -58,20 +59,37 @@ export function PupilResponseTest() {
       setStep('testing');
       setTestProgress(0);
       setResult(null);
-      // Simulate a test process
-      testTimerRef.current = setInterval(() => {
-        setTestProgress(prev => {
-          const newProgress = prev + 10;
-          if (newProgress >= 100) {
-            clearInterval(testTimerRef.current);
+      
+      const sequence = [
+        { progress: 20, duration: 2000, text: 'Finding face... Please hold still.' },
+        { progress: 40, duration: 1000, text: 'Calibrating baseline pupil size.' },
+        { progress: 60, duration: 1000, text: 'Applying light stimulus...' },
+        { progress: 80, duration: 2000, text: 'Measuring pupil constriction.' },
+        { progress: 100, duration: 1500, text: 'Measuring pupil dilation.' },
+      ];
+
+      let currentIndex = 0;
+
+      function runNextStep() {
+        if(currentIndex >= sequence.length) {
+            setTestStatusText('Analysis complete.');
             // Simulate AI result
-            setResult(Math.random() > 0.5 ? 'Normal pupillary light reflex detected.' : 'Asymmetrical or sluggish pupil response detected.');
+            setResult(Math.random() > 0.3 ? 'Normal pupillary light reflex detected.' : 'Asymmetrical or sluggish pupil response detected.');
             setStep('results');
-            return 100;
-          }
-          return newProgress;
-        });
-      }, 500);
+            return;
+        }
+
+        const step = sequence[currentIndex];
+        setTestStatusText(step.text);
+        setTestProgress(step.progress);
+
+        currentIndex++;
+        setTimeout(runNextStep, step.duration);
+      }
+      
+      setTestStatusText("Initializing...");
+      setTestProgress(5);
+      setTimeout(runNextStep, 500);
     }
   };
 
@@ -79,6 +97,7 @@ export function PupilResponseTest() {
     setStep('instructions');
     setTestProgress(0);
     setResult(null);
+    setTestStatusText('Waiting to start...');
     if(testTimerRef.current) clearInterval(testTimerRef.current);
   };
 
@@ -93,7 +112,7 @@ export function PupilResponseTest() {
               <AlertDescription>This test will flash a bright light. Do not proceed if you are sensitive to flashing lights or have a history of photosensitive seizures.</AlertDescription>
             </Alert>
             <p className="text-muted-foreground max-w-md mx-auto">
-              This test uses your camera to measure how your pupils react to light. Ensure you are in a dimly lit room and hold your device steady.
+              This test uses your camera to measure how your pupils react to light. For best results, find a dimly lit room, hold your device steady at arm's length, and look directly at the camera.
             </p>
             <Button onClick={startTest}>
               <Camera className="mr-2 h-4 w-4" /> Start Test
@@ -105,14 +124,14 @@ export function PupilResponseTest() {
           <div className="flex flex-col items-center space-y-4">
             <div className="w-full aspect-video bg-muted rounded-lg overflow-hidden relative">
               <video ref={videoRef} className="w-full h-full object-cover" autoPlay muted playsInline />
-              {testProgress > 30 && testProgress < 70 && (
+              {testProgress > 40 && testProgress < 65 && (
                 <div className="absolute inset-0 bg-white animate-pulse"></div>
               )}
             </div>
             <Progress value={testProgress} className="w-full" />
             <p className="text-muted-foreground flex items-center gap-2">
               <Loader2 className="animate-spin h-4 w-4" />
-              {testProgress < 30 ? 'Positioning...' : testProgress < 70 ? 'Flashing light...' : 'Analyzing...'}
+              {testStatusText}
             </p>
           </div>
         );
@@ -126,7 +145,7 @@ export function PupilResponseTest() {
             <CardContent>
               <p className="text-xl font-semibold my-4">{result}</p>
               <p className="text-sm text-muted-foreground mb-4">
-                This is an experimental feature and should not be used for medical diagnosis. Abnormal results could be due to lighting, camera quality, or movement. Consult a healthcare professional for any concerns.
+                This is an experimental feature and should not be used for medical diagnosis. Abnormal results could be due to lighting, camera quality, or movement. Consult a healthcare professional for any concerns about your pupil reflex.
               </p>
               <Button onClick={restartTest}>
                 <RefreshCw className="mr-2 h-4 w-4" /> Restart Test
