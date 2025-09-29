@@ -48,7 +48,7 @@ export interface Circuit {
   id: string;
   title: string;
   description: string;
-  icon: string; // Changed from LucideIcon
+  icon: string;
   totalDuration: string;
   exercises: {
     id: string;
@@ -76,6 +76,8 @@ export type Reminder = {
     time: string;
     type: 'exercise' | 'medication' | 'appointment';
     enabled: boolean;
+    dosage?: string;
+    frequency?: string;
 };
 
 export type ActivityLog = {

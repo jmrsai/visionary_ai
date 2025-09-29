@@ -37,13 +37,24 @@ export function AddReminderDialog({
   const [title, setTitle] = useState("");
   const [time, setTime] = useState("");
   const [type, setType] = useState<Reminder["type"]>("exercise");
+  const [dosage, setDosage] = useState("");
+  const [frequency, setFrequency] = useState("");
 
   const handleSubmit = () => {
     if (title && time && type) {
-      onAddReminder({ title, time, type });
+      const newReminder: Omit<Reminder, "id" | "enabled"> = { title, time, type };
+      if (type === 'medication') {
+        newReminder.dosage = dosage;
+        newReminder.frequency = frequency;
+      }
+      onAddReminder(newReminder);
+      
+      // Reset form
       setTitle("");
       setTime("");
       setType("exercise");
+      setDosage("");
+      setFrequency("");
       onOpenChange(false);
     }
   };
@@ -59,24 +70,6 @@ export function AddReminderDialog({
         </DialogHeader>
         <div className="space-y-4 py-4">
           <div className="space-y-2">
-            <Label htmlFor="title">Title</Label>
-            <Input
-              id="title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="e.g., Take eye drops"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="time">Time</Label>
-            <Input
-              id="time"
-              value={time}
-              onChange={(e) => setTime(e.target.value)}
-              placeholder="e.g., 2:00 PM or in 30 mins"
-            />
-          </div>
-          <div className="space-y-2">
             <Label htmlFor="type">Type</Label>
             <Select onValueChange={(value: Reminder["type"]) => setType(value)} defaultValue={type}>
               <SelectTrigger id="type">
@@ -88,6 +81,46 @@ export function AddReminderDialog({
                 <SelectItem value="appointment">Appointment</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="title">Title</Label>
+            <Input
+              id="title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="e.g., Take eye drops"
+            />
+          </div>
+           {type === 'medication' && (
+            <>
+              <div className="space-y-2">
+                <Label htmlFor="dosage">Dosage</Label>
+                <Input
+                  id="dosage"
+                  value={dosage}
+                  onChange={(e) => setDosage(e.target.value)}
+                  placeholder="e.g., 1 pill, 10mg"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="frequency">Frequency</Label>
+                <Input
+                  id="frequency"
+                  value={frequency}
+                  onChange={(e) => setFrequency(e.target.value)}
+                  placeholder="e.g., Twice a day, every 4 hours"
+                />
+              </div>
+            </>
+           )}
+          <div className="space-y-2">
+            <Label htmlFor="time">Time</Label>
+            <Input
+              id="time"
+              value={time}
+              onChange={(e) => setTime(e.target.value)}
+              placeholder="e.g., 2:00 PM or in 30 mins"
+            />
           </div>
         </div>
         <DialogFooter>
