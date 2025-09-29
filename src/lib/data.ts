@@ -1,5 +1,5 @@
 
-import { Activity, BookOpen, Brain, Dumbbell, Eye, Glasses, HeartPulse, Target, Video, View, Wind, Sparkles, CalendarCheck, ScanEye, Zap, ListTodo, Contrast } from "lucide-react";
+import { Activity, BookOpen, Brain, Dumbbell, Eye, Glasses, HeartPulse, Target, Video, View, Wind, Sparkles, CalendarCheck, ScanEye, Zap, ListTodo, Contrast, Layers } from "lucide-react";
 import type { Test, Reminder, ActivityLog, Exercise, Circuit, AdherenceLog } from "./types";
 
 export const MOCK_REMINDERS: Reminder[] = [
@@ -94,6 +94,13 @@ export const MOCK_TESTS: Test[] = [
         title: "Redness & Irritation Scan",
         description: "AI-powered analysis of eye redness from a photo. (Experimental)",
         icon: ScanEye,
+        category: "Advanced Screening"
+    },
+    {
+        id: "stereopsis",
+        title: "Stereopsis Test",
+        description: "A screening for depth perception and 3D vision (requires 3D glasses).",
+        icon: Layers,
         category: "Advanced Screening"
     },
     {

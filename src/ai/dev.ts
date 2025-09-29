@@ -14,3 +14,4 @@ import '@/ai/tools/symptom-checker-tool.ts';
 import '@/ai/tools/medication-tool.ts';
 import '@/ai/flows/reading-comprehension-test-generator.ts';
 import '@/ai/flows/amsler-grid-generator.ts';
+import '@/ai/flows/stereopsis-test-generator.ts';
