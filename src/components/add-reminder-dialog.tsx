@@ -22,12 +22,17 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import type { Reminder } from "@/lib/types";
+import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 
 interface AddReminderDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onAddReminder: (reminder: Omit<Reminder, "id" | "enabled">) => void;
 }
+
+const pillShapes = ["pill", "capsule", "circle"];
+const pillColors = ["#f87171", "#60a5fa", "#fbbf24", "#a78bfa", "#ffffff", "#9ca3af"];
+
 
 export function AddReminderDialog({
   open,
@@ -39,13 +44,19 @@ export function AddReminderDialog({
   const [type, setType] = useState<Reminder["type"]>("exercise");
   const [dosage, setDosage] = useState("");
   const [frequency, setFrequency] = useState("");
+  const [reason, setReason] = useState("");
+  const [appearance, setAppearance] = useState({ shape: 'pill', color: '#f87171' });
+
+  const isMedication = ["Eye Drops", "Pill", "Capsule", "Liquid"].includes(type);
 
   const handleSubmit = () => {
     if (title && time && type) {
       const newReminder: Omit<Reminder, "id" | "enabled"> = { title, time, type };
-      if (type === 'medication') {
+      if (isMedication) {
         newReminder.dosage = dosage;
         newReminder.frequency = frequency;
+        newReminder.reason = reason;
+        newReminder.appearance = appearance;
       }
       onAddReminder(newReminder);
       
@@ -55,20 +66,22 @@ export function AddReminderDialog({
       setType("exercise");
       setDosage("");
       setFrequency("");
+      setReason("");
+      setAppearance({ shape: 'pill', color: '#f87171' });
       onOpenChange(false);
     }
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="sm:max-w-[480px]">
         <DialogHeader>
           <DialogTitle>Add a New Reminder</DialogTitle>
           <DialogDescription>
             Set up a new notification for your eye care routine.
           </DialogDescription>
         </DialogHeader>
-        <div className="space-y-4 py-4">
+        <div className="space-y-4 py-4 max-h-[70vh] overflow-y-auto pr-4">
           <div className="space-y-2">
             <Label htmlFor="type">Type</Label>
             <Select onValueChange={(value: Reminder["type"]) => setType(value)} defaultValue={type}>
@@ -77,21 +90,24 @@ export function AddReminderDialog({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="exercise">Exercise</SelectItem>
-                <SelectItem value="medication">Medication</SelectItem>
+                <SelectItem value="Eye Drops">Eye Drops</SelectItem>
+                <SelectItem value="Pill">Pill</SelectItem>
+                <SelectItem value="Capsule">Capsule</SelectItem>
+                <SelectItem value="Liquid">Liquid</SelectItem>
                 <SelectItem value="appointment">Appointment</SelectItem>
               </SelectContent>
             </Select>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="title">Title</Label>
+            <Label htmlFor="title">Name</Label>
             <Input
               id="title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="e.g., Take eye drops"
+              placeholder={isMedication ? "e.g., Latanoprost" : "e.g., Blinking Exercise"}
             />
           </div>
-           {type === 'medication' && (
+           {isMedication && (
             <>
               <div className="space-y-2">
                 <Label htmlFor="dosage">Dosage</Label>
@@ -99,7 +115,7 @@ export function AddReminderDialog({
                   id="dosage"
                   value={dosage}
                   onChange={(e) => setDosage(e.target.value)}
-                  placeholder="e.g., 1 pill, 10mg"
+                  placeholder="e.g., 1 drop, 2 pills, 10mg"
                 />
               </div>
               <div className="space-y-2">
@@ -110,6 +126,70 @@ export function AddReminderDialog({
                   onChange={(e) => setFrequency(e.target.value)}
                   placeholder="e.g., Twice a day, every 4 hours"
                 />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="reason">Reason for Medication</Label>
+                <Input
+                  id="reason"
+                  value={reason}
+                  onChange={(e) => setReason(e.target.value)}
+                  placeholder="e.g., For Glaucoma, Dry Eyes"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Appearance</Label>
+                <div className="p-4 border rounded-md space-y-4">
+                    <div className="space-y-2">
+                        <Label className="text-sm">Shape</Label>
+                        <RadioGroup 
+                            defaultValue="pill" 
+                            className="flex gap-4"
+                            onValueChange={(value) => setAppearance(prev => ({ ...prev, shape: value }))}
+                        >
+                            {pillShapes.map(shape => (
+                                <Label key={shape} htmlFor={`shape-${shape}`} className="cursor-pointer">
+                                    <RadioGroupItem value={shape} id={`shape-${shape}`} className="sr-only" />
+                                    <div className={`w-10 h-10 flex items-center justify-center rounded-lg border-2 ${appearance.shape === shape ? 'border-primary' : 'border-border'}`}>
+                                        <div 
+                                          className={`
+                                            ${shape === 'pill' ? 'w-6 h-3 rounded-full' : ''}
+                                            ${shape === 'capsule' ? 'w-6 h-3 rounded-full' : ''}
+                                            ${shape === 'circle' ? 'w-5 h-5 rounded-full' : ''}
+                                          `}
+                                          style={{
+                                              backgroundColor: shape === 'capsule' ? 'transparent' : appearance.color,
+                                              position: 'relative',
+                                              overflow: 'hidden',
+                                          }}
+                                        >
+                                          {shape === 'capsule' && (
+                                            <>
+                                                <div className="absolute top-0 left-0 w-1/2 h-full" style={{backgroundColor: appearance.color}}></div>
+                                                <div className="absolute top-0 right-0 w-1/2 h-full bg-gray-300"></div>
+                                            </>
+                                          )}
+                                        </div>
+                                    </div>
+                                </Label>
+                            ))}
+                        </RadioGroup>
+                    </div>
+                    <div className="space-y-2">
+                        <Label className="text-sm">Color</Label>
+                         <RadioGroup 
+                            defaultValue={appearance.color}
+                            className="flex gap-2 flex-wrap"
+                            onValueChange={(value) => setAppearance(prev => ({ ...prev, color: value }))}
+                        >
+                            {pillColors.map(color => (
+                                <Label key={color} htmlFor={`color-${color}`} className="cursor-pointer">
+                                    <RadioGroupItem value={color} id={`color-${color}`} className="sr-only" />
+                                    <div className={`w-8 h-8 rounded-full border-2 ${appearance.color === color ? 'border-primary' : 'border-border'}`} style={{backgroundColor: color}}></div>
+                                </Label>
+                            ))}
+                        </RadioGroup>
+                    </div>
+                </div>
               </div>
             </>
            )}

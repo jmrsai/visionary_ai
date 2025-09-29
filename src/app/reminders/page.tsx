@@ -4,7 +4,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Bell, Dumbbell, PlusCircle, Pill } from "lucide-react";
+import { Bell, Dumbbell, PlusCircle, Pill, Droplet } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { MOCK_REMINDERS } from "@/lib/data";
 import type { Reminder } from "@/lib/types";
@@ -26,7 +26,11 @@ export default function RemindersPage() {
     const getIcon = (type: Reminder['type']) => {
         switch (type) {
             case 'exercise': return <Dumbbell className="h-5 w-5" />;
-            case 'medication': return <Pill className="h-5 w-5" />;
+            case 'Eye Drops': return <Droplet className="h-5 w-5" />;
+            case 'Pill':
+            case 'Capsule':
+            case 'Liquid':
+                return <Pill className="h-5 w-5" />;
             case 'appointment': return <Bell className="h-5 w-5" />;
             default: return <Bell className="h-5 w-5" />;
         }

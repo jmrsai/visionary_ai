@@ -74,10 +74,15 @@ export type Reminder = {
     id: number;
     title: string;
     time: string;
-    type: 'exercise' | 'medication' | 'appointment';
+    type: 'exercise' | 'Eye Drops' | 'Pill' | 'Capsule' | 'Liquid' | 'appointment';
     enabled: boolean;
     dosage?: string;
     frequency?: string;
+    reason?: string;
+    appearance?: {
+        shape: string;
+        color: string;
+    }
 };
 
 export type ActivityLog = {
