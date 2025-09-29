@@ -309,11 +309,13 @@ const D15Test = ({ onBack }: { onBack: () => void }) => {
                             onDrop={() => handleDrop(cap.id)}
                             onDragOver={handleDragOver}
                             className={cn(
-                                "w-12 h-12 rounded-lg shadow-md cursor-pointer transition-all",
+                                "w-16 h-16 rounded-lg shadow-md cursor-pointer transition-all flex items-center justify-center text-xs font-mono",
                                 draggedCapId === cap.id && "opacity-50 scale-110"
                             )}
                             style={{ backgroundColor: cap.color }}
-                        />
+                        >
+                             <span className="bg-black/30 rounded-sm px-1.5 py-0.5 text-white">{cap.color}</span>
+                        </div>
                     ))}
                 </div>
             </div>
