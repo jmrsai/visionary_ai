@@ -1,202 +1,168 @@
 "use client";
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { RefreshCw } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { RefreshCw, Star } from 'lucide-react';
 
-type Step = 'instructions' | 'test-left' | 'test-right' | 'results';
-type Eye = 'left' | 'right';
-type DotPosition = { top: string; left: string; quadrant: number };
-
-const DOT_COUNT_PER_EYE = 10;
-const DOT_DISPLAY_TIME = 350; // ms
-const TIME_BETWEEN_DOTS = 1500; // ms
-
-// Positions covering 4 quadrants in the periphery
-const getDotPositions = (): DotPosition[] => {
-  return [
-    // Top-left
-    { top: '15%', left: '15%', quadrant: 1 },
-    { top: '25%', left: '25%', quadrant: 1 },
-    // Top-right
-    { top: '15%', left: '85%', quadrant: 2 },
-    { top: '25%', left: '75%', quadrant: 2 },
-    // Bottom-left
-    { top: '85%', left: '15%', quadrant: 3 },
-    { top: '75%', left: '25%', quadrant: 3 },
-    // Bottom-right
-    { top: '85%', left: '85%', quadrant: 4 },
-    { top: '75%', left: '75%', quadrant: 4 },
-    // Mid-periphery
-    { top: '50%', left: '10%', quadrant: 1 },
-    { top: '50%', left: '90%', quadrant: 2 },
-    { top: '10%', left: '50%', quadrant: 1 },
-    { top: '90%', left: '50%', quadrant: 3 },
-  ].sort(() => Math.random() - 0.5);
+type Step = 'instructions' | 'test' | 'results';
+type Stimulus = {
+  id: number;
+  position: { top: string; left: string };
+  color: 'red' | 'blue' | 'green';
 };
+
+const STIMULUS_COUNT = 10;
+const STIMULUS_DISPLAY_TIME_MS = 200;
+const TIME_BETWEEN_STIMULI_MS = 2000;
+
+const COLORS = ['red', 'blue', 'green'] as const;
+
+// Generate random positions in the periphery
+const generateStimuli = (count: number): Stimulus[] => {
+  const stimuli: Stimulus[] = [];
+  for (let i = 0; i < count; i++) {
+    const color = COLORS[Math.floor(Math.random() * COLORS.length)];
+    // Ensure stimuli are in the periphery, not too close to the center
+    const top = Math.random() < 0.5 ? `${Math.random() * 25 + 5}%` : `${Math.random() * 25 + 70}%`; // 5-30% or 70-95%
+    const left = Math.random() < 0.5 ? `${Math.random() * 25 + 5}%` : `${Math.random() * 25 + 70}%`; // 5-30% or 70-95%
+    
+    stimuli.push({
+      id: i,
+      position: { top, left },
+      color,
+    });
+  }
+  return stimuli;
+};
+
 
 export function VisualFieldTest() {
   const [step, setStep] = useState<Step>('instructions');
-  const [activeDot, setActiveDot] = useState<DotPosition | null>(null);
-  const [dotIndex, setDotIndex] = useState(0);
-  const [leftScore, setLeftScore] = useState(0);
-  const [rightScore, setRightScore] = useState(0);
-  const [testInProgress, setTestInProgress] = useState(false);
-  const testTimeout = useRef<NodeJS.Timeout>();
+  const [stimuli, setStimuli] = useState<Stimulus[]>([]);
+  const [currentStimulus, setCurrentStimulus] = useState<Stimulus | null>(null);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [score, setScore] = useState(0);
+  const [showButtons, setShowButtons] = useState(false);
+  
+  const timerRef = useRef<NodeJS.Timeout>();
 
-  const startTestForEye = (eye: Eye) => {
-    setDotIndex(0);
-    setActiveDot(null);
-    setTestInProgress(true);
-    
-    const positions = getDotPositions();
-
-    const showNextDot = (index: number) => {
-      if (index >= DOT_COUNT_PER_EYE) {
-        setTestInProgress(false);
-        if (eye === 'left') {
-            setStep('test-right');
-        } else {
-            setStep('results');
-        }
-        return;
-      }
-      
-      setDotIndex(index);
-      setActiveDot(positions[index]);
-
-      // Hide dot after a short duration
-      testTimeout.current = setTimeout(() => {
-        setActiveDot(null);
-        // Then wait before showing the next one
-        testTimeout.current = setTimeout(() => {
-          showNextDot(index + 1);
-        }, TIME_BETWEEN_DOTS);
-      }, DOT_DISPLAY_TIME);
-    };
-
-    // Initial delay before first dot
-    testTimeout.current = setTimeout(() => showNextDot(0), 2000);
+  const startGame = () => {
+    setScore(0);
+    setCurrentIndex(0);
+    const newStimuli = generateStimuli(STIMULUS_COUNT);
+    setStimuli(newStimuli);
+    setStep('test');
+    runGameCycle(0, newStimuli);
   };
   
-  useEffect(() => {
-    return () => {
-        if(testTimeout.current) clearTimeout(testTimeout.current);
-    }
+  const runGameCycle = useCallback((index: number, stims: Stimulus[]) => {
+      if (index >= STIMULUS_COUNT) {
+          setStep('results');
+          return;
+      }
+
+      setCurrentIndex(index);
+      setCurrentStimulus(stims[index]);
+      setShowButtons(false);
+      
+      // Hide the stimulus after a short time
+      timerRef.current = setTimeout(() => {
+          setCurrentStimulus(null);
+          // Show answer buttons after stimulus disappears
+          timerRef.current = setTimeout(() => {
+              setShowButtons(true);
+          }, 300);
+      }, STIMULUS_DISPLAY_TIME_MS);
+      
   }, []);
 
-  const handleUserClick = () => {
-    if (activeDot) {
-      if (step === 'test-left') setLeftScore(s => s + 1);
-      if (step === 'test-right') setRightScore(s => s + 1);
-      // Immediately hide dot and proceed to next one to prevent multiple clicks for same dot
-      clearTimeout(testTimeout.current);
-      setActiveDot(null);
-      testTimeout.current = setTimeout(() => {
-        showNextDot(dotIndex + 1);
-      }, TIME_BETWEEN_DOTS);
-    }
-  };
-  
-  const showNextDot = (index: number) => {
-      const positions = getDotPositions();
-      if (index >= DOT_COUNT_PER_EYE) {
-        setTestInProgress(false);
-        if (step === 'test-left') {
-            setStep('test-right');
-        } else {
-            setStep('results');
-        }
-        return;
+  const handleAnswer = (color: 'red' | 'blue' | 'green') => {
+      if (stimuli[currentIndex].color === color) {
+          setScore(s => s + 1);
       }
-      
-      setDotIndex(index);
-      setActiveDot(positions[index]);
-
-      testTimeout.current = setTimeout(() => {
-        setActiveDot(null);
-        testTimeout.current = setTimeout(() => {
-          showNextDot(index + 1);
-        }, TIME_BETWEEN_DOTS);
-      }, DOT_DISPLAY_TIME);
-    };
+      // Move to next stimulus
+      setShowButtons(false);
+      timerRef.current = setTimeout(() => {
+          runGameCycle(currentIndex + 1, stimuli);
+      }, 500); // Brief delay before next stimulus
+  }
 
   const restartTest = () => {
     setStep('instructions');
-    setLeftScore(0);
-    setRightScore(0);
   };
   
-  const renderTestArea = (eye: Eye) => (
+  const renderTestArea = () => (
     <div className="flex flex-col items-center space-y-4">
-        <h3 className="text-xl font-semibold">Testing {eye === 'left' ? 'Left' : 'Right'} Eye</h3>
-        <p className="text-muted-foreground">Cover your {eye === 'left' ? 'right' : 'left'} eye and stare at the central dot.</p>
-        <div 
-            className="relative w-full aspect-square max-w-md bg-muted rounded-lg border cursor-pointer"
-            onClick={handleUserClick}
-        >
+        <h3 className="text-xl font-semibold">Keep your eyes on the central dot!</h3>
+        <div className="relative w-full aspect-square max-w-sm bg-muted rounded-lg border">
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 bg-primary rounded-full" />
-            {activeDot && (
+            {currentStimulus && (
                 <div 
-                    className="absolute w-4 h-4 bg-red-500 rounded-full animate-ping"
-                    style={{ top: activeDot.top, left: activeDot.left, transform: 'translate(-50%, -50%)' }}
+                    className="absolute w-5 h-5 rounded-full"
+                    style={{ 
+                        top: currentStimulus.position.top, 
+                        left: currentStimulus.position.left, 
+                        transform: 'translate(-50%, -50%)',
+                        backgroundColor: currentStimulus.color,
+                     }}
                 />
             )}
         </div>
-        <p className="font-semibold">Tap anywhere on the grey area as soon as you see a flashing red dot.</p>
-        <p className="text-muted-foreground">Dot {dotIndex + 1} / {DOT_COUNT_PER_EYE}</p>
-        {!testInProgress && step !== 'instructions' && (
-             <Button onClick={() => startTestForEye(eye === 'left' ? 'right' : 'left' as Eye)}>
-                {eye === 'left' ? 'Start Right Eye Test' : 'See Results'}
-            </Button>
+
+       {showButtons ? (
+            <div className="flex flex-col items-center space-y-4 pt-4">
+                 <p className="font-semibold">What color was the dot?</p>
+                 <div className="flex gap-4">
+                    <Button onClick={() => handleAnswer('red')} className="bg-red-500 hover:bg-red-600">Red</Button>
+                    <Button onClick={() => handleAnswer('blue')} className="bg-blue-500 hover:bg-blue-600">Blue</Button>
+                    <Button onClick={() => handleAnswer('green')} className="bg-green-500 hover:bg-green-600">Green</Button>
+                 </div>
+            </div>
+        ) : (
+             <div className="h-24 flex items-center justify-center">
+                <p className="text-muted-foreground">Stimulus {currentIndex + 1} / {STIMULUS_COUNT}</p>
+             </div>
         )}
     </div>
   );
 
+  useEffect(() => {
+      return () => {
+          if (timerRef.current) clearTimeout(timerRef.current);
+      }
+  }, []);
+
   if (step === 'instructions') {
     return (
       <div className="text-center">
-        <h3 className="text-xl font-semibold">Instructions</h3>
+        <h3 className="text-xl font-semibold">"Side Sight" Game Instructions</h3>
         <p className="text-muted-foreground mt-2 mb-4 max-w-md mx-auto">
-          This test provides a basic screening of your peripheral vision. Keep your gaze fixed on the central point. You will test each eye separately.
+          Test your peripheral awareness with this game. Keep your gaze fixed on the central point.
           <br /><br />
-          Tap the screen as soon as you notice a flashing red dot in your side vision.
+          A colored dot will flash in your side vision. After it disappears, click the button corresponding to the color you saw.
         </p>
-        <Button onClick={() => {setStep('test-left'); startTestForEye('left');}}>Start Left Eye Test</Button>
+        <Button onClick={startGame}>Start Game</Button>
       </div>
     );
   }
 
   if (step === 'results') {
-    const getInterpretation = (score: number) => {
-        if (score > 8) return "Seems normal.";
-        if (score > 5) return "Some inconsistencies noted.";
-        return "Potential peripheral vision loss detected.";
-    }
+    const accuracy = (score / STIMULUS_COUNT) * 100;
     return (
       <Card className="mx-auto max-w-lg text-center">
         <CardHeader>
-          <CardTitle>Test Complete</CardTitle>
-          <CardDescription>You detected {leftScore + rightScore} out of {DOT_COUNT_PER_EYE * 2} total dots.</CardDescription>
+          <CardTitle>Game Over!</CardTitle>
         </CardHeader>
         <CardContent>
-            <div className="grid grid-cols-2 gap-4 my-4">
-                <div className="border rounded-lg p-4">
-                    <h4 className="font-semibold text-lg">Left Eye</h4>
-                    <p className="text-3xl font-bold">{leftScore}/{DOT_COUNT_PER_EYE}</p>
-                    <p className="text-sm text-muted-foreground">{getInterpretation(leftScore)}</p>
-                </div>
-                <div className="border rounded-lg p-4">
-                    <h4 className="font-semibold text-lg">Right Eye</h4>
-                    <p className="text-3xl font-bold">{rightScore}/{DOT_COUNT_PER_EYE}</p>
-                     <p className="text-sm text-muted-foreground">{getInterpretation(rightScore)}</p>
-                </div>
+            <div className="space-y-2">
+                <p className="text-lg text-muted-foreground">You correctly identified:</p>
+                <p className="text-6xl font-bold">{score} / {STIMULUS_COUNT}</p>
+                <p className="text-2xl font-semibold text-primary">{accuracy}% Accuracy</p>
             </div>
-          <p className="text-sm text-muted-foreground mb-4">This is a screening tool only and its accuracy depends on maintaining a steady gaze. If you have any concerns about your peripheral vision, consult an eye care professional.</p>
+          <p className="text-sm text-muted-foreground mt-6 mb-4">Great job training your peripheral vision! Regular practice can help improve your reaction time and awareness.</p>
           <Button onClick={restartTest}>
-            <RefreshCw className="mr-2 h-4 w-4" /> Restart Test
+            <RefreshCw className="mr-2 h-4 w-4" /> Play Again
           </Button>
         </CardContent>
       </Card>
@@ -205,8 +171,7 @@ export function VisualFieldTest() {
 
   return (
     <div>
-      {step === 'test-left' && renderTestArea('left')}
-      {step === 'test-right' && renderTestArea('right')}
+      {step === 'test' && renderTestArea()}
     </div>
   );
 }

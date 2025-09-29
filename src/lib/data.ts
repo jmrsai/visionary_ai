@@ -57,8 +57,8 @@ export const MOCK_TESTS: Test[] = [
     },
     {
         id: "visual-field",
-        title: "Visual Field Test",
-        description: "A basic screening tool to test your peripheral vision.",
+        title: "Peripheral Vision Game",
+        description: "Train your peripheral awareness with the 'Side Sight' game.",
         icon: View,
         category: "Advanced Screening"
     },
