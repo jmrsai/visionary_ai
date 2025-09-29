@@ -6,21 +6,80 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Loader2, Send, MessageCircle } from "lucide-react";
-import { chat } from "@/ai/flows/chatbot";
+import { chat, type ChartData } from "@/ai/flows/chatbot";
 import { useToast } from "@/hooks/use-toast";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { VisionaryLogo } from "@/components/icons";
 import { v4 as uuidv4 } from 'uuid';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Line, LineChart, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
+import { ChartConfig, ChartContainer, ChartTooltipContent } from "@/components/ui/chart";
 
 type Message = {
-  id?: string; // Optional: To be used with Firestore document ID
+  id?: string;
   text: string;
   isUser: boolean;
   media?: string;
+  chartData?: ChartData;
   timestamp?: Date;
 };
 
 const userAvatar = PlaceHolderImages.find((img) => img.id === "user-avatar");
+
+const chartConfig = {
+  score: {
+    label: "Score",
+    color: "hsl(var(--primary))",
+  },
+} satisfies ChartConfig;
+
+const ChatChart = ({ chartData }: { chartData: ChartData }) => {
+    const data = chartData.dataPoints.map(p => ({ date: p.x, score: p.y }));
+    const yDomain: [number, number] = [
+        Math.min(...data.map(d => d.score)) - 5,
+        Math.max(...data.map(d => d.score)) + 5,
+    ];
+
+    return (
+        <Card className="max-w-md w-full">
+            <CardHeader>
+                <CardTitle>Vision Score History</CardTitle>
+                <CardDescription>Your progress over time.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                 <ChartContainer config={chartConfig} className="h-[200px] w-full">
+                    <ResponsiveContainer>
+                        <LineChart data={data} margin={{ left: -20, right: 20, top: 5, bottom: 5 }}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis
+                            dataKey="date"
+                            tickLine={false}
+                            axisLine={false}
+                            tickMargin={8}
+                            fontSize={12}
+                        />
+                        <YAxis
+                            tickLine={false}
+                            axisLine={false}
+                            tickMargin={8}
+                            domain={yDomain}
+                            fontSize={12}
+                        />
+                        <Tooltip content={<ChartTooltipContent />} />
+                        <Line
+                            dataKey="score"
+                            type="monotone"
+                            stroke="var(--color-score)"
+                            strokeWidth={2}
+                            dot={true}
+                        />
+                        </LineChart>
+                    </ResponsiveContainer>
+                </ChartContainer>
+            </CardContent>
+        </Card>
+    )
+}
 
 export function ChatbotForm() {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -31,11 +90,8 @@ export function ChatbotForm() {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
 
-  // In a full implementation, this useEffect would fetch chat history if a conversationId exists.
   useEffect(() => {
     if (conversationId) {
-        // TODO: Fetch previous messages for this conversationId from Firestore
-        // e.g., getMessages(`conversations/${conversationId}/messages`)
         console.log(`Continuing conversation with ID: ${conversationId}`);
     }
   }, [conversationId]);
@@ -48,26 +104,25 @@ export function ChatbotForm() {
     if (!currentConversationId) {
         currentConversationId = uuidv4();
         setConversationId(currentConversationId);
-        // This is where you would create a new conversation document in Firestore.
         console.log(`Starting new conversation with ID: ${currentConversationId}`);
     }
 
     const userMessage: Message = { text: input, isUser: true, timestamp: new Date() };
     setMessages((prev) => [...prev, userMessage]);
 
-    // TODO: Save userMessage to Firestore
-    // e.g., addMessage(`conversations/${currentConversationId}/messages`, userMessage)
-
     setInput("");
     setIsLoading(true);
 
     try {
       const result = await chat({ message: input });
-      const aiMessage: Message = { text: result.response, isUser: false, media: result.media, timestamp: new Date() };
+      const aiMessage: Message = { 
+          text: result.response, 
+          isUser: false, 
+          media: result.media, 
+          chartData: result.chartData,
+          timestamp: new Date() 
+      };
       setMessages((prev) => [...prev, aiMessage]);
-
-      // TODO: Save aiMessage to Firestore
-      // e.g., addMessage(`conversations/${currentConversationId}/messages`, aiMessage)
 
     } catch (error) {
       console.error("Error with chatbot:", error);
@@ -84,7 +139,6 @@ export function ChatbotForm() {
   };
 
   useEffect(() => {
-    // Scroll to the bottom whenever messages change
     if (scrollAreaRef.current) {
         const viewport = scrollAreaRef.current.querySelector('div[data-radix-scroll-area-viewport]');
         if (viewport) {
@@ -92,7 +146,6 @@ export function ChatbotForm() {
         }
     }
     
-    // Play audio for the last message if it exists
     const lastMessage = messages[messages.length - 1];
     if (lastMessage && !lastMessage.isUser && lastMessage.media && audioRef.current) {
         audioRef.current.src = lastMessage.media;
@@ -110,7 +163,7 @@ export function ChatbotForm() {
                 <div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted">
                     <MessageCircle className="h-8 w-8 text-muted-foreground"/>
                 </div>
-              <p className="text-muted-foreground">Ask a question to start the conversation.</p>
+              <p className="text-muted-foreground">Ask things like "Show me my vision score history".</p>
             </div>
           ) : (
             messages.map((message, index) => (
@@ -128,13 +181,18 @@ export function ChatbotForm() {
                   </Avatar>
                 )}
                 <div
-                  className={`max-w-md rounded-lg p-3 ${
+                  className={`flex flex-col space-y-2 max-w-md rounded-lg p-3 ${
                     message.isUser
                       ? "bg-primary text-primary-foreground"
                       : "bg-muted"
                   }`}
                 >
                   <p className="text-sm">{message.text}</p>
+                  
+                  {message.chartData && (
+                    <ChatChart chartData={message.chartData} />
+                  )}
+
                   {!message.isUser && message.media && (
                       <audio controls className="w-full mt-2 h-8">
                           <source src={message.media} type="audio/wav" />

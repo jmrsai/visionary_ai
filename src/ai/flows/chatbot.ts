@@ -13,17 +13,30 @@ import {symptomCheckerTool} from '@/ai/tools/symptom-checker-tool';
 import {z} from 'zod';
 import wav from 'wav';
 import {googleAI} from '@genkit-ai/googleai';
+import { MOCK_VISION_SCORE_HISTORY } from '@/lib/data';
+
 
 const ChatInputSchema = z.object({
   message: z.string().describe("The user's message or question."),
 });
 export type ChatInput = z.infer<typeof ChatInputSchema>;
 
+const ChartDataSchema = z.object({
+    chartType: z.enum(['line', 'bar']).describe('The type of chart to display.'),
+    dataPoints: z.array(z.object({
+        x: z.string().describe("The label for the x-axis (e.g., a date)."),
+        y: z.number().describe("The value for the y-axis."),
+    })).describe('The data points for the chart.'),
+    summaryText: z.string().describe("A spoken summary of the chart's data."),
+});
+
 const ChatOutputSchema = z.object({
-  response: z.string().describe("The AI's response to the user's message."),
+  response: z.string().describe("The AI's text response to the user's message."),
   media: z.string().optional().describe('A data URI of the audio response.'),
+  chartData: ChartDataSchema.optional().describe('Structured data for rendering a chart in the UI, if the user requested one.'),
 });
 export type ChatOutput = z.infer<typeof ChatOutputSchema>;
+export type ChartData = z.infer<typeof ChartDataSchema>;
 
 export async function chat(input: ChatInput): Promise<ChatOutput> {
   return chatFlow(input);
@@ -31,8 +44,8 @@ export async function chat(input: ChatInput): Promise<ChatOutput> {
 
 const prompt = ai.definePrompt({
   name: 'chatPrompt',
-  input: {schema: z.object({ message: z.string() })},
-  output: {schema: z.object({ response: z.string()})},
+  input: {schema: z.object({ message: z.string(), visionScoreHistory: z.string() })},
+  output: {schema: ChatOutputSchema},
   tools: [symptomCheckerTool],
   prompt: `You are a friendly and helpful AI assistant for the Visionary app, specializing in eye health. Your role is to act as a Personal Eye Health Assistant.
 
@@ -49,12 +62,20 @@ const prompt = ai.definePrompt({
   - Physical injury or trauma to the eye
   - Chemical splash in the eye
   
-  **Your Core Task: Conversational Symptom Triage**
-  1.  Listen to the user's message.
-  2.  If they describe symptoms, ask clarifying questions to get more detail (e.g., "Is it one eye or both?", "How long have you felt this?").
-  3.  Once you have enough detail, use the 'symptomChecker' tool to analyze the symptoms.
-  4.  Present the results from the tool to the user in a clear, easy-to-understand way.
-  5.  If the user asks a general question (e.g., "What is glaucoma?"), answer it clearly and concisely.
+  **Your Core Tasks:**
+  1.  **Conversational Symptom Triage:**
+      - Listen to the user's message.
+      - If they describe symptoms, ask clarifying questions to get more detail (e.g., "Is it one eye or both?", "How long have you felt this?").
+      - Once you have enough detail, use the 'symptomChecker' tool to analyze the symptoms.
+      - Present the results from the tool to the user in a clear, easy-to-understand way.
+  2.  **Voice Chart Bot:**
+      - If the user asks for a chart or a graph of their progress (e.g., "Show me my vision score history"), you MUST respond with a chart object.
+      - Use the provided data to populate the 'dataPoints' field.
+      - Generate a 'summaryText' that both describes the data and is spoken aloud.
+      - Set the 'response' field to a brief confirmation message (e.g., "Here is your vision score history.").
+      - **Example Data:** Vision Score History: {{{visionScoreHistory}}}
+  3.  **General Questions:**
+      - If the user asks a general question (e.g., "What is glaucoma?"), answer it clearly and concisely.
   
   User's message: {{{message}}}
   
@@ -95,7 +116,13 @@ const chatFlow = ai.defineFlow(
     outputSchema: ChatOutputSchema,
   },
   async input => {
-    const {output} = await prompt(input);
+    // Map the mock data to the format expected by the prompt
+    const visionScoreHistory = MOCK_VISION_SCORE_HISTORY.map(item => ({ x: item.date, y: item.score }));
+    
+    const {output} = await prompt({
+        ...input,
+        visionScoreHistory: JSON.stringify(visionScoreHistory, null, 2)
+    });
 
     // If the model doesn't return structured output for some reason, provide a safe default.
     if (!output) {
@@ -104,6 +131,8 @@ const chatFlow = ai.defineFlow(
           "I'm sorry, I'm having trouble processing that request. Please try rephrasing your question. Remember, for any urgent medical concerns, please contact a healthcare professional.",
       };
     }
+    
+    const responseText = output.chartData ? output.chartData.summaryText : output.response;
     
     // Generate TTS
     const { media: audioMedia } = await ai.generate({
@@ -116,11 +145,11 @@ const chatFlow = ai.defineFlow(
             },
           },
         },
-        prompt: output.response,
+        prompt: responseText,
       });
 
     if (!audioMedia?.url) {
-        return { response: output.response };
+        return { ...output };
     }
 
     const audioBuffer = Buffer.from(
@@ -130,7 +159,7 @@ const chatFlow = ai.defineFlow(
     const wavBase64 = await toWav(audioBuffer);
 
     return {
-        response: output.response,
+        ...output,
         media: 'data:audio/wav;base64,' + wavBase64
     };
   }

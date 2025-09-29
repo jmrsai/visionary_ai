@@ -11,7 +11,7 @@ export default function ChatbotPage() {
         <div>
           <h1 className="text-3xl font-bold">AI Chatbot</h1>
           <p className="text-muted-foreground">
-            Ask our AI assistant about eye health, exercises, and more.
+            Ask our AI assistant about eye health, exercises, or your progress.
           </p>
         </div>
       </div>
