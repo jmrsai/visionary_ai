@@ -1,7 +1,7 @@
 
 
 import { Activity, BookOpen, Brain, Dumbbell, Eye, Glasses, HeartPulse, Target, Video, View, Wind, Sparkles, CalendarCheck, ScanEye, Zap, ListTodo, Contrast, Layers } from "lucide-react";
-import type { Test, Reminder, ActivityLog, Exercise, Circuit, AdherenceLog, CheckupReport, HrrPlate } from "./types";
+import type { Test, Reminder, ActivityLog, Exercise, Circuit, AdherenceLog, CheckupReport, HrrPlate, D15Cap } from "./types";
 import { StereopsisIcon } from "@/components/icons";
 
 export const MOCK_REMINDERS: Reminder[] = [
@@ -79,6 +79,26 @@ export const MOCK_HRR_PLATES: HrrPlate[] = [
     }
 ];
 
+export const MOCK_D15_CAPS: D15Cap[] = [
+  { id: 0, color: '#9d9d57'}, // Pilot cap - fixed
+  { id: 1, color: '#a7955c' },
+  { id: 2, color: '#aa8e63' },
+  { id: 3, color: '#ac876d' },
+  { id: 4, color: '#ab7f78' },
+  { id: 5, color: '#aa7885' },
+  { id: 6, color: '#a27293' },
+  { id: 7, color: '#9770a0' },
+  { id: 8, color: '#8872a9' },
+  { id: 9, color: '#7a78b0' },
+  { id: 10, color: '#717fb4' },
+  { id: 11, color: '#6d86b2' },
+  { id: 12, color: '#718d9b' },
+  { id: 13, color: '#7e9488' },
+  { id: 14, color: '#8b997c' },
+  { id: 15, color: '#949b6b' },
+];
+
+
 export const MOCK_TESTS: Test[] = [
     {
         id: "visual-acuity",
@@ -90,8 +110,8 @@ export const MOCK_TESTS: Test[] = [
     {
         id: "color-vision",
         title: "Color Vision Test",
-        description: "Screen for color blindness with Ishihara-style plates.",
-        icon: Glasses,
+        description: "Screen for color blindness with Ishihara, HRR, and D-15 tests.",
+        icon: Palette,
         category: "Core Diagnostics"
     },
     {

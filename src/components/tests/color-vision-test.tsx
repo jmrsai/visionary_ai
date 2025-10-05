@@ -11,6 +11,7 @@ import { generateIshiharaPlate, type IshiharaPlateOutput } from '@/ai/flows/ishi
 import { HrrTest } from './hrr-test';
 import { Progress } from '../ui/progress';
 import { Badge } from '../ui/badge';
+import { MOCK_D15_CAPS } from '@/lib/data';
 
 
 const TOTAL_PLATES = 5; // Let's do 5 plates for the AI version
@@ -201,33 +202,11 @@ const IshiharaTest = ({ onBack }: { onBack: () => void }) => {
 };
 
 
-// --- D-15 Arrangement Test Data ---
-const d15Caps = [
-  { id: 0, color: '#9d9d57', label: 'Pilot'}, // Pilot cap - fixed
-  { id: 1, color: '#a7955c' },
-  { id: 2, color: '#aa8e63' },
-  { id: 3, color: '#ac876d' },
-  { id: 4, color: '#ab7f78' },
-  { id: 5, color: '#aa7885' },
-  { id: 6, color: '#a27293' },
-  { id: 7, color: '#9770a0' },
-  { id: 8, color: '#8872a9' },
-  { id: 9, color: '#7a78b0' },
-  { id: 10, color: '#717fb4' },
-  { id: 11, color: '#6d86b2' },
-  { id: 12, color: '#718d9b' },
-  { id: 13, color: '#7e9488' },
-  { id: 14, color: '#8b997c' },
-  { id: 15, color: '#949b6b' },
-];
-
-// Correct order for D-15
 const d15CorrectOrder = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
-
 
 const D15Test = ({ onBack }: { onBack: () => void }) => {
   const [step, setStep] = useState<'instructions' | 'test' | 'results'>('instructions');
-  const [caps, setCaps] = useState(() => [...d15Caps.slice(1)].sort(() => Math.random() - 0.5));
+  const [caps, setCaps] = useState(() => [...MOCK_D15_CAPS.slice(1)].sort(() => Math.random() - 0.5));
   const [draggedCapId, setDraggedCapId] = useState<number | null>(null);
 
   const handleDragStart = (id: number) => {
@@ -235,14 +214,15 @@ const D15Test = ({ onBack }: { onBack: () => void }) => {
   };
 
   const handleDrop = (targetId: number) => {
-    if (draggedCapId === null) return;
+    if (draggedCapId === null || draggedCapId === targetId) return;
 
     const newCaps = [...caps];
     const draggedIndex = newCaps.findIndex(c => c.id === draggedCapId);
     const targetIndex = newCaps.findIndex(c => c.id === targetId);
     
     // Swap the caps
-    [newCaps[draggedIndex], newCaps[targetIndex]] = [newCaps[targetIndex], newCaps[draggedIndex]];
+    const draggedItem = newCaps.splice(draggedIndex, 1)[0];
+    newCaps.splice(targetIndex, 0, draggedItem);
     
     setCaps(newCaps);
     setDraggedCapId(null);
@@ -253,19 +233,27 @@ const D15Test = ({ onBack }: { onBack: () => void }) => {
   };
 
   const getResultLines = () => {
-    const arrangement = [0, ...caps.map(c => c.id), 0]; // Add pilot at start/end for calculation
+    const arrangement = [0, ...caps.map(c => c.id)]; // Add pilot cap at the start
     const lines = [];
+    // Protan axis errors: 15-7, 1-8
+    // Deutan axis errors: 14-6, 2-7
+    // Tritan axis errors: 13-4, 3-5
+
     for (let i = 0; i < arrangement.length - 1; i++) {
         const cap1 = arrangement[i];
         const cap2 = arrangement[i+1];
         
-        // Check for specific error types (Protan, Deutan, Tritan axes)
-        // This is a simplified logic for demonstration
-        if (Math.abs(cap1 - cap2) > 2 && !(cap1 === 0 && cap2 === 15) && !(cap1 === 15 && cap2 === 0)) {
-             lines.push({from: cap1, to: cap2, type: 'error' });
-        } else {
-             lines.push({from: cap1, to: cap2, type: 'correct' });
+        const isError = Math.abs(cap1 - cap2) > 1 && !(cap1 === 0 && cap2 === 15) && !(cap1 === 15 && cap2 === 0);
+        
+        let type = 'correct';
+        if (isError) {
+          const pair = [cap1, cap2].sort((a,b) => a-b);
+          if ( (pair[0] === 7 && pair[1] === 15) || (pair[0] === 1 && pair[1] === 8) ) type = 'protan';
+          else if ( (pair[0] === 6 && pair[1] === 14) || (pair[0] === 2 && pair[1] === 7) ) type = 'deutan';
+          else if ( (pair[0] === 4 && pair[1] === 13) || (pair[0] === 3 && pair[1] === 5) ) type = 'tritan';
+          else type = 'error';
         }
+        lines.push({from: cap1, to: cap2, type });
     }
     return lines;
   };
@@ -280,7 +268,7 @@ const D15Test = ({ onBack }: { onBack: () => void }) => {
 
   const restartTest = () => {
     setStep('instructions');
-    setCaps([...d15Caps.slice(1)].sort(() => Math.random() - 0.5));
+    setCaps([...MOCK_D15_CAPS.slice(1)].sort(() => Math.random() - 0.5));
   }
 
   if (step === 'instructions') {
@@ -301,41 +289,56 @@ const D15Test = ({ onBack }: { onBack: () => void }) => {
   if (step === 'results') {
     const userOrder = caps.map(c => c.id);
     const correct = JSON.stringify(userOrder) === JSON.stringify(d15CorrectOrder);
+    const lines = getResultLines();
+    const errorCount = lines.filter(l => l.type !== 'correct').length;
+    const errorTypes = [...new Set(lines.filter(l => l.type.match(/protan|deutan|tritan/)).map(l => l.type))];
+
+    let interpretation = "Your results suggest normal color vision.";
+    if (errorCount > 2) {
+      interpretation = `Your arrangement suggests a significant color deficiency. The pattern of errors may indicate a ${errorTypes.join(', ')} type deficiency.`
+    } else if (errorCount > 0) {
+      interpretation = `Your arrangement suggests a mild color deficiency. The pattern of errors may indicate a ${errorTypes.join(', ')} type deficiency.`
+    }
 
     return (
         <Card className="mx-auto w-full text-center">
             <CardHeader>
                 <CardTitle>D-15 Test Complete</CardTitle>
                 <CardDescription>
-                    {correct ? 'Your arrangement is correct.' : 'Your arrangement indicates a potential color vision deficiency.'}
+                    {interpretation}
                 </CardDescription>
             </CardHeader>
             <CardContent>
                 <p className="text-muted-foreground mb-4">Below is a diagram of your results. Lines connect the caps in the order you placed them. Crossing lines indicate errors in color perception.</p>
                 {/* Result Diagram */}
                 <div className="relative w-64 h-64 mx-auto my-6">
-                    {d15Caps.map(cap => {
+                    {MOCK_D15_CAPS.map(cap => {
                         const angle = (cap.id / 16) * 2 * Math.PI - (Math.PI / 2);
                         const x = 50 + 45 * Math.cos(angle);
                         const y = 50 + 45 * Math.sin(angle);
                         return (
-                            <div key={cap.id} className="absolute w-8 h-8 rounded-full border-2 border-white flex items-center justify-center text-xs" style={{ left: `${x}%`, top: `${y}%`, transform: 'translate(-50%, -50%)', backgroundColor: cap.color }}>
-                                {cap.id}
+                            <div key={cap.id} className="absolute w-8 h-8 rounded-full border-2 border-white flex items-center justify-center text-xs font-bold" style={{ left: `${x}%`, top: `${y}%`, transform: 'translate(-50%, -50%)', backgroundColor: cap.color, color: 'white', textShadow: '0 0 2px black' }}>
+                                {cap.id === 0 ? 'P' : cap.id}
                             </div>
                         )
                     })}
                      <svg className="absolute top-0 left-0 w-full h-full" viewBox="0 0 100 100">
-                        {getResultLines().map((line, i) => {
-                             const fromCap = d15Caps.find(c => c.id === line.from)!;
-                             const toCap = d15Caps.find(c => c.id === line.to)!;
+                        {lines.map((line, i) => {
+                             const fromCap = MOCK_D15_CAPS.find(c => c.id === line.from)!;
+                             const toCap = MOCK_D15_CAPS.find(c => c.id === line.to)!;
                              const fromAngle = (fromCap.id / 16) * 2 * Math.PI - (Math.PI / 2);
                              const toAngle = (toCap.id / 16) * 2 * Math.PI - (Math.PI / 2);
-                             const x1 = 50 + 35 * Math.cos(fromAngle);
-                             const y1 = 50 + 35 * Math.sin(fromAngle);
-                             const x2 = 50 + 35 * Math.cos(toAngle);
-                             const y2 = 50 + 35 * Math.sin(toAngle);
+                             const x1 = 50 + 40 * Math.cos(fromAngle);
+                             const y1 = 50 + 40 * Math.sin(fromAngle);
+                             const x2 = 50 + 40 * Math.cos(toAngle);
+                             const y2 = 50 + 40 * Math.sin(toAngle);
+                             
+                             let strokeColor = 'hsl(var(--muted-foreground))';
+                             if(line.type === 'protan') strokeColor = 'red';
+                             if(line.type === 'deutan') strokeColor = 'green';
+                             if(line.type === 'tritan') strokeColor = 'blue';
 
-                             return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke={line.type === 'error' ? 'red' : 'gray'} strokeWidth="1" />
+                             return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke={strokeColor} strokeWidth="1" />
                         })}
                     </svg>
                 </div>
@@ -356,15 +359,15 @@ const D15Test = ({ onBack }: { onBack: () => void }) => {
             <CardDescription>Drag and drop the tiles to place them in the correct order of hue.</CardDescription>
         </CardHeader>
         <CardContent>
-            <div className="flex flex-wrap gap-2 justify-center items-center p-4 border rounded-lg">
-                <div className="flex flex-col items-center">
-                    <div style={{ backgroundColor: d15Caps[0].color }} className="w-12 h-12 rounded-lg shadow-md flex items-center justify-center font-bold text-white">
+            <div className="flex flex-wrap gap-2 justify-center items-center p-4 border rounded-lg min-h-[14rem]">
+                <div className="flex flex-col items-center gap-1">
+                    <div style={{ backgroundColor: MOCK_D15_CAPS[0].color }} className="w-16 h-16 rounded-lg shadow-md flex items-center justify-center font-bold text-white">
                         P
                     </div>
                     <span className="text-xs mt-1">Pilot</span>
                 </div>
 
-                <div className="flex-grow flex flex-wrap gap-2">
+                <div className="flex-grow grid grid-cols-5 sm:grid-cols-8 gap-2">
                     {caps.map(cap => (
                         <div
                             key={cap.id}
@@ -373,12 +376,11 @@ const D15Test = ({ onBack }: { onBack: () => void }) => {
                             onDrop={() => handleDrop(cap.id)}
                             onDragOver={handleDragOver}
                             className={cn(
-                                "w-16 h-16 rounded-lg shadow-md cursor-pointer transition-all flex items-center justify-center text-xs font-mono",
-                                draggedCapId === cap.id && "opacity-50 scale-110"
+                                "w-16 h-16 rounded-lg shadow-md cursor-pointer transition-all flex items-center justify-center text-xs font-mono text-white",
+                                draggedCapId === cap.id && "opacity-50 scale-110 ring-2 ring-primary"
                             )}
                             style={{ backgroundColor: cap.color }}
                         >
-                             <span className="bg-black/30 rounded-sm px-1.5 py-0.5 text-white">{cap.color}</span>
                         </div>
                     ))}
                 </div>

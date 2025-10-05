@@ -87,6 +87,11 @@ export type HrrPlate = {
     deficiencyType: "Red-Green" | "Blue-Yellow";
 };
 
+export type D15Cap = {
+    id: number;
+    color: string;
+}
+
 
 // --- App-specific Helper Types (Mock Data etc.) ---
 
