@@ -18,16 +18,24 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Loader2, AlertTriangle, Lightbulb } from "lucide-react";
+import { Loader2, AlertTriangle, Lightbulb, Hospital, Home } from "lucide-react";
 import { symptomChecker, type SymptomCheckerOutput } from "@/ai/flows/symptom-checker";
 import { useToast } from "@/hooks/use-toast";
 import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
 
 const formSchema = z.object({
   symptoms: z.string().min(10, {
     message: "Please describe your symptoms in at least 10 characters.",
   }),
 });
+
+const severityColors: Record<string, string> = {
+  Low: "bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300",
+  Moderate: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300",
+  High: "bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300",
+};
+
 
 export function SymptomCheckerForm() {
   const [result, setResult] = useState<SymptomCheckerOutput | null>(null);
@@ -60,7 +68,7 @@ export function SymptomCheckerForm() {
   }
 
   return (
-    <div className="grid gap-8 md:grid-cols-2">
+    <div className="grid gap-8 md:grid-cols-1 lg:grid-cols-2">
       <Card>
         <CardHeader>
           <CardTitle>Describe Your Symptoms</CardTitle>
@@ -101,21 +109,43 @@ export function SymptomCheckerForm() {
         </CardContent>
       </Card>
       
-      <Card className="min-h-[400px]">
-        <CardHeader>
-          <CardTitle>Possible Conditions</CardTitle>
-          <CardDescription>AI-powered insights based on your symptoms.</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-            {isLoading && (
-                <div className="flex flex-col items-center justify-center space-y-4 pt-10">
-                <Loader2 className="h-12 w-12 animate-spin text-primary" />
-                <p className="text-muted-foreground">Analyzing symptoms...</p>
-                </div>
-            )}
+      <div className="space-y-4">
+        {isLoading && (
+            <Card className="min-h-[400px]">
+                 <CardHeader>
+                    <CardTitle>Analyzing...</CardTitle>
+                    <CardDescription>AI is processing your symptoms.</CardDescription>
+                </CardHeader>
+                 <CardContent>
+                    <div className="flex flex-col items-center justify-center space-y-4 pt-10">
+                    <Loader2 className="h-12 w-12 animate-spin text-primary" />
+                    <p className="text-muted-foreground">Analyzing symptoms...</p>
+                    </div>
+                 </CardContent>
+            </Card>
+        )}
 
-            {result && (
-                <>
+        {result && (
+            <>
+              {result.severity === 'High' && (
+                <Alert variant="destructive" className="border-4">
+                    <Hospital className="h-5 w-5" />
+                    <AlertTitle className="text-xl font-bold">High Severity Detected</AlertTitle>
+                    <AlertDescription className="text-base">
+                        Your symptoms may indicate a serious condition. Please seek immediate medical attention from an eye care professional or go to the nearest emergency room.
+                    </AlertDescription>
+                </Alert>
+              )}
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Possible Conditions</CardTitle>
+                  <CardDescription className="flex items-center gap-2">
+                    AI-powered insights based on your symptoms.
+                    <Badge className={severityColors[result.severity] || ''}>Severity: {result.severity}</Badge>
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
                     <Alert variant="destructive">
                         <AlertTriangle className="h-4 w-4" />
                         <AlertTitle>Disclaimer</AlertTitle>
@@ -133,19 +163,44 @@ export function SymptomCheckerForm() {
                             </div>
                         ))}
                     </div>
-                </>
-            )}
+                </CardContent>
+              </Card>
 
-            {!isLoading && !result && (
-                <div className="flex flex-col items-center justify-center space-y-4 pt-10 text-center">
-                    <div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted">
-                        <Lightbulb className="h-8 w-8 text-muted-foreground"/>
+              {result.homeCareAdvice && result.homeCareAdvice.length > 0 && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2"><Home className="h-5 w-5" /> Suggested Home Care</CardTitle>
+                    <CardDescription>These are general suggestions for comfort. They are not a substitute for professional medical advice.</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <ul className="space-y-2 list-disc list-inside">
+                      {result.homeCareAdvice.map((advice, index) => (
+                        <li key={index}>{advice}</li>
+                      ))}
+                    </ul>
+                  </CardContent>
+                </Card>
+              )}
+            </>
+        )}
+
+        {!isLoading && !result && (
+             <Card className="min-h-[400px]">
+                <CardHeader>
+                    <CardTitle>Awaiting Input</CardTitle>
+                    <CardDescription>Your analysis will appear here.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <div className="flex flex-col items-center justify-center space-y-4 pt-10 text-center">
+                        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted">
+                            <Lightbulb className="h-8 w-8 text-muted-foreground"/>
+                        </div>
+                    <p className="text-muted-foreground">Potential conditions, severity, and home care suggestions will appear here once you submit your symptoms.</p>
                     </div>
-                <p className="text-muted-foreground">Potential conditions and their likelihood will appear here.</p>
-                </div>
-            )}
-        </CardContent>
-      </Card>
+                </CardContent>
+            </Card>
+        )}
+      </div>
     </div>
   );
 }
