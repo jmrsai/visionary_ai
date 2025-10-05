@@ -206,7 +206,7 @@ export function VisualAcuityTest() {
             </div>
             <div className="flex items-center space-x-2">
                 <RadioGroupItem value="tumblingE" id="tumblingE" />
-                <Label htmlFor="tumblingE" className="flex-1">Tumbling "E" (For illiterate adults & children)</Label>
+                <Label htmlFor="tumblingE" className="flex-1">Tumbling "E" (For illiterate adults &amp; children)</Label>
             </div>
             <div className="flex items-center space-x-2">
                 <RadioGroupItem value="pictures" id="pictures" />

@@ -151,7 +151,7 @@ export const MOCK_TESTS: Test[] = [
     },
     {
         id: "redness-scan",
-        title: "Redness & Irritation Scan",
+        title: "Redness &amp; Irritation Scan",
         description: "AI-powered analysis of eye redness from a photo. (Experimental)",
         icon: ScanEye,
         category: "Advanced Screening"
