@@ -6,6 +6,7 @@ import { Loader2, Camera, RefreshCw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Progress } from '@/components/ui/progress';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 
 export function PupilResponseTest() {
   const [step, setStep] = useState<'instructions' | 'testing' | 'results'>('instructions');
