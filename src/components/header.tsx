@@ -20,7 +20,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { NAV_ITEMS } from "@/lib/constants";
 import { VisionaryLogo } from "./icons";
@@ -52,6 +52,10 @@ export function Header() {
           </Button>
         </SheetTrigger>
         <SheetContent side="left" className="sm:max-w-xs">
+          <SheetHeader className="sr-only">
+            <SheetTitle>Mobile Navigation Menu</SheetTitle>
+            <SheetDescription>Main navigation links for the Visionary application.</SheetDescription>
+          </SheetHeader>
           <nav className="grid gap-6 text-lg font-medium">
             <Link
               href="#"
