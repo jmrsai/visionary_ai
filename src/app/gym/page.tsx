@@ -32,7 +32,7 @@ export default function GymPage() {
           <h2 className="text-2xl font-semibold mb-4">{category}</h2>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {MOCK_EXERCISES.filter(ex => ex.category === category).map((exercise) => {
-              const exercisePath = exercise.category === 'AI Tools' 
+              const exercisePath = exercise.id === 'symptom-checker' || exercise.id === 'personalized-workouts'
                 ? `/gym/${exercise.id}` 
                 : `/gym/exercise/${exercise.id}`;
               

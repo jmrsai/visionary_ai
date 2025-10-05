@@ -175,6 +175,10 @@ function ChatInterface() {
 
   return (
     <div className="flex flex-col h-full">
+      <SheetHeader className="p-4 border-b">
+        <SheetTitle>AI Assistant</SheetTitle>
+        <SheetDescription>Ask our AI assistant about eye health, exercises, or your progress.</SheetDescription>
+      </SheetHeader>
       <audio ref={audioRef} className="hidden" />
       <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
         <div className="space-y-6">
@@ -303,10 +307,6 @@ export function FloatingChatbot() {
                 side={isMobile ? "bottom" : "right"} 
                 className={`p-0 ${isMobile ? 'h-[80%]' : 'w-[400px] sm:max-w-md'}`}
             >
-                <SheetHeader className="p-4 border-b">
-                    <SheetTitle>AI Assistant</SheetTitle>
-                    <SheetDescription>Ask our AI assistant about eye health, exercises, or your progress.</SheetDescription>
-                </SheetHeader>
                 <ChatInterface />
             </SheetContent>
         </Sheet>
