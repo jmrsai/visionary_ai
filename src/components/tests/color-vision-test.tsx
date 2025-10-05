@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Check, RefreshCw, X, ArrowLeft, Loader2, Palette } from 'lucide-react';
+import { Check, RefreshCw, X, ArrowLeft, Loader2, Palette, Timer } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { generateIshiharaPlate, type IshiharaPlateOutput } from '@/ai/flows/ishihara-plate-generator';
@@ -208,6 +208,7 @@ const D15Test = ({ onBack }: { onBack: () => void }) => {
   const [step, setStep] = useState<'instructions' | 'test' | 'results'>('instructions');
   const [caps, setCaps] = useState(() => [...MOCK_D15_CAPS.slice(1)].sort(() => Math.random() - 0.5));
   const [draggedCapId, setDraggedCapId] = useState<number | null>(null);
+  const [resultLines, setResultLines] = useState<any[]>([]);
 
   const handleDragStart = (id: number) => {
     setDraggedCapId(id);
@@ -232,7 +233,7 @@ const D15Test = ({ onBack }: { onBack: () => void }) => {
     e.preventDefault();
   };
 
-  const getResultLines = () => {
+  const calculateResults = () => {
     const arrangement = [0, ...caps.map(c => c.id)]; // Add pilot cap at the start
     const lines = [];
     // Protan axis errors: 15-7, 1-8
@@ -255,7 +256,7 @@ const D15Test = ({ onBack }: { onBack: () => void }) => {
         }
         lines.push({from: cap1, to: cap2, type });
     }
-    return lines;
+    setResultLines(lines);
   };
   
   const startTest = () => {
@@ -263,6 +264,7 @@ const D15Test = ({ onBack }: { onBack: () => void }) => {
   };
 
   const finishTest = () => {
+    calculateResults();
     setStep('results');
   };
 
@@ -287,11 +289,8 @@ const D15Test = ({ onBack }: { onBack: () => void }) => {
   }
 
   if (step === 'results') {
-    const userOrder = caps.map(c => c.id);
-    const correct = JSON.stringify(userOrder) === JSON.stringify(d15CorrectOrder);
-    const lines = getResultLines();
-    const errorCount = lines.filter(l => l.type !== 'correct').length;
-    const errorTypes = [...new Set(lines.filter(l => l.type.match(/protan|deutan|tritan/)).map(l => l.type))];
+    const errorCount = resultLines.filter(l => l.type !== 'correct').length;
+    const errorTypes = [...new Set(resultLines.filter(l => l.type.match(/protan|deutan|tritan/)).map(l => l.type))];
 
     let interpretation = "Your results suggest normal color vision.";
     if (errorCount > 2) {
@@ -323,7 +322,7 @@ const D15Test = ({ onBack }: { onBack: () => void }) => {
                         )
                     })}
                      <svg className="absolute top-0 left-0 w-full h-full" viewBox="0 0 100 100">
-                        {lines.map((line, i) => {
+                        {resultLines.map((line, i) => {
                              const fromCap = MOCK_D15_CAPS.find(c => c.id === line.from)!;
                              const toCap = MOCK_D15_CAPS.find(c => c.id === line.to)!;
                              const fromAngle = (fromCap.id / 16) * 2 * Math.PI - (Math.PI / 2);
@@ -343,9 +342,12 @@ const D15Test = ({ onBack }: { onBack: () => void }) => {
                     </svg>
                 </div>
                 <p className="text-sm text-muted-foreground mt-4 mb-4">This screening is not a substitute for a professional diagnosis. Please consult an eye care professional.</p>
-                <Button onClick={restartTest}>
-                    <RefreshCw className="mr-2 h-4 w-4" /> Retake Test
-                </Button>
+                <div className="flex justify-center gap-4">
+                    <Button variant="outline" onClick={onBack}><ArrowLeft className="mr-2 h-4 w-4" />All Tests</Button>
+                    <Button onClick={restartTest}>
+                        <RefreshCw className="mr-2 h-4 w-4" /> Retake Test
+                    </Button>
+                </div>
             </CardContent>
         </Card>
     )
@@ -392,8 +394,151 @@ const D15Test = ({ onBack }: { onBack: () => void }) => {
   );
 };
 
+const ChromaDetectiveGame = ({ onBack }: { onBack: () => void }) => {
+    const [step, setStep] = useState<'instructions' | 'game' | 'results'>('instructions');
+    const [level, setLevel] = useState(1);
+    const [score, setScore] = useState(0);
+    const [timeLeft, setTimeLeft] = useState(10);
+    const [grid, setGrid] = useState<any[]>([]);
+    const [oddTileIndex, setOddTileIndex] = useState(-1);
+
+    const timerRef = useRef<NodeJS.Timeout>();
+
+    const generateLevel = (currentLevel: number) => {
+        const gridSize = Math.min(Math.floor(Math.sqrt(currentLevel * 2)) + 1, 7); // Grid size from 2x2 up to 7x7
+        const numTiles = gridSize * gridSize;
+        const difficulty = Math.max(10, 80 - currentLevel * 4); // Color difference gets smaller
+
+        const baseColor = {
+            r: Math.floor(Math.random() * 256),
+            g: Math.floor(Math.random() * 256),
+            b: Math.floor(Math.random() * 256),
+        };
+        const oddColor = {
+            r: Math.max(0, Math.min(255, baseColor.r + (Math.random() > 0.5 ? difficulty : -difficulty))),
+            g: Math.max(0, Math.min(255, baseColor.g + (Math.random() > 0.5 ? difficulty : -difficulty))),
+            b: Math.max(0, Math.min(255, baseColor.b + (Math.random() > 0.5 ? difficulty : -difficulty))),
+        };
+
+        const newGrid = Array(numTiles).fill(`rgb(${baseColor.r}, ${baseColor.g}, ${baseColor.b})`);
+        const newOddTileIndex = Math.floor(Math.random() * numTiles);
+        newGrid[newOddTileIndex] = `rgb(${oddColor.r}, ${oddColor.g}, ${oddColor.b})`;
+        
+        setGrid(newGrid);
+        setOddTileIndex(newOddTileIndex);
+        setTimeLeft(Math.max(3, 10 - Math.floor(currentLevel / 5)));
+    };
+
+    const startGame = () => {
+        setLevel(1);
+        setScore(0);
+        generateLevel(1);
+        setStep('game');
+    };
+
+    const handleTileClick = (index: number) => {
+        if (index === oddTileIndex) {
+            setScore(score + level * 10);
+            const nextLevel = level + 1;
+            setLevel(nextLevel);
+            generateLevel(nextLevel);
+        } else {
+            endGame();
+        }
+    };
+    
+    const endGame = () => {
+        if (timerRef.current) clearTimeout(timerRef.current);
+        setStep('results');
+    }
+
+    useEffect(() => {
+        if (step === 'game') {
+            timerRef.current = setInterval(() => {
+                setTimeLeft(prev => {
+                    if (prev <= 1) {
+                        endGame();
+                        return 0;
+                    }
+                    return prev - 1;
+                });
+            }, 1000);
+        }
+        return () => {
+            if (timerRef.current) clearTimeout(timerRef.current);
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [step]);
+    
+    if (step === 'instructions') {
+        return (
+          <div className="text-center">
+            <h3 className="text-xl font-semibold">Chroma Detective Game</h3>
+            <p className="text-muted-foreground mt-2 mb-4 max-w-lg mx-auto">
+              Test your color perception skills! Find and tap the tile that is a different color from the rest before the timer runs out.
+            </p>
+            <div className="flex justify-center gap-4">
+              <Button variant="outline" onClick={onBack}><ArrowLeft className="mr-2 h-4 w-4" />Back</Button>
+              <Button onClick={startGame}>Start Game</Button>
+            </div>
+          </div>
+        );
+    }
+    
+     if (step === 'results') {
+        return (
+            <Card className="mx-auto max-w-md text-center">
+                <CardHeader>
+                    <CardTitle>Game Over!</CardTitle>
+                    <CardDescription>You reached Level {level}.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <div>
+                        <p className="text-sm text-muted-foreground">Final Score</p>
+                        <p className="text-6xl font-bold">{score}</p>
+                    </div>
+                    <p className="text-muted-foreground">This game is a fun way to challenge your color discrimination skills. Play again to beat your high score!</p>
+                    <div className="flex justify-center gap-4">
+                        <Button variant="outline" onClick={onBack}><ArrowLeft className="mr-2 h-4 w-4" />Back</Button>
+                        <Button onClick={startGame}>Play Again</Button>
+                    </div>
+                </CardContent>
+            </Card>
+        )
+    }
+
+    const gridSize = Math.sqrt(grid.length);
+
+    return (
+        <div className="flex flex-col items-center w-full max-w-md mx-auto space-y-4">
+            <div className="flex justify-between w-full items-center font-mono">
+                <div>Level: <span className="font-bold">{level}</span></div>
+                <div>Score: <span className="font-bold">{score}</span></div>
+            </div>
+            <div className="relative w-full">
+                <Progress value={timeLeft * 10} className="h-2" />
+                <div className="absolute right-0 top-3 text-sm text-muted-foreground flex items-center gap-1"><Timer className="h-4 w-4"/> {timeLeft}s</div>
+            </div>
+            <div 
+                className="grid gap-1.5"
+                style={{ gridTemplateColumns: `repeat(${gridSize}, 1fr)` }}
+            >
+                {grid.map((color, i) => (
+                    <div 
+                        key={i} 
+                        className="w-16 h-16 md:w-20 md:h-20 rounded-md cursor-pointer transition-transform hover:scale-105"
+                        style={{ backgroundColor: color }}
+                        onClick={() => handleTileClick(i)}
+                    />
+                ))}
+            </div>
+        </div>
+    );
+};
+
+
 export function ColorVisionTest() {
-  const [testType, setTestType] = useState<'selection' | 'ishihara' | 'd15' | 'hrr'>('selection');
+  const [testType, setTestType] = useState<'selection' | 'ishihara' | 'd15' | 'hrr' | 'game'>('selection');
 
   const renderContent = () => {
     switch(testType) {
@@ -403,12 +548,23 @@ export function ColorVisionTest() {
         return <D15Test onBack={() => setTestType('selection')} />;
       case 'hrr':
         return <HrrTest onBack={() => setTestType('selection')} />;
+      case 'game':
+        return <ChromaDetectiveGame onBack={() => setTestType('selection')} />;
       case 'selection':
       default:
         return (
           <div className="text-center space-y-6">
             <h3 className="text-xl font-semibold">Choose a Color Vision Test</h3>
-            <div className="grid md:grid-cols-1 lg:grid-cols-3 gap-4 max-w-4xl mx-auto">
+            <div className="grid md:grid-cols-2 gap-4 max-w-4xl mx-auto">
+              <Card className="hover:border-primary transition-colors">
+                  <CardHeader>
+                      <CardTitle>Chroma Detective Game</CardTitle>
+                      <CardDescription>A fun game to test your color perception against the clock.</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                      <Button onClick={() => setTestType('game')} className="w-full">Play Game</Button>
+                  </CardContent>
+              </Card>
               <Card className="hover:border-primary transition-colors">
                   <CardHeader>
                       <CardTitle>AI Ishihara Plate Test</CardTitle>
