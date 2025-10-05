@@ -41,6 +41,8 @@ const getInstruction = (exerciseId: string, progress: number): string => {
                 case 3: return "Finally, quickly look at the bottom-left corner.";
                 default: return "Follow the prompts.";
             }
+        case "shape-tracer":
+            return "Follow the moving shape with your eyes, keeping your head still.";
         default:
             return "Follow the on-screen prompts to complete the exercise.";
     }
