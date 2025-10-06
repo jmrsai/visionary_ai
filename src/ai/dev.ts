@@ -11,6 +11,7 @@ import '@/ai/flows/holistic-health-insights.ts';
 import '@/ai/flows/redness-irritation-scan.ts';
 import '@/ai/tools/symptom-checker-tool.ts';
 import '@/ai/tools/medication-tool.ts';
+import '@/ai/tools/youtube-search-tool.ts';
 import '@/ai/flows/reading-comprehension-test-generator.ts';
 import '@/ai/flows/amsler-grid-generator.ts';
 import '@/ai/flows/stereopsis-test-generator.ts';

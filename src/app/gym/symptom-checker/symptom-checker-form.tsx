@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import Link from 'next/link';
 
 import { Button } from "@/components/ui/button";
 import {
@@ -18,7 +19,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Loader2, AlertTriangle, Lightbulb, Hospital, Home } from "lucide-react";
+import { Loader2, AlertTriangle, Lightbulb, Hospital, Home, Youtube } from "lucide-react";
 import { symptomChecker, type SymptomCheckerOutput } from "@/ai/flows/symptom-checker";
 import { useToast } from "@/hooks/use-toast";
 import { Progress } from "@/components/ui/progress";
@@ -173,9 +174,18 @@ export function SymptomCheckerForm() {
                     <CardDescription>These are general suggestions for comfort. They are not a substitute for professional medical advice.</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <ul className="space-y-2 list-disc list-inside">
+                    <ul className="space-y-4">
                       {result.homeCareAdvice.map((advice, index) => (
-                        <li key={index}>{advice}</li>
+                        <li key={index} className="flex flex-col sm:flex-row justify-between sm:items-center p-3 rounded-lg bg-muted/50">
+                            <span>{advice.advice}</span>
+                            {advice.youtubeLink && (
+                                <Button asChild variant="secondary" size="sm" className="mt-2 sm:mt-0">
+                                    <Link href={advice.youtubeLink} target="_blank" rel="noopener noreferrer">
+                                        <Youtube className="mr-2 h-4 w-4" /> Watch
+                                    </Link>
+                                </Button>
+                            )}
+                        </li>
                       ))}
                     </ul>
                   </CardContent>
