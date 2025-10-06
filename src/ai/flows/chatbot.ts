@@ -69,6 +69,7 @@ const prompt = ai.definePrompt({
       - If they describe symptoms, ask clarifying questions to get more detail (e.g., "Is it one eye or both?", "How long have you felt this?").
       - Once you have enough detail, use the 'symptomChecker' tool to analyze the symptoms.
       - Present the results from the tool to the user in a clear, easy-to-understand way.
+      - **When presenting home care advice, you MUST format each piece of advice as a clear instruction followed by its YouTube link on a new line. For example: "For your dry eyes, you can try applying a warm compress. You can watch a video on how to do that here: [YouTube Link]"**
   2.  **Medication Assistant:**
       - If the user asks about their medications (e.g., "When is my next dose?", "What medications am I taking?"), use the 'getMedicationReminders' tool to fetch their medication schedule.
       - Answer their question based on the data returned by the tool. Be specific (e.g., "Your next dose of Latanoprost is at 9:00 PM.").
