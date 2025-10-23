@@ -1,23 +1,32 @@
+
 "use client";
 
 import { useState, useRef, useCallback, useEffect } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, Camera, RefreshCw, AlertTriangle, Upload, Eye } from 'lucide-react';
+import { Loader2, Camera, RefreshCw, AlertTriangle, Upload, Eye, ShieldCheck, ListChecks } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { rednessIrritationScan, type RednessIrritationScanOutput } from '@/ai/flows/redness-irritation-scan';
 import { Badge } from '../ui/badge';
+import { cn } from '@/lib/utils';
 
 type Step = 'instructions' | 'capture' | 'analyzing' | 'results';
 
-const levelColors = {
-    "None": "bg-green-500",
-    "Low": "bg-yellow-500",
-    "Moderate": "bg-orange-500",
-    "High": "bg-red-500",
+const levelColors: Record<string, string> = {
+    "None": "bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300 border-green-300",
+    "Low": "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300 border-yellow-300",
+    "Moderate": "bg-orange-100 text-orange-800 dark:bg-orange-900/50 dark:text-orange-300 border-orange-300",
+    "High": "bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300 border-red-300",
 };
+
+const confidenceColors: Record<string, string> = {
+    "Low": "bg-gray-100 text-gray-800 dark:bg-gray-900/50 dark:text-gray-300",
+    "Medium": "bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300",
+    "High": "bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-300",
+}
+
 
 export function RednessIrritationScan() {
   const [step, setStep] = useState<Step>('instructions');
@@ -197,17 +206,26 @@ export function RednessIrritationScan() {
         return (
           <div className="grid md:grid-cols-2 gap-6 items-start">
              <div>
-                <h3 className="text-lg font-semibold mb-4">Your Scan</h3>
-                {capturedImage && (
-                    <Image src={capturedImage} alt="Analyzed eye" width={320} height={180} className="rounded-lg object-cover w-full" />
-                )}
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Your Scan</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        {capturedImage && (
+                            <Image src={capturedImage} alt="Analyzed eye" width={320} height={180} className="rounded-lg object-cover w-full" />
+                        )}
+                        <Button onClick={restartTest} className="w-full mt-4">
+                            <RefreshCw className="mr-2 h-4 w-4" /> Scan Again
+                        </Button>
+                    </CardContent>
+                </Card>
              </div>
 
-            <Card>
+            <Card className="bg-muted/30">
                 <CardHeader>
-                    <CardTitle>AI Analysis Results</CardTitle>
+                    <CardTitle>AI Analysis Report</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-6">
                     {!analysisResult.isEyeDetected ? (
                         <Alert variant="destructive">
                             <AlertTitle>No Eye Detected</AlertTitle>
@@ -215,28 +233,59 @@ export function RednessIrritationScan() {
                         </Alert>
                     ) : (
                         <>
-                            <div className="space-y-1">
-                                <h4 className="font-medium">Summary</h4>
-                                <p className="text-muted-foreground">{analysisResult.summary}</p>
-                            </div>
-                            <div className="flex justify-between items-center">
-                                <span className="font-medium">Redness Level:</span>
-                                <Badge className={levelColors[analysisResult.rednessLevel]}>{analysisResult.rednessLevel}</Badge>
-                            </div>
-                             <div className="flex justify-between items-center">
-                                <span className="font-medium">Irritation Level:</span>
-                                <Badge className={levelColors[analysisResult.irritationLevel]}>{analysisResult.irritationLevel}</Badge>
+                            <div className="space-y-4">
+                                <div>
+                                    <h4 className="font-semibold mb-2">Overall Assessment</h4>
+                                    <div className="flex justify-around p-2 rounded-lg bg-background">
+                                        <div className="text-center">
+                                            <p className="text-sm text-muted-foreground">Redness</p>
+                                            <Badge className={cn(levelColors[analysisResult.rednessLevel])}>{analysisResult.rednessLevel}</Badge>
+                                        </div>
+                                        <div className="text-center">
+                                            <p className="text-sm text-muted-foreground">Irritation</p>
+                                            <Badge className={cn(levelColors[analysisResult.irritationLevel])}>{analysisResult.irritationLevel}</Badge>
+                                        </div>
+                                    </div>
+                                     <p className="text-sm text-muted-foreground mt-2">{analysisResult.analysisSummary}</p>
+                                </div>
+
+                                <div>
+                                    <h4 className="font-semibold mb-2">Potential Conditions</h4>
+                                    <div className="space-y-2">
+                                    {analysisResult.potentialConditions.map(item => (
+                                        <div key={item.condition} className="p-3 rounded-lg border bg-background">
+                                            <div className="flex justify-between items-center">
+                                                <h5 className="font-medium">{item.condition}</h5>
+                                                <Badge className={cn("text-xs", confidenceColors[item.confidence])}>{item.confidence}</Badge>
+                                            </div>
+                                            <p className="text-xs text-muted-foreground">{item.explanation}</p>
+                                        </div>
+                                    ))}
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <h4 className="font-semibold flex items-center gap-2 mb-2"><ListChecks className="h-4 w-4"/> Suggested Actions</h4>
+                                    <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
+                                        {analysisResult.suggestedActions.map((action, i) => <li key={i}>{action}</li>)}
+                                    </ul>
+                                </div>
+                                
+                                 <div>
+                                    <h4 className="font-semibold flex items-center gap-2 mb-2"><ShieldCheck className="h-4 w-4"/> Preventative Tips</h4>
+                                    <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
+                                        {analysisResult.preventativeTips.map((tip, i) => <li key={i}>{tip}</li>)}
+                                    </ul>
+                                </div>
+
                             </div>
                         </>
                     )}
-                     <Alert>
+                     <Alert variant="destructive">
                         <AlertTriangle className="h-4 w-4" />
                         <AlertTitle>Disclaimer</AlertTitle>
                         <AlertDescription>{analysisResult.disclaimer}</AlertDescription>
                     </Alert>
-                    <Button onClick={restartTest} className="w-full">
-                        <RefreshCw className="mr-2 h-4 w-4" /> Scan Again
-                    </Button>
                 </CardContent>
             </Card>
           </div>
