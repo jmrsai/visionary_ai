@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -86,40 +86,33 @@ const ChatChart = ({ chartData }: { chartData: ChartData }) => {
 
 function ChatInterface() {
   const [messages, setMessages] = useState<Message[]>([]);
-  const [conversationId, setConversationId] = useState<string | null>(null);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const { toast } = useToast();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
-
-  useEffect(() => {
-    if (conversationId) {
-        console.log(`Continuing conversation with ID: ${conversationId}`);
-    }
-  }, [conversationId]);
-
+  const [lastPlayedMessageId, setLastPlayedMessageId] = useState<string | null>(null);
 
   const handleSend = async () => {
     if (input.trim() === "") return;
-    
-    let currentConversationId = conversationId;
-    if (!currentConversationId) {
-        currentConversationId = uuidv4();
-        setConversationId(currentConversationId);
-        console.log(`Starting new conversation with ID: ${currentConversationId}`);
-    }
 
-    const userMessage: Message = { text: input, isUser: true, timestamp: new Date() };
-    setMessages((prev) => [...prev, userMessage]);
+    const userMessage: Message = { id: uuidv4(), text: input, isUser: true, timestamp: new Date() };
+    const newMessages = [...messages, userMessage];
+    setMessages(newMessages);
 
     setInput("");
     setIsLoading(true);
 
     try {
-      const result = await chat({ message: input });
+      const history = newMessages.slice(0, -1).map(msg => ({
+          role: msg.isUser ? 'user' as const : 'model' as const,
+          content: [{ text: msg.text }]
+      }));
+        
+      const result = await chat({ message: input, history });
       const aiMessage: Message = { 
+          id: uuidv4(),
           text: result.response, 
           isUser: false, 
           media: result.media, 
@@ -141,7 +134,7 @@ function ChatInterface() {
       setIsLoading(false);
     }
   };
-
+  
   const handleListen = async () => {
     setIsListening(true);
     // TODO: Integrate Speech-to-Text (STT) service here.
@@ -167,11 +160,12 @@ function ChatInterface() {
     }
     
     const lastMessage = messages[messages.length - 1];
-    if (lastMessage && !lastMessage.isUser && lastMessage.media && audioRef.current) {
+    if (lastMessage && !lastMessage.isUser && lastMessage.media && audioRef.current && lastMessage.id !== lastPlayedMessageId) {
         audioRef.current.src = lastMessage.media;
         audioRef.current.play().catch(e => console.error("Audio playback failed:", e));
+        setLastPlayedMessageId(lastMessage.id || null);
     }
-  }, [messages]);
+  }, [messages, lastPlayedMessageId]);
 
   return (
     <div className="flex flex-col h-full">
@@ -192,7 +186,7 @@ function ChatInterface() {
           ) : (
             messages.map((message, index) => (
               <div
-                key={index}
+                key={message.id || index}
                 className={`flex items-start gap-3 ${
                   message.isUser ? "justify-end" : ""
                 }`}
@@ -211,7 +205,7 @@ function ChatInterface() {
                       : "bg-muted"
                   }`}
                 >
-                  <p className="text-sm">{message.text}</p>
+                  <p className="text-sm whitespace-pre-wrap">{message.text}</p>
                   
                   {message.chartData && (
                     <ChatChart chartData={message.chartData} />

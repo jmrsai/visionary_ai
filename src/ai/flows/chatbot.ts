@@ -17,8 +17,14 @@ import {googleAI} from '@genkit-ai/googleai';
 import { MOCK_VISION_SCORE_HISTORY } from '@/lib/data';
 
 
+const MessageSchema = z.object({
+  role: z.enum(['user', 'model']),
+  content: z.array(z.object({text: z.string()})),
+});
+
 const ChatInputSchema = z.object({
   message: z.string().describe("The user's message or question."),
+  history: z.array(MessageSchema).optional().describe("The history of the conversation."),
 });
 export type ChatInput = z.infer<typeof ChatInputSchema>;
 
@@ -45,13 +51,13 @@ export async function chat(input: ChatInput): Promise<ChatOutput> {
 
 const prompt = ai.definePrompt({
   name: 'chatPrompt',
-  input: {schema: z.object({ message: z.string(), visionScoreHistory: z.string() })},
+  input: {schema: z.object({ message: z.string(), history: z.any().optional(), visionScoreHistory: z.string() })},
   output: {schema: ChatOutputSchema},
   tools: [symptomCheckerTool, getMedicationRemindersTool],
   prompt: `You are a friendly and helpful AI assistant for the Visionary app, specializing in eye health. Your role is to act as a Personal Eye Health Assistant.
 
   **First Rule: Safety is paramount.**
-  You MUST start EVERY conversation with the following disclaimer:
+  If this is the first message in the conversation, you MUST start with the following disclaimer:
   "Disclaimer: I am an AI assistant and not a medical professional. This information is for educational purposes only. Please consult a qualified healthcare provider for any medical concerns."
   
   **Second Rule: Red Flag Triage**
@@ -81,6 +87,18 @@ const prompt = ai.definePrompt({
       - **Example Data:** Vision Score History: {{{visionScoreHistory}}}
   4.  **General Questions:**
       - If the user asks a general question (e.g., "What is glaucoma?"), answer it clearly and concisely.
+
+  Analyze the conversation history to understand the context.
+  Conversation History:
+  {{#if history}}
+    {{#each history}}
+      {{#if (eq role 'user')}}
+        User: {{#each content}}{{text}}{{/each}}
+      {{else}}
+        AI: {{#each content}}{{text}}{{/each}}
+      {{/if}}
+    {{/each}}
+  {{/if}}
   
   User's message: {{{message}}}
   
