@@ -199,7 +199,7 @@ function ChatInterface() {
                   </Avatar>
                 )}
                 <div
-                  className={`flex flex-col space-y-2 max-w-md rounded-lg p-3 ${
+                  className={`flex flex-col space-y-2 max-w-xs rounded-lg p-3 ${
                     message.isUser
                       ? "bg-primary text-primary-foreground"
                       : "bg-muted"
@@ -236,7 +236,7 @@ function ChatInterface() {
                         <VisionaryLogo className="h-5 w-5" />
                     </div>
                 </Avatar>
-                <div className="max-w-md rounded-lg p-3 bg-muted flex items-center space-x-2">
+                <div className="max-w-xs rounded-lg p-3 bg-muted flex items-center space-x-2">
                     <Loader2 className="h-4 w-4 animate-spin"/>
                     <span className="text-sm text-muted-foreground">Thinking...</span>
                 </div>
@@ -299,7 +299,7 @@ export function FloatingChatbot() {
             </SheetTrigger>
             <SheetContent 
                 side={isMobile ? "bottom" : "right"} 
-                className={`p-0 ${isMobile ? 'h-[80%]' : 'w-[400px] sm:max-w-md'}`}
+                className={`p-0 ${isMobile ? 'h-[80%] rounded-t-lg' : 'w-[400px] sm:max-w-md'}`}
             >
                 <ChatInterface />
             </SheetContent>
