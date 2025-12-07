@@ -143,15 +143,13 @@ export function InteractiveExercise({ id, title }: { id: string, title: string }
     }, 1000);
 
     if (hasCameraPermission) {
+        getAIFeedback(); // Get initial feedback
         feedbackTimerRef.current = setInterval(getAIFeedback, FEEDBACK_INTERVAL_MS);
     }
   }, [getAIFeedback, id, hasCameraPermission]);
 
   const handleStart = () => {
     setExerciseState("running");
-    if (hasCameraPermission) {
-      getAIFeedback(); // Initial feedback
-    }
     startTimers();
   };
 
