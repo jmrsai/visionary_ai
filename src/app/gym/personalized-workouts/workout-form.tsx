@@ -135,9 +135,10 @@ export function WorkoutForm() {
             </div>
           )}
           {workout && (
-            <div className="prose prose-sm dark:prose-invert max-w-none">
-              <p>{workout}</p>
-            </div>
+            <div
+              className="prose prose-sm dark:prose-invert max-w-none"
+              dangerouslySetInnerHTML={{ __html: workout.replace(/\n/g, '<br />') }}
+             />
           )}
           {!isLoading && !workout && (
             <div className="flex flex-col items-center justify-center space-y-4 pt-10 text-center">

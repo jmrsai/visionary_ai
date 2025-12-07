@@ -145,7 +145,7 @@ function ChatInterface() {
     
     // For now, we'll simulate a voice input after a short delay.
     setTimeout(() => {
-        setInput("My eye is red and itchy, what should I do?");
+        setInput("Show me my vision score history");
         setIsListening(false);
     }, 2000);
   };
