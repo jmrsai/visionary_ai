@@ -1,8 +1,6 @@
-
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
   User,
@@ -20,12 +18,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { NAV_ITEMS } from "@/lib/constants";
-import { VisionaryLogo } from "./icons";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { ThemeToggle } from "./theme-toggle";
+import { SidebarTrigger } from "./ui/sidebar";
 
 const userAvatar = PlaceHolderImages.find((img) => img.id === "user-avatar");
 
@@ -44,39 +41,8 @@ export function Header() {
   
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background/80 px-4 backdrop-blur-sm sm:px-6">
-      <Sheet>
-        <SheetTrigger asChild>
-          <Button size="icon" variant="outline" className="md:hidden">
-            <Menu className="h-5 w-5" />
-            <span className="sr-only">Toggle Menu</span>
-          </Button>
-        </SheetTrigger>
-        <SheetContent side="left" className="sm:max-w-xs">
-          <SheetHeader className="sr-only">
-            <SheetTitle>Mobile Navigation Menu</SheetTitle>
-            <SheetDescription>Main navigation links for the Visionary application.</SheetDescription>
-          </SheetHeader>
-          <nav className="grid gap-6 text-lg font-medium">
-            <Link
-              href="#"
-              className="group flex h-10 w-10 shrink-0 items-center justify-center gap-2 rounded-full bg-primary text-lg font-semibold text-primary-foreground md:text-base"
-            >
-              <VisionaryLogo className="h-6 w-6 transition-all group-hover:scale-110" />
-              <span className="sr-only">Visionary</span>
-            </Link>
-            {NAV_ITEMS.map((item) => (
-              <Link
-                key={item.label}
-                href={item.href}
-                className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
-              >
-                <item.icon className="h-5 w-5" />
-                {item.label}
-              </Link>
-            ))}
-          </nav>
-        </SheetContent>
-      </Sheet>
+      <SidebarTrigger className="md:hidden" />
+
       <div className="flex-1">
         <h1 className="text-xl font-semibold">{getTitle()}</h1>
       </div>

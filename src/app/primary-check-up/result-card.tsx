@@ -1,4 +1,3 @@
-
 "use client";
 
 import {
@@ -49,7 +48,7 @@ const ResultRow = ({ result }: { result: TestResult }) => {
       </div>
       <div className="text-right">
         <p className="font-semibold">{result.value}</p>
-        <p className={cn("text-sm font-semibold flex items-center gap-1", status.color)}>
+        <p className={cn("text-sm font-semibold flex items-center justify-end gap-1", status.color)}>
             <status.Icon className="h-4 w-4" />
             {status.text}
         </p>

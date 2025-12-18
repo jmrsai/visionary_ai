@@ -1,4 +1,3 @@
-
 import type { LucideIcon } from 'lucide-react';
 import { Timestamp } from "firebase/firestore";
 
@@ -123,5 +122,5 @@ export type ActivityLog = {
     id: number;
     description: string;
     timestamp: string;
-score?: string;
+    score?: string;
 };
