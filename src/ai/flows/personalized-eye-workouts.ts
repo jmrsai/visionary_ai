@@ -8,7 +8,7 @@
  * - PersonalizedEyeWorkoutOutput - The return type for the generatePersonalizedEyeWorkout function.
  */
 
-import {ai} from '@/ai/genkit';
+// import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const PersonalizedEyeWorkoutInputSchema = z.object({
@@ -28,12 +28,22 @@ const PersonalizedEyeWorkoutOutputSchema = z.object({
 });
 export type PersonalizedEyeWorkoutOutput = z.infer<typeof PersonalizedEyeWorkoutOutputSchema>;
 
+// Mock implementation
 export async function generatePersonalizedEyeWorkout(
   input: PersonalizedEyeWorkoutInput
 ): Promise<PersonalizedEyeWorkoutOutput> {
-  return generatePersonalizedEyeWorkoutFlow(input);
+  console.log("Generating workout for:", input);
+  await new Promise(resolve => setTimeout(resolve, 2000));
+  return {
+    workoutRoutine: `Here is a workout based on your needs:
+- **Focus Shift:** 3 sets of 30 seconds.
+- **Blinking Exercise:** 2 sets of 20 seconds.
+- **Saccades:** 3 sets, 10 repetitions each.
+- **20-20-20 Rule:** Practice this every 20 minutes during screen time.`
+  };
 }
 
+/*
 const prompt = ai.definePrompt({
   name: 'personalizedEyeWorkoutPrompt',
   input: {schema: PersonalizedEyeWorkoutInputSchema},
@@ -60,3 +70,4 @@ const generatePersonalizedEyeWorkoutFlow = ai.defineFlow(
     return output!;
   }
 );
+*/

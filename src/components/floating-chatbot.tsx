@@ -210,13 +210,6 @@ function ChatInterface() {
                   {message.chartData && (
                     <ChatChart chartData={message.chartData} />
                   )}
-
-                  {!message.isUser && message.media && (
-                      <audio controls autoPlay className="w-full mt-2 h-8 hidden">
-                          <source src={message.media} type="audio/wav" />
-                          Your browser does not support the audio element.
-                      </audio>
-                  )}
                 </div>
                 {message.isUser && (
                   <Avatar className="h-9 w-9">

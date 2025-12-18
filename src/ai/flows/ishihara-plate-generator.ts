@@ -7,7 +7,7 @@
  * - IshiharaPlateOutput - The return type for the generateIshiharaPlate function.
  */
 
-import {ai} from '@/ai/genkit';
+// import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const IshiharaPlateOutputSchema = z.object({
@@ -18,10 +18,37 @@ const IshiharaPlateOutputSchema = z.object({
 export type IshiharaPlateOutput = z.infer<typeof IshiharaPlateOutputSchema>;
 
 
+// Mock Implementation
 export async function generateIshiharaPlate(): Promise<IshiharaPlateOutput> {
-  return ishiharaPlateFlow();
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  
+  const mockPlates = [
+      { uri: "https://i.ibb.co/Vvz1jNq/ishihara-74.png", number: 74 },
+      { uri: "https://i.ibb.co/bzz4L29/ishihara-6.png", number: 6 },
+      { uri: "https://i.ibb.co/sKqWc5s/ishihara-45.png", number: 45 },
+      { uri: "https://i.ibb.co/qBv3pYx/ishihara-29.png", number: 29 },
+  ];
+
+  const plate = mockPlates[Math.floor(Math.random() * mockPlates.length)];
+  const randomNumber = plate.number;
+
+  const distractors = new Set<number>();
+  while(distractors.size < 3) {
+      const d = Math.floor(Math.random() * 90) + 10;
+      if (d !== randomNumber) {
+          distractors.add(d);
+      }
+  }
+  const options = [randomNumber, ...Array.from(distractors)].sort(() => Math.random() - 0.5);
+
+  return {
+    plateImageUri: plate.uri,
+    correctNumber: randomNumber,
+    options: options,
+  };
 }
 
+/*
 const ishiharaPlateFlow = ai.defineFlow(
   {
     name: 'ishiharaPlateFlow',
@@ -66,3 +93,4 @@ const ishiharaPlateFlow = ai.defineFlow(
     }
   }
 );
+*/

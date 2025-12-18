@@ -13,6 +13,7 @@ import { RednessIrritationScan } from "@/components/tests/redness-irritation-sca
 import { StereopsisTest } from "@/components/tests/stereopsis-test";
 import { ReadingSpeedTest } from "@/components/tests/reading-speed-test";
 import { AccommodationFlexibilityTest } from "@/components/tests/accommodation-flexibility-test";
+import { JungleExplorerGame } from "@/components/tests/jungle-explorer-game";
 
 export async function generateStaticParams() {
   return MOCK_TESTS.map((test) => ({
@@ -33,6 +34,7 @@ const TestComponent = ({ testId }: { testId: string }) => {
       case "stereopsis": return <StereopsisTest />;
       case "reading-speed": return <ReadingSpeedTest />;
       case "accommodation-flexibility": return <AccommodationFlexibilityTest />;
+      case "jungle-explorer": return <JungleExplorerGame />;
       default: return <p>Test not found.</p>;
     }
 }

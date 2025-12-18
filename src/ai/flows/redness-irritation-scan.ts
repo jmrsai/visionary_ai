@@ -8,7 +8,7 @@
  * - RednessIrritationScanOutput - The return type for the function.
  */
 
-import {ai} from '@/ai/genkit';
+// import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const RednessIrritationScanInputSchema = z.object({
@@ -36,11 +36,36 @@ const RednessIrritationScanOutputSchema = z.object({
 });
 export type RednessIrritationScanOutput = z.infer<typeof RednessIrritationScanOutputSchema>;
 
-
+// Mock implementation
 export async function rednessIrritationScan(input: RednessIrritationScanInput): Promise<RednessIrritationScanOutput> {
-  return rednessIrritationScanFlow(input);
+  console.log("Redness scan called.");
+  await new Promise(resolve => setTimeout(resolve, 3000));
+  
+  return {
+    isEyeDetected: true,
+    rednessLevel: "Low",
+    irritationLevel: "Low",
+    analysisSummary: "A low level of redness and irritation was detected.",
+    potentialConditions: [
+        { condition: "Mild Digital Eye Strain", confidence: "Medium", explanation: "Slight redness is common with prolonged screen use." },
+        { condition: "Minimal Dryness", confidence: "Low", explanation: "Redness can be a sign of eye dryness." },
+    ],
+    suggestedActions: [
+        "Take a break from screens and look at a distant object.",
+        "Use over-the-counter lubricating eye drops (artificial tears).",
+        "If symptoms persist or worsen, consult an eye doctor."
+    ],
+    preventativeTips: [
+        "Follow the 20-20-20 rule during screen use.",
+        "Ensure your workspace has adequate lighting.",
+        "Stay hydrated throughout the day."
+    ],
+    disclaimer: "This is an experimental screening tool, not a medical diagnosis. Consult a healthcare professional for any health concerns."
+  };
 }
 
+
+/*
 const prompt = ai.definePrompt({
   name: 'rednessIrritationScanPrompt',
   input: {schema: RednessIrritationScanInputSchema},
@@ -75,3 +100,4 @@ const rednessIrritationScanFlow = ai.defineFlow(
     return output!;
   }
 );
+*/

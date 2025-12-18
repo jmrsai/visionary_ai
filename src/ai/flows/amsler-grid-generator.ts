@@ -7,7 +7,7 @@
  * - AmslerGridOutput - The return type for the generateAmslerGrid function.
  */
 
-import {ai} from '@/ai/genkit';
+// import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const AmslerGridOutputSchema = z.object({
@@ -19,10 +19,17 @@ const AmslerGridOutputSchema = z.object({
 });
 export type AmslerGridOutput = z.infer<typeof AmslerGridOutputSchema>;
 
+
+// Mock implementation
 export async function generateAmslerGrid(): Promise<AmslerGridOutput> {
-  return amslerGridFlow();
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  // Using a real image of an Amsler grid
+  return {
+    gridImageUri: "https://i.ibb.co/6yY95S6/amlsler-grid.png"
+  };
 }
 
+/*
 const amslerGridFlow = ai.defineFlow(
   {
     name: 'amslerGridFlow',
@@ -57,3 +64,4 @@ The output must be the image only, with no other text or artifacts.`;
     }
   }
 );
+*/

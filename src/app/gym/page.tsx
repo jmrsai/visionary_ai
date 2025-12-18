@@ -1,13 +1,16 @@
 
+
 import Link from "next/link";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { MOCK_EXERCISES, MOCK_CIRCUITS } from "@/lib/data";
+import { MOCK_EXERCISES, MOCK_TESTS, MOCK_CIRCUITS } from "@/lib/data";
 import { ChevronRight } from "lucide-react";
 import { CircuitCard } from "./circuits/circuit-card";
 
 
 export default function GymPage() {
   const exerciseCategories = [...new Set(MOCK_EXERCISES.map(ex => ex.category))];
+  const testCategories = [...new Set(MOCK_TESTS.filter(t => t.category === "Kids' Game Zone").map(t => t.category))];
+  const allCategories = [...exerciseCategories, ...testCategories];
 
   return (
     <div className="space-y-8">
@@ -28,7 +31,7 @@ export default function GymPage() {
       </div>
 
 
-      {exerciseCategories.map(category => (
+      {allCategories.map(category => (
         <div key={category}>
           <h2 className="text-2xl font-semibold mb-4">{category}</h2>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -60,6 +63,29 @@ export default function GymPage() {
                 </Card>
               </Link>
             )})}
+            {MOCK_TESTS.filter(t => t.category === category).map((test) => (
+              <Link key={test.id} href={`/tests/${test.id}`} className="group">
+                 <Card className="h-full transition-all group-hover:border-primary group-hover:shadow-lg">
+                  <CardHeader>
+                    <div className="flex items-start justify-between">
+                        <div className="flex items-center gap-4">
+                            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                                <test.icon className="h-6 w-6" />
+                            </div>
+                            <div>
+                                <CardTitle>{test.title}</CardTitle>
+                                <CardDescription>Game</CardDescription>
+                            </div>
+                        </div>
+                        <ChevronRight className="h-5 w-5 text-muted-foreground transition-transform group-hover:translate-x-1" />
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground">{test.description}</p>
+                  </CardContent>
+                </Card>
+              </Link>
+            ))}
           </div>
         </div>
       ))}

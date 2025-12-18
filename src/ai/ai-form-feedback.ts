@@ -8,8 +8,8 @@
  * - AiFormFeedbackOutput - The return type for the aiFormFeedback function.
  */
 
-import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
+// import {ai} from '@/ai/genkit';
+import {z} from 'zod';
 
 const AiFormFeedbackInputSchema = z.object({
   exerciseType: z
@@ -33,10 +33,22 @@ const AiFormFeedbackOutputSchema = z.object({
 });
 export type AiFormFeedbackOutput = z.infer<typeof AiFormFeedbackOutputSchema>;
 
+// Mock implementation
 export async function aiFormFeedback(input: AiFormFeedbackInput): Promise<AiFormFeedbackOutput> {
-  return aiFormFeedbackFlow(input);
+  console.log("AI form feedback called with:", input.exerciseType);
+  await new Promise(resolve => setTimeout(resolve, 1500));
+  const positiveFeedback = [
+    "Great job keeping your head still!",
+    "Excellent focus!",
+    "Perfect form.",
+    "You're doing great, keep it up!"
+  ];
+  return {
+    feedback: positiveFeedback[Math.floor(Math.random() * positiveFeedback.length)]
+  };
 }
 
+/*
 const aiFormFeedbackPrompt = ai.definePrompt({
   name: 'aiFormFeedbackPrompt',
   input: {schema: AiFormFeedbackInputSchema},
@@ -69,3 +81,4 @@ const aiFormFeedbackFlow = ai.defineFlow(
       return output!;
     }
 );
+*/

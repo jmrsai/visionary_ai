@@ -1,19 +1,19 @@
 'use server';
 
 /**
- * @fileOverview A friendly AI chatbot for answering eye health questions.
+ * @fileOverview A friendly AI chatbot for anwering eye health questions.
  *
  * - chat - A function that responds to user queries about eye health.
  * - ChatInput - The input type for the chat function.
  * - ChatOutput - The return type for the chat function.
  */
 
+/*
 import {ai} from '@/ai/genkit';
 import {symptomCheckerTool} from '@/ai/tools/symptom-checker-tool';
 import {getMedicationRemindersTool} from '@/ai/tools/medication-tool';
 import {z} from 'zod';
 import wav from 'wav';
-import {googleAI} from '@genkit-ai/googleai';
 import { MOCK_VISION_SCORE_HISTORY } from '@/lib/data';
 
 
@@ -159,7 +159,7 @@ const chatFlow = ai.defineFlow(
     
     // Generate TTS
     const { media: audioMedia } = await ai.generate({
-        model: googleAI.model('gemini-2.5-flash-preview-tts'),
+        model: 'googleai/gemini-2.5-flash-preview-tts',
         config: {
           responseModalities: ['AUDIO'],
           speechConfig: {
@@ -187,3 +187,63 @@ const chatFlow = ai.defineFlow(
     };
   }
 );
+*/
+
+// Keep types for other components
+import {z} from 'zod';
+const ChatInputSchema = z.object({
+  message: z.string(),
+  history: z.any().optional(),
+});
+export type ChatInput = z.infer<typeof ChatInputSchema>;
+
+const ChartDataSchema = z.object({
+    chartType: z.enum(['line', 'bar']),
+    dataPoints: z.array(z.object({
+        x: z.string(),
+        y: z.number(),
+    })),
+    summaryText: z.string(),
+});
+export type ChartData = z.infer<typeof ChartDataSchema>;
+
+const ChatOutputSchema = z.object({
+  response: z.string(),
+  media: z.string().optional(),
+  chartData: ChartDataSchema.optional(),
+});
+export type ChatOutput = z.infer<typeof ChatOutputSchema>;
+
+// Mock function
+export async function chat(input: ChatInput): Promise<ChatOutput> {
+    console.log("AI chat flow called with:", input);
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    const isFirstMessage = !input.history || input.history.length === 0;
+
+    if (input.message.toLowerCase().includes('vision score')) {
+        return {
+            response: "Here is your vision score history.",
+            chartData: {
+                chartType: 'line',
+                dataPoints: [
+                  { x: 'Jan', y: 80 },
+                  { x: 'Feb', y: 82 },
+                  { x: 'Mar', y: 85 },
+                  { x: 'Apr', y: 84 },
+                  { x: 'May', y: 88 },
+                  { x: 'Jun', y: 90 },
+                  { x: 'Jul', y: 92 },
+                ],
+                summaryText: "Here is a chart of your vision score history for the past 7 months. It shows a steady improvement from 80 in January to 92 in July."
+            }
+        }
+    }
+
+
+    const disclaimer = 'Disclaimer: I am an AI assistant and not a medical professional. This information is for educational purposes only. Please consult a qualified healthcare provider for any medical concerns.';
+    const defaultResponse = "I'm sorry, the AI chat is temporarily unavailable. Please try again later.";
+    
+    return {
+        response: isFirstMessage ? `${disclaimer}\n\n${defaultResponse}` : defaultResponse,
+    };
+}

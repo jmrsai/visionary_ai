@@ -8,7 +8,7 @@
  * - HolisticHealthInsightsOutput - The return type for the function.
  */
 
-import {ai} from '@/ai/genkit';
+// import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const HolisticHealthInsightsInputSchema = z.object({
@@ -22,10 +22,32 @@ const HolisticHealthInsightsOutputSchema = z.object({
 });
 export type HolisticHealthInsightsOutput = z.infer<typeof HolisticHealthInsightsOutputSchema>;
 
+// Mock implementation
 export async function holisticHealthInsights(input: HolisticHealthInsightsInput): Promise<HolisticHealthInsightsOutput> {
-  return holisticHealthInsightsFlow(input);
+  console.log("Holistic health insights called with:", input);
+  await new Promise(resolve => setTimeout(resolve, 2000));
+  
+  const screenTime = JSON.parse(input.screenTimeData) as {day: string, hours: number}[];
+  const symptoms = JSON.parse(input.symptomReports) as {day: string, symptom: string}[];
+
+  const highScreenTimeDays = screenTime.filter(d => d.hours > 8).map(d => d.day);
+  const symptomDays = symptoms.map(s => s.day);
+
+  const correlation = highScreenTimeDays.some(d => symptomDays.includes(d));
+
+  if (correlation) {
+      return {
+          insight: "We noticed your reports of 'dry eyes' and 'headaches' often occur on days where your screen time exceeds 8 hours. Try to take a 5-minute break every hour and perform the 'Focus Shift' exercise."
+      };
+  }
+  
+  return {
+    insight: "Staying hydrated is crucial for eye health. Remember to drink plenty of water throughout the day to help prevent dry eyes."
+  };
 }
 
+
+/*
 const prompt = ai.definePrompt({
   name: 'holisticHealthInsightsPrompt',
   input: {schema: HolisticHealthInsightsInputSchema},
@@ -58,3 +80,4 @@ const holisticHealthInsightsFlow = ai.defineFlow(
     return output!;
   }
 );
+*/

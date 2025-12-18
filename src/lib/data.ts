@@ -176,6 +176,13 @@ export const MOCK_TESTS: Test[] = [
         description: 'Quantify how quickly your eyes can change focus.',
         icon: Zap,
         category: 'Visual Processing'
+    },
+     {
+        id: 'jungle-explorer',
+        title: 'Jungle Explorer',
+        description: 'A fun game for kids! Help the jungle explorer spot all the animals by quickly changing your focus.',
+        icon: Sparkles,
+        category: 'Kids\' Game Zone'
     }
 ];
 
@@ -218,14 +225,6 @@ export const MOCK_EXERCISES: Exercise[] = [
         description: "Train your eyes to smoothly follow a moving object.",
         icon: Wind,
         category: "Focus & Flexibility",
-        duration: "30 seconds"
-    },
-    {
-        id: "jungle-explorer",
-        title: "Jungle Explorer",
-        description: "A fun game for kids! Help the jungle explorer spot all the animals by quickly changing your focus.",
-        icon: Sparkles,
-        category: "Kids' Game Zone",
         duration: "30 seconds"
     },
     {

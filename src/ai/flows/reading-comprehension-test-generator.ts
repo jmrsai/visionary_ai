@@ -7,7 +7,7 @@
  * - ReadingComprehensionTestOutput - The return type for the function.
  */
 
-import {ai} from '@/ai/genkit';
+// import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 
@@ -24,10 +24,33 @@ const ReadingComprehensionTestOutputSchema = z.object({
 export type ReadingComprehensionTestOutput = z.infer<typeof ReadingComprehensionTestOutputSchema>;
 
 
+// Mock Implementation
 export async function generateReadingComprehensionTest(): Promise<ReadingComprehensionTestOutput> {
-  return readingComprehensionTestGeneratorFlow();
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  return {
+    passage: "The human eye is a complex organ that reacts to light and allows vision. The cornea, the transparent front part of the eye, refracts light, while the pupil, the black circular opening in the center of the iris, controls the amount of light reaching the retina. The retina is a light-sensitive layer at the back of the eye that contains cells called rods and cones. Rods are responsible for vision at low light levels, while cones are responsible for color vision and high-acuity vision.",
+    questions: [
+        {
+            question: "What part of the eye controls the amount of light that enters?",
+            options: ["Cornea", "Pupil", "Retina", "Rods"],
+            correctAnswer: "Pupil"
+        },
+        {
+            question: "Which cells are responsible for color vision?",
+            options: ["Rods", "Cones", "Pupil", "Iris"],
+            correctAnswer: "Cones"
+        },
+        {
+            question: "Where is the retina located?",
+            options: ["In the front of the eye", "In the center of the iris", "At the back of the eye", "Inside the cornea"],
+            correctAnswer: "At the back of the eye"
+        }
+    ]
+  };
 }
 
+
+/*
 const prompt = ai.definePrompt({
   name: 'readingComprehensionTestPrompt',
   output: {schema: ReadingComprehensionTestOutputSchema},
@@ -50,3 +73,4 @@ const readingComprehensionTestGeneratorFlow = ai.defineFlow(
     return output!;
   }
 );
+*/
