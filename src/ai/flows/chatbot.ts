@@ -8,10 +8,10 @@
  * - ChatOutput - The return type for the chat function.
  */
 
-/*
 import {ai} from '@/ai/genkit';
 import {symptomCheckerTool} from '@/ai/tools/symptom-checker-tool';
 import {getMedicationRemindersTool} from '@/ai/tools/medication-tool';
+import {searchExercisesTool} from '@/ai/tools/exercise-search-tool';
 import {z} from 'zod';
 import wav from 'wav';
 import { MOCK_VISION_SCORE_HISTORY } from '@/lib/data';
@@ -53,7 +53,7 @@ const prompt = ai.definePrompt({
   name: 'chatPrompt',
   input: {schema: z.object({ message: z.string(), history: z.any().optional(), visionScoreHistory: z.string() })},
   output: {schema: ChatOutputSchema},
-  tools: [symptomCheckerTool, getMedicationRemindersTool],
+  tools: [symptomCheckerTool, getMedicationRemindersTool, searchExercisesTool],
   prompt: `You are a friendly and helpful AI assistant for the Visionary app, specializing in eye health. Your role is to act as a Personal Eye Health Assistant.
 
   **First Rule: Safety is paramount.**
@@ -69,12 +69,12 @@ const prompt = ai.definePrompt({
   - Physical injury or trauma to the eye
   - Chemical splash in the eye
   
-  **Your Core Tasks:**
-  1.  **Conversational Symptom Triage:**
+  **Your Core Tasks (Act like an Agent):**
+  1.  **Conversational Symptom Triage & Proactive Exercise Recommendation:**
       - Listen to the user's message.
-      - If they describe symptoms, ask clarifying questions to get more detail (e.g., "Is it one eye or both?", "How long have you felt this?").
-      - Once you have enough detail, use the 'symptomChecker' tool to analyze the symptoms.
-      - Present the results from the tool to the user in a clear, easy-to-understand way.
+      - If they describe symptoms, use the 'symptomChecker' tool to analyze the symptoms.
+      - **Agentic Step:** After getting the symptom analysis, use the primary symptom (e.g., 'dry eyes', 'eye strain') as a query for the 'searchExercises' tool to find relevant exercises in the app.
+      - Present the symptom results AND the exercise recommendations to the user in a clear, helpful way. Link directly to the exercise pages.
       - **When presenting home care advice, you MUST format each piece of advice as a clear instruction followed by its YouTube link on a new line. For example: "For your dry eyes, you can try applying a warm compress. You can watch a video on how to do that here: [YouTube Link]"**
   2.  **Medication Assistant:**
       - If the user asks about their medications (e.g., "When is my next dose?", "What medications am I taking?"), use the 'getMedicationReminders' tool to fetch their medication schedule.
@@ -187,63 +187,3 @@ const chatFlow = ai.defineFlow(
     };
   }
 );
-*/
-
-// Keep types for other components
-import {z} from 'zod';
-const ChatInputSchema = z.object({
-  message: z.string(),
-  history: z.any().optional(),
-});
-export type ChatInput = z.infer<typeof ChatInputSchema>;
-
-const ChartDataSchema = z.object({
-    chartType: z.enum(['line', 'bar']),
-    dataPoints: z.array(z.object({
-        x: z.string(),
-        y: z.number(),
-    })),
-    summaryText: z.string(),
-});
-export type ChartData = z.infer<typeof ChartDataSchema>;
-
-const ChatOutputSchema = z.object({
-  response: z.string(),
-  media: z.string().optional(),
-  chartData: ChartDataSchema.optional(),
-});
-export type ChatOutput = z.infer<typeof ChatOutputSchema>;
-
-// Mock function
-export async function chat(input: ChatInput): Promise<ChatOutput> {
-    console.log("AI chat flow called with:", input);
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    const isFirstMessage = !input.history || input.history.length === 0;
-
-    if (input.message.toLowerCase().includes('vision score')) {
-        return {
-            response: "Here is your vision score history.",
-            chartData: {
-                chartType: 'line',
-                dataPoints: [
-                  { x: 'Jan', y: 80 },
-                  { x: 'Feb', y: 82 },
-                  { x: 'Mar', y: 85 },
-                  { x: 'Apr', y: 84 },
-                  { x: 'May', y: 88 },
-                  { x: 'Jun', y: 90 },
-                  { x: 'Jul', y: 92 },
-                ],
-                summaryText: "Here is a chart of your vision score history for the past 7 months. It shows a steady improvement from 80 in January to 92 in July."
-            }
-        }
-    }
-
-
-    const disclaimer = 'Disclaimer: I am an AI assistant and not a medical professional. This information is for educational purposes only. Please consult a qualified healthcare provider for any medical concerns.';
-    const defaultResponse = "I'm sorry, the AI chat is temporarily unavailable. Please try again later.";
-    
-    return {
-        response: isFirstMessage ? `${disclaimer}\n\n${defaultResponse}` : defaultResponse,
-    };
-}

@@ -7,7 +7,7 @@
  * - StereopsisTestOutput - The return type for the function.
  */
 
-// import {ai} from '@/ai/genkit';
+import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const SHAPES = ["circle", "square", "triangle", "star"] as const;
@@ -20,38 +20,11 @@ const StereopsisTestOutputSchema = z.object({
 
 export type StereopsisTestOutput = z.infer<typeof StereopsisTestOutputSchema>;
 
-
-// Mock Implementation
 export async function generateStereopsisTest(): Promise<StereopsisTestOutput> {
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    const hiddenShape = SHAPES[Math.floor(Math.random() * SHAPES.length)];
-    
-    const distractors = new Set<typeof SHAPES[number]>();
-    while(distractors.size < 3) {
-        const d = SHAPES[Math.floor(Math.random() * SHAPES.length)];
-        if (d !== hiddenShape) {
-            distractors.add(d);
-        }
-    }
-    const options = [hiddenShape, ...Array.from(distractors)].sort(() => Math.random() - 0.5) as [typeof SHAPES[number], typeof SHAPES[number], typeof SHAPES[number], typeof SHAPES[number]];
-
-    // Using a real anaglyph image
-    const mockStereograms = {
-        circle: "https://i.ibb.co/8mwJ2dF/anaglyph-circle.png",
-        square: "https://i.ibb.co/b6G9T18/anaglyph-square.png",
-        triangle: "https://i.ibb.co/8df4XF2/anaglyph-triangle.png",
-        star: "https://i.ibb.co/ZMgS8B8/anaglyph-star.png",
-    };
-
-    return {
-        imageUri: mockStereograms[hiddenShape],
-        hiddenShape: hiddenShape,
-        options: options,
-    };
+    return stereopsisTestFlow();
 }
 
 
-/*
 const stereopsisTestFlow = ai.defineFlow(
   {
     name: 'stereopsisTestFlow',
@@ -97,4 +70,3 @@ Do not include any other text, labels, or artifacts in the image. The output mus
     }
   }
 );
-*/

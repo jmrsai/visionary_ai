@@ -11,7 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Loader2, Wand2, BarChart2, MessageSquareWarning } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { holisticHealthInsights } from "@/ai/flows/holistic-health-insights";
+// import { holisticHealthInsights } from "@/ai/flows/holistic-health-insights";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 
 // Mock data simulation
@@ -42,11 +42,12 @@ export function InsightsGenerator() {
     setIsLoading(true);
     setInsight(null);
     try {
-      const result = await holisticHealthInsights({
-        screenTimeData: JSON.stringify(mockScreenTimeData),
-        symptomReports: JSON.stringify(mockSymptomReports),
-      });
-      setInsight(result.insight);
+    //   const result = await holisticHealthInsights({
+    //     screenTimeData: JSON.stringify(mockScreenTimeData),
+    //     symptomReports: JSON.stringify(mockSymptomReports),
+    //   });
+    //   setInsight(result.insight);
+      setInsight("AI insight generation is temporarily disabled.");
     } catch (error) {
       console.error("Error generating insight:", error);
       toast({

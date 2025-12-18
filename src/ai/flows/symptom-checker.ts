@@ -8,8 +8,8 @@
  * - SymptomCheckerOutput - The return type for the symptomChecker function.
  */
 
-// import {ai} from '@/ai/genkit';
-// import {searchYouTubeForRemedy} from '@/ai/tools/youtube-search-tool';
+import {ai} from '@/ai/genkit';
+import {searchYouTubeForRemedy} from '@/ai/tools/youtube-search-tool';
 import {z} from 'genkit';
 
 const SymptomCheckerInputSchema = z.object({
@@ -36,38 +36,11 @@ const SymptomCheckerOutputSchema = z.object({
 });
 export type SymptomCheckerOutput = z.infer<typeof SymptomCheckerOutputSchema>;
 
-// Mock implementation
 export async function symptomChecker(input: SymptomCheckerInput): Promise<SymptomCheckerOutput> {
-  console.log("Symptom checker called with:", input);
-  await new Promise(resolve => setTimeout(resolve, 2000));
-  
-  const symptoms = input.symptoms.toLowerCase();
-  
-  if (symptoms.includes('sudden vision loss') || symptoms.includes('severe pain')) {
-      return {
-          possibleConditions: [{ condition: "Medical Emergency", description: "Symptoms indicate a potential medical emergency.", likelihood: 95 }],
-          severity: "High",
-          homeCareAdvice: [],
-          disclaimer: "This is not a medical diagnosis. Consult a healthcare professional for any health concerns."
-      }
-  }
-
-  return {
-    possibleConditions: [
-        { condition: "Digital Eye Strain", description: "Discomfort felt after two or more hours in front of a digital screen.", likelihood: 75 },
-        { condition: "Dry Eye", description: "A common condition that occurs when your tears aren't able to provide adequate lubrication for your eyes.", likelihood: 50 },
-        { condition: "Allergies", description: "An allergic reaction causing itchy, red, watery eyes.", likelihood: 25 },
-    ],
-    severity: "Low",
-    homeCareAdvice: [
-        { advice: "Practice the 20-20-20 rule to reduce strain.", youtubeLink: "https://www.youtube.com/watch?v=p-t1oC2g-kY" },
-        { advice: "Use over-the-counter artificial tears.", youtubeLink: "https://www.youtube.com/watch?v=i-v234pKp7E" },
-    ],
-    disclaimer: "This is not a medical diagnosis. Consult a healthcare professional for any health concerns."
-  };
+    return symptomCheckerFlow(input);
 }
 
-/*
+
 const prompt = ai.definePrompt({
   name: 'symptomCheckerPrompt',
   input: {schema: SymptomCheckerInputSchema},
@@ -96,4 +69,3 @@ const symptomCheckerFlow = ai.defineFlow(
     return output!;
   }
 );
-*/

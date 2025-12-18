@@ -7,12 +7,18 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Check, RefreshCw, X, ArrowLeft, Loader2, Palette, Timer } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
-import { generateIshiharaPlate, type IshiharaPlateOutput } from '@/ai/flows/ishihara-plate-generator';
+// import { generateIshiharaPlate, type IshiharaPlateOutput } from '@/ai/flows/ishihara-plate-generator';
 import { HrrTest } from './hrr-test';
 import { Progress } from '../ui/progress';
 import { Badge } from '../ui/badge';
 import { MOCK_D15_CAPS } from '@/lib/data';
 
+// Mock type
+type IshiharaPlateOutput = {
+    plateImageUri: string;
+    correctNumber: number;
+    options: number[];
+};
 
 const TOTAL_PLATES = 5; // Let's do 5 plates for the AI version
 
@@ -61,7 +67,20 @@ const IshiharaTest = ({ onBack }: { onBack: () => void }) => {
   const getNextPlate = useCallback(async () => {
     setStep('loading');
     try {
-        const data = await generateIshiharaPlate();
+        // const data = await generateIshiharaPlate();
+        // Mock data
+        const randomNumber = Math.floor(Math.random() * 90) + 10;
+        const distractors = new Set<number>();
+        while(distractors.size < 3) {
+            const d = Math.floor(Math.random() * 90) + 10;
+            if (d !== randomNumber) distractors.add(d);
+        }
+        const options = [randomNumber, ...Array.from(distractors)].sort(() => Math.random() - 0.5);
+        const data: IshiharaPlateOutput = {
+            plateImageUri: `https://i.ibb.co/GcLb7k9/hrr-rg-circle.png`, // Using a mock image
+            correctNumber: randomNumber,
+            options: options
+        };
         setPlateData(data);
         setStep('test');
     } catch (error) {
@@ -107,7 +126,7 @@ const IshiharaTest = ({ onBack }: { onBack: () => void }) => {
       <div className="text-center">
         <h3 className="text-xl font-semibold">AI-Powered Ishihara Test</h3>
         <p className="text-muted-foreground mt-2 mb-4">
-          You will be shown a series of unique, AI-generated plates. Click the number you see in the plate. This test primarily screens for red-green color deficiencies.
+          You will be shown a series of unique, AI-generated plates. Click the number you see in the plate. This test primarily screens for red-green color deficiencies. (AI is currently disabled)
         </p>
         <div className="flex justify-center gap-4">
             <Button variant="outline" onClick={onBack}><ArrowLeft className="mr-2 h-4 w-4" />Back</Button>

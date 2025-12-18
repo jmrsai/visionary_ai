@@ -17,7 +17,7 @@ export default function RednessScanPage() {
       <Card>
         <CardHeader>
           <CardTitle>AI Eye Scan</CardTitle>
-          <CardDescription>Follow the instructions to get your AI-powered analysis.</CardDescription>
+          <CardDescription>Follow the instructions to get your AI-powered analysis. (AI is currently disabled)</CardDescription>
         </CardHeader>
         <CardContent>
           <RednessIrritationScan />

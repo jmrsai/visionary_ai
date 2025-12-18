@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { RefreshCw, Check, X, Loader2, Eraser } from 'lucide-react';
-import { generateAmslerGrid } from '@/ai/flows/amsler-grid-generator';
+// import { generateAmslerGrid } from '@/ai/flows/amsler-grid-generator';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 

@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useRef, useCallback, useEffect } from 'react';
@@ -8,9 +7,26 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Loader2, Camera, RefreshCw, AlertTriangle, Upload, Eye, ShieldCheck, ListChecks } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { rednessIrritationScan, type RednessIrritationScanOutput } from '@/ai/flows/redness-irritation-scan';
+// import { rednessIrritationScan, type RednessIrritationScanOutput } from '@/ai/flows/redness-irritation-scan';
 import { Badge } from '../ui/badge';
 import { cn } from '@/lib/utils';
+
+// Mock Type
+type RednessIrritationScanOutput = {
+    isEyeDetected: boolean;
+    rednessLevel: "None" | "Low" | "Moderate" | "High";
+    irritationLevel: "None" | "Low" | "Moderate" | "High";
+    analysisSummary: string;
+    potentialConditions: {
+        condition: string;
+        confidence: "Low" | "Medium" | "High";
+        explanation: string;
+    }[];
+    suggestedActions: string[];
+    preventativeTips: string[];
+    disclaimer: string;
+};
+
 
 type Step = 'instructions' | 'capture' | 'analyzing' | 'results';
 
@@ -114,7 +130,17 @@ export function RednessIrritationScan() {
     setStep('analyzing');
     setIsAnalyzing(true);
     try {
-      const result = await rednessIrritationScan({ eyeImageUri: imageUri });
+    //   const result = await rednessIrritationScan({ eyeImageUri: imageUri });
+      const result: RednessIrritationScanOutput = {
+          isEyeDetected: true,
+          rednessLevel: "Low",
+          irritationLevel: "None",
+          analysisSummary: "AI is temporarily disabled. This is a mock result.",
+          potentialConditions: [{ condition: "Healthy Eye", confidence: "High", explanation: "This is a mock result."}],
+          suggestedActions: ["Rest your eyes.", "Stay hydrated."],
+          preventativeTips: ["Take screen breaks.", "Use lubricating eye drops."],
+          disclaimer: "This is an experimental screening tool, not a medical diagnosis. Consult a healthcare professional for any health concerns."
+      }
       setAnalysisResult(result);
       setStep('results');
     } catch (error) {

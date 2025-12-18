@@ -6,7 +6,7 @@ import { PlayCircle, PauseCircle, RotateCcw, Loader2 } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
-import { aiFormFeedback } from "@/ai/ai-form-feedback";
+// import { aiFormFeedback } from "@/ai/ai-form-feedback";
 
 const EXERCISE_DURATION_S = 30; // 30 seconds
 const FEEDBACK_INTERVAL_MS = 3000; // 3 seconds
@@ -51,7 +51,7 @@ const getInstruction = (exerciseId: string, progress: number): string => {
 export function InteractiveExercise({ id, title }: { id: string, title: string }) {
   const [exerciseState, setExerciseState] = useState<ExerciseState>("idle");
   const [progress, setProgress] = useState(0);
-  const [feedback, setFeedback] = useState("AI feedback will appear here.");
+  const [feedback, setFeedback] = useState("AI feedback will appear here. AI is currently disabled.");
   const [isFeedbackLoading, setIsFeedbackLoading] = useState(false);
   const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
 
@@ -106,25 +106,25 @@ export function InteractiveExercise({ id, title }: { id: string, title: string }
   }, []);
 
   const getAIFeedback = useCallback(async () => {
-    const dataUri = captureFrame();
-    if (!dataUri) return;
+    // const dataUri = captureFrame();
+    // if (!dataUri) return;
     
-    setIsFeedbackLoading(true);
-    try {
-        const instruction = getInstruction(id, progress);
-        const result = await aiFormFeedback({
-            cameraFeedDataUri: dataUri,
-            exerciseType: title,
-            userInstructions: instruction
-        });
-        setFeedback(result.feedback);
-    } catch (error) {
-        console.error("Error getting AI feedback:", error);
-        setFeedback("Could not get AI feedback. Please try again.");
-    } finally {
-        setIsFeedbackLoading(false);
-    }
-  }, [captureFrame, id, title, progress]);
+    // setIsFeedbackLoading(true);
+    // try {
+    //     const instruction = getInstruction(id, progress);
+    //     const result = await aiFormFeedback({
+    //         cameraFeedDataUri: dataUri,
+    //         exerciseType: title,
+    //         userInstructions: instruction
+    //     });
+    //     setFeedback(result.feedback);
+    // } catch (error) {
+    //     console.error("Error getting AI feedback:", error);
+    //     setFeedback("Could not get AI feedback. Please try again.");
+    // } finally {
+    //     setIsFeedbackLoading(false);
+    // }
+  }, [/*captureFrame, id, title, progress*/]);
 
   const startTimers = useCallback(() => {
     const duration = id === '20-20-20-rule' ? 20 : EXERCISE_DURATION_S;
@@ -167,7 +167,7 @@ export function InteractiveExercise({ id, title }: { id: string, title: string }
   const handleReset = () => {
     setExerciseState("idle");
     setProgress(0);
-    setFeedback("AI feedback will appear here.");
+    setFeedback("AI feedback will appear here. AI is currently disabled.");
     clearInterval(timerRef.current);
     if(feedbackTimerRef.current) clearInterval(feedbackTimerRef.current);
   };
