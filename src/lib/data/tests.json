@@ -83,5 +83,12 @@
         "description": "A fun game for kids! Help the jungle explorer spot all the animals by quickly changing your focus.",
         "icon": "Sparkles",
         "category": "Kids' Game Zone"
+    },
+    {
+        "id": "cosmic-racer",
+        "title": "Cosmic Racer",
+        "description": "A smooth pursuit tracking game. Follow the spaceship with your eyes as it races through the cosmos.",
+        "icon": "Rocket",
+        "category": "Kids' Game Zone"
     }
 ]

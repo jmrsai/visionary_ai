@@ -1,3 +1,4 @@
+
 import { MOCK_TESTS, MOCK_EXERCISES } from "@/lib/data";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
@@ -14,6 +15,7 @@ import { StereopsisTest } from "@/components/tests/stereopsis-test";
 import { ReadingSpeedTest } from "@/components/tests/reading-speed-test";
 import { AccommodationFlexibilityTest } from "@/components/tests/accommodation-flexibility-test";
 import { JungleExplorerGame } from "@/components/tests/jungle-explorer-game";
+import { CosmicRacerGame } from "@/components/tests/cosmic-racer-game";
 
 export async function generateStaticParams() {
   return MOCK_TESTS.map((test) => ({
@@ -35,6 +37,7 @@ const TestComponent = ({ testId }: { testId: string }) => {
       case "reading-speed": return <ReadingSpeedTest />;
       case "accommodation-flexibility": return <AccommodationFlexibilityTest />;
       case "jungle-explorer": return <JungleExplorerGame />;
+      case "cosmic-racer": return <CosmicRacerGame />;
       default: return <p>Test not found.</p>;
     }
 }
