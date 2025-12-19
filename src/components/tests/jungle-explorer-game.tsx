@@ -8,6 +8,7 @@ import { ArrowLeft, Play, RefreshCw, Star, Trophy } from 'lucide-react';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
+import Link from 'next/link';
 
 type Step = 'intro' | 'playing' | 'complete';
 const GAME_DURATION_S = 30;
