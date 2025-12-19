@@ -106,7 +106,8 @@ export type Reminder = {
     appearance?: {
         shape: string;
         color: string;
-    }
+    },
+    note?: string; // New property
 };
 
 export type AdherenceLog = {

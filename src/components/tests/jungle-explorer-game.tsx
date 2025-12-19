@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -59,7 +59,7 @@ export function JungleExplorerGame() {
     }
   };
 
-  conststartGame = () => {
+  const startGame = () => {
     setStep('game');
     setScore(0);
     setTimeLeft(GAME_DURATION_S);
