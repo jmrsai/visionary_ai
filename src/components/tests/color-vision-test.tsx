@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useMemo, useCallback, useRef, useEffect } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -126,7 +126,7 @@ const IshiharaTest = ({ onBack }: { onBack: () => void }) => {
       <div className="text-center">
         <h3 className="text-xl font-semibold">Algorithmic Ishihara Test</h3>
         <p className="text-muted-foreground mt-2 mb-4">
-          You will be shown a series of unique, computer-generated plates. Click the number you see in the plate. This test primarily screens for red-green color deficiencies.
+          You will be shown a series of unique, computer-generated plates. Click the number you see in the plate. If you see nothing, choose one of the options at random. This test primarily screens for red-green color deficiencies.
         </p>
         <div className="flex justify-center gap-4">
             <Button variant="outline" onClick={onBack}><ArrowLeft className="mr-2 h-4 w-4" />Back</Button>
@@ -457,10 +457,10 @@ const ChromaDetectiveGame = ({ onBack }: { onBack: () => void }) => {
         }
     };
     
-    const endGame = () => {
+    const endGame = useCallback(() => {
         if (timerRef.current) clearTimeout(timerRef.current);
         setStep('results');
-    }
+    }, []);
 
     useEffect(() => {
         if (step === 'game') {
@@ -477,8 +477,7 @@ const ChromaDetectiveGame = ({ onBack }: { onBack: () => void }) => {
         return () => {
             if (timerRef.current) clearTimeout(timerRef.current);
         };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [step]);
+    }, [step, endGame]);
     
     if (step === 'instructions') {
         return (
