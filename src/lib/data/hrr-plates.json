@@ -1,0 +1,39 @@
+
+[
+    {
+        "plateImageUri": "https://i.ibb.co/1MjvL0w/hrr-rg-triangle.png",
+        "correctSymbol": "triangle",
+        "options": ["circle", "cross", "triangle", "none"],
+        "deficiencyType": "Red-Green"
+    },
+    {
+        "plateImageUri": "https://i.ibb.co/C0hCjL7/hrr-by-cross.png",
+        "correctSymbol": "cross",
+        "options": ["circle", "cross", "triangle", "none"],
+        "deficiencyType": "Blue-Yellow"
+    },
+    {
+        "plateImageUri": "https://i.ibb.co/GcLb7k9/hrr-rg-circle.png",
+        "correctSymbol": "circle",
+        "options": ["circle", "cross", "triangle", "none"],
+        "deficiencyType": "Red-Green"
+    },
+    {
+        "plateImageUri": "https://i.ibb.co/Y0Y3fym/hrr-by-triangle.png",
+        "correctSymbol": "triangle",
+        "options": ["circle", "cross", "triangle", "none"],
+        "deficiencyType": "Blue-Yellow"
+    },
+    {
+        "plateImageUri": "https://i.ibb.co/vYvYmGq/hrr-rg-cross.png",
+        "correctSymbol": "cross",
+        "options": ["circle", "cross", "triangle", "none"],
+        "deficiencyType": "Red-Green"
+    },
+    {
+        "plateImageUri": "https://i.ibb.co/hZ2v1c5/hrr-by-circle.png",
+        "correctSymbol": "circle",
+        "options": ["circle", "cross", "triangle", "none"],
+        "deficiencyType": "Blue-Yellow"
+    }
+]

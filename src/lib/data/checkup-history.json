@@ -1,0 +1,25 @@
+
+[
+    {
+        "id": "history-1",
+        "date": "2024-05-20T12:00:00.000Z",
+        "results": [
+            { "testId": "visual-acuity", "value": "20/20", "status": "good" },
+            { "testId": "macular-health", "value": "No Issues", "status": "good" },
+            { "testId": "color-vision", "value": "Normal", "status": "good" },
+            { "testId": "visual-field", "value": "10/10", "status": "good" },
+            { "testId": "accommodation-flexibility", "value": "380ms", "status": "good" }
+        ]
+    },
+    {
+        "id": "history-2",
+        "date": "2024-04-20T12:00:00.000Z",
+        "results": [
+            { "testId": "visual-acuity", "value": "20/25", "status": "warning" },
+            { "testId": "macular-health", "value": "No Issues", "status": "good" },
+            { "testId": "color-vision", "value": "Normal", "status": "good" },
+            { "testId": "visual-field", "value": "9/10", "status": "warning" },
+            { "testId": "accommodation-flexibility", "value": "510ms", "status": "warning" }
+        ]
+    }
+]

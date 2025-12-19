@@ -1,0 +1,87 @@
+
+[
+    {
+        "id": "visual-acuity",
+        "title": "Visual Acuity Test",
+        "description": "Test the clarity of your vision using a digital Snellen chart.",
+        "icon": "Eye",
+        "category": "Core Diagnostics"
+    },
+    {
+        "id": "color-vision",
+        "title": "Color Vision Test",
+        "description": "Screen for color blindness with Ishihara, HRR, and D-15 tests.",
+        "icon": "Palette",
+        "category": "Core Diagnostics"
+    },
+    {
+        "id": "astigmatism",
+        "title": "Astigmatism Test",
+        "description": "Check for astigmatism using a clock dial test.",
+        "icon": "Activity",
+        "category": "Core Diagnostics"
+    },
+    {
+        "id": "contrast-sensitivity",
+        "title": "Contrast Sensitivity Test",
+        "description": "Measure your ability to distinguish between different shades.",
+        "icon": "Contrast",
+        "category": "Core Diagnostics"
+    },
+    {
+        "id": "macular-health",
+        "title": "Macular Health (Amsler)",
+        "description": "Monitor for macular degeneration with an Amsler grid.",
+        "icon": "HeartPulse",
+        "category": "Advanced Screening"
+    },
+    {
+        "id": "visual-field",
+        "title": "Peripheral Vision Game",
+        "description": "Train your peripheral awareness with the 'Side Sight' game.",
+        "icon": "View",
+        "category": "Advanced Screening"
+    },
+    {
+        "id": "pupil-response",
+        "title": "Pupil Response Test",
+        "description": "Neurological screening via camera-based pupil measurement. (Experimental)",
+        "icon": "Brain",
+        "category": "Advanced Screening"
+    },
+    {
+        "id": "redness-scan",
+        "title": "Redness & Irritation Scan",
+        "description": "AI-powered analysis of eye redness from a photo. (Experimental)",
+        "icon": "ScanEye",
+        "category": "Advanced Screening"
+    },
+    {
+        "id": "stereopsis",
+        "title": "Stereopsis Test",
+        "description": "A screening for depth perception and 3D vision (requires 3D glasses).",
+        "icon": "StereopsisIcon",
+        "category": "Advanced Screening"
+    },
+    {
+        "id": "reading-speed",
+        "title": "Reading Speed Test",
+        "description": "Assess your visual processing and reading efficiency.",
+        "icon": "BookOpen",
+        "category": "Visual Processing"
+    },
+    {
+        "id": "accommodation-flexibility",
+        "title": "Accommodation Flexibility Test",
+        "description": "Quantify how quickly your eyes can change focus.",
+        "icon": "Zap",
+        "category": "Visual Processing"
+    },
+     {
+        "id": "jungle-explorer",
+        "title": "Jungle Explorer",
+        "description": "A fun game for kids! Help the jungle explorer spot all the animals by quickly changing your focus.",
+        "icon": "Sparkles",
+        "category": "Kids' Game Zone"
+    }
+]

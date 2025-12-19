@@ -1,288 +1,54 @@
-
-
 import { Activity, BookOpen, Brain, Dumbbell, Eye, Glasses, HeartPulse, Target, Video, View, Wind, Sparkles, CalendarCheck, ScanEye, Zap, ListTodo, Contrast, Layers, Palette } from "lucide-react";
 import type { Test, Reminder, ActivityLog, Exercise, Circuit, AdherenceLog, CheckupReport, HrrPlate, D15Cap } from "./types";
 import { StereopsisIcon } from "@/components/icons";
 
-export const MOCK_REMINDERS: Reminder[] = [
-  { id: 1, title: 'Blinking exercise', time: 'in 30 minutes', type: 'exercise', enabled: true },
-  { id: 2, title: 'Latanoprost', time: '13:00', type: 'Eye Drops', enabled: true, dosage: "1 drop in each eye", frequency: "Daily", reason: "For Glaucoma", appearance: { shape: "circle", color: "#60a5fa" } },
-  { id: 3, title: '20-20-20 Rule', time: '14:00', type: 'exercise', enabled: false },
-  { id: 4, title: 'Annual Eye Exam', time: 'Tomorrow', type: 'appointment', enabled: true },
-];
+import reminders from './data/reminders.json';
+import activities from './data/activities.json';
+import adherenceHistory from './data/adherence-history.json';
+import visionScoreHistory from './data/vision-score-history.json';
+import hrrPlates from './data/hrr-plates.json';
+import d15Caps from './data/d15-caps.json';
+import tests from './data/tests.json';
+import exercises from './data/exercises.json';
+import circuits from './data/circuits.json';
+import checkupHistory from './data/checkup-history.json';
 
-export const MOCK_ACTIVITIES: ActivityLog[] = [
-    { id: 1, description: "Completed: Focus Shift exercise.", timestamp: "2 hours ago", score: "+5 pts" },
-    { id: 2, description: "New personalized workout available.", timestamp: "5 hours ago", score: "" },
-    { id: 3, description: "Vision Score increased to 92.", timestamp: "1 day ago", score: "+2" },
-    { id: 4, description: "Took Color Vision test.", timestamp: "2 days ago", score: "9/10" },
-];
+export const MOCK_REMINDERS: Reminder[] = reminders;
+export const MOCK_ACTIVITIES: ActivityLog[] = activities;
+export const MOCK_ADHERENCE_HISTORY: AdherenceLog[] = adherenceHistory;
+export const MOCK_VISION_SCORE_HISTORY: { date: string, score: number }[] = visionScoreHistory;
+export const MOCK_HRR_PLATES: HrrPlate[] = hrrPlates;
+export const MOCK_D15_CAPS: D15Cap[] = d15Caps;
+export const MOCK_CHECKUP_HISTORY: CheckupReport[] = checkupHistory;
 
-export const MOCK_ADHERENCE_HISTORY: AdherenceLog[] = [
-    { id: '1', medication: 'Latanoprost', type: 'Eye Drops', status: 'taken', time: '09:00', date: 'Today' },
-    { id: '2', medication: 'Vitamin C', type: 'Capsule', status: 'taken', time: '09:05', date: 'Today' },
-    { id: '3', medication: 'Latanoprost', type: 'Eye Drops', status: 'upcoming', time: '21:00', date: 'Today' },
-    { id: '4', medication: 'Latanoprost', type: 'Eye Drops', status: 'skipped', time: '21:00', date: 'Yesterday' },
-    { id: '5', medication: 'Vitamin C', type: 'Capsule', status: 'taken', time: '09:02', date: 'Yesterday' },
-    { id: '6', medication: 'Latanoprost', type: 'Eye Drops', status: 'taken', time: '08:58', date: 'Yesterday' },
-    { id: '7', medication: 'Latanoprost', type: 'Eye Drops', status: 'taken_late', time: '10:30', date: '2 days ago' },
-    { id: '8', medication: 'Vitamin C', type: 'Capsule', status: 'taken', time: '09:01', date: '2 days ago' },
-];
+const iconMapping: { [key: string]: React.ElementType } = {
+    Eye,
+    Palette,
+    Activity,
+    Contrast,
+    HeartPulse,
+    View,
+    Brain,
+    ScanEye,
+    StereopsisIcon,
+    BookOpen,
+    Zap,
+    Sparkles,
+    Target,
+    Video,
+    Wind,
+    Dumbbell,
+    ListTodo
+};
 
+export const MOCK_TESTS: Test[] = tests.map(test => ({
+    ...test,
+    icon: iconMapping[test.icon as string] || Eye,
+}));
 
-export const MOCK_VISION_SCORE_HISTORY = [
-  { date: 'Jan', score: 80 },
-  { date: 'Feb', score: 82 },
-  { date: 'Mar', score: 85 },
-  { date: 'Apr', score: 84 },
-  { date: 'May', score: 88 },
-  { date: 'Jun', score: 90 },
-  { date: 'Jul', score: 92 },
-];
+export const MOCK_EXERCISES: Exercise[] = exercises.map(exercise => ({
+    ...exercise,
+    icon: iconMapping[exercise.icon as string] || Dumbbell,
+}));
 
-export const MOCK_HRR_PLATES: HrrPlate[] = [
-    {
-        plateImageUri: "https://i.ibb.co/1MjvL0w/hrr-rg-triangle.png",
-        correctSymbol: "triangle",
-        options: ["circle", "cross", "triangle", "none"],
-        deficiencyType: "Red-Green",
-    },
-    {
-        plateImageUri: "https://i.ibb.co/C0hCjL7/hrr-by-cross.png",
-        correctSymbol: "cross",
-        options: ["circle", "cross", "triangle", "none"],
-        deficiencyType: "Blue-Yellow",
-    },
-    {
-        plateImageUri: "https://i.ibb.co/GcLb7k9/hrr-rg-circle.png",
-        correctSymbol: "circle",
-        options: ["circle", "cross", "triangle", "none"],
-        deficiencyType: "Red-Green",
-    },
-    {
-        plateImageUri: "https://i.ibb.co/Y0Y3fym/hrr-by-triangle.png",
-        correctSymbol: "triangle",
-        options: ["circle", "cross", "triangle", "none"],
-        deficiencyType: "Blue-Yellow",
-    },
-    {
-        plateImageUri: "https://i.ibb.co/vYvYmGq/hrr-rg-cross.png",
-        correctSymbol: "cross",
-        options: ["circle", "cross", "triangle", "none"],
-        deficiencyType: "Red-Green",
-    },
-    {
-        plateImageUri: "https://i.ibb.co/hZ2v1c5/hrr-by-circle.png",
-        correctSymbol: "circle",
-        options: ["circle", "cross", "triangle", "none"],
-        deficiencyType: "Blue-Yellow",
-    }
-];
-
-export const MOCK_D15_CAPS: D15Cap[] = [
-  { id: 0, color: '#9d9d57'}, // Pilot cap - fixed
-  { id: 1, color: '#a7955c' },
-  { id: 2, color: '#aa8e63' },
-  { id: 3, color: '#ac876d' },
-  { id: 4, color: '#ab7f78' },
-  { id: 5, color: '#aa7885' },
-  { id: 6, color: '#a27293' },
-  { id: 7, color: '#9770a0' },
-  { id: 8, color: '#8872a9' },
-  { id: 9, color: '#7a78b0' },
-  { id: 10, color: '#717fb4' },
-  { id: 11, color: '#6d86b2' },
-  { id: 12, color: '#718d9b' },
-  { id: 13, color: '#7e9488' },
-  { id: 14, color: '#8b997c' },
-  { id: 15, color: '#949b6b' },
-];
-
-
-export const MOCK_TESTS: Test[] = [
-    {
-        id: "visual-acuity",
-        title: "Visual Acuity Test",
-        description: "Test the clarity of your vision using a digital Snellen chart.",
-        icon: Eye,
-        category: "Core Diagnostics"
-    },
-    {
-        id: "color-vision",
-        title: "Color Vision Test",
-        description: "Screen for color blindness with Ishihara, HRR, and D-15 tests.",
-        icon: Palette,
-        category: "Core Diagnostics"
-    },
-    {
-        id: "astigmatism",
-        title: "Astigmatism Test",
-        description: "Check for astigmatism using a clock dial test.",
-        icon: Activity,
-        category: "Core Diagnostics"
-    },
-    {
-        id: "contrast-sensitivity",
-        title: "Contrast Sensitivity Test",
-        description: "Measure your ability to distinguish between different shades.",
-        icon: Contrast,
-        category: "Core Diagnostics"
-    },
-    {
-        id: "macular-health",
-        title: "Macular Health (Amsler)",
-        description: "Monitor for macular degeneration with an Amsler grid.",
-        icon: HeartPulse,
-        category: "Advanced Screening"
-    },
-    {
-        id: "visual-field",
-        title: "Peripheral Vision Game",
-        description: "Train your peripheral awareness with the 'Side Sight' game.",
-        icon: View,
-        category: "Advanced Screening"
-    },
-    {
-        id: "pupil-response",
-        title: "Pupil Response Test",
-        description: "Neurological screening via camera-based pupil measurement. (Experimental)",
-        icon: Brain,
-        category: "Advanced Screening"
-    },
-    {
-        id: "redness-scan",
-        title: "Redness & Irritation Scan",
-        description: "AI-powered analysis of eye redness from a photo. (Experimental)",
-        icon: ScanEye,
-        category: "Advanced Screening"
-    },
-    {
-        id: "stereopsis",
-        title: "Stereopsis Test",
-        description: "A screening for depth perception and 3D vision (requires 3D glasses).",
-        icon: StereopsisIcon,
-        category: "Advanced Screening"
-    },
-    {
-        id: "reading-speed",
-        title: "Reading Speed Test",
-        description: "Assess your visual processing and reading efficiency.",
-        icon: BookOpen,
-        category: "Visual Processing"
-    },
-    {
-        id: 'accommodation-flexibility',
-        title: 'Accommodation Flexibility Test',
-        description: 'Quantify how quickly your eyes can change focus.',
-        icon: Zap,
-        category: 'Visual Processing'
-    },
-     {
-        id: 'jungle-explorer',
-        title: 'Jungle Explorer',
-        description: 'A fun game for kids! Help the jungle explorer spot all the animals by quickly changing your focus.',
-        icon: Sparkles,
-        category: 'Kids\' Game Zone'
-    }
-];
-
-export const MOCK_EXERCISES: Exercise[] = [
-    {
-        id: "focus-shift",
-        title: "Focus Shift",
-        description: "A guided exercise to improve your eyes' ability to change focus between near and far objects.",
-        icon: Target,
-        category: "Focus & Flexibility",
-        duration: "30 seconds"
-    },
-    {
-        id: "20-20-20-rule",
-        title: "20-20-20 Rule",
-        description: "A simple rule to reduce digital eye strain during long screen sessions.",
-        icon: Eye,
-        category: "Strain Reduction",
-        duration: "20 seconds"
-    },
-    {
-        id: "blinking-exercise",
-        title: "Blinking Exercise",
-        description: "Helps rehydrate your eyes and prevent dryness.",
-        icon: Video,
-        category: "Strain Reduction",
-        duration: "30 seconds"
-    },
-     {
-        id: "saccades",
-        title: "Saccades",
-        description: "Improve the speed and accuracy of your rapid eye movements.",
-        icon: Wind,
-        category: "Focus & Flexibility",
-        duration: "30 seconds"
-    },
-    {
-        id: "shape-tracer",
-        title: "Shape Tracer",
-        description: "Train your eyes to smoothly follow a moving object.",
-        icon: Wind,
-        category: "Focus & Flexibility",
-        duration: "30 seconds"
-    },
-    {
-        id: "symptom-checker",
-        title: "Symptom Checker",
-        description: "Use our AI to identify potential eye conditions based on your symptoms.",
-        icon: Sparkles,
-        category: "AI Tools",
-        duration: "Varies"
-    },
-    {
-        id: "personalized-workouts",
-        title: "Personalized Workouts",
-        description: "Generate a custom eye workout routine with our AI coach.",
-        icon: Dumbbell,
-        category: "AI Tools",
-        duration: "Varies"
-    }
-];
-
-export const MOCK_CIRCUITS: Circuit[] = [
-    {
-        id: "5-min-stress-buster",
-        title: "5-Min Stress Buster",
-        description: "A quick routine to relieve eye strain after prolonged screen time.",
-        icon: "ListTodo",
-        totalDuration: "5 minutes",
-        exercises: [
-            { id: "focus-shift", title: "Focus Shift", duration: 60 },
-            { id: "saccades", title: "Saccades", duration: 60 },
-            { id: "blinking-exercise", title: "Blinking Exercise", duration: 30 },
-            { id: "focus-shift", title: "Focus Shift (Round 2)", duration: 60 },
-            { id: "blinking-exercise", title: "Blinking Exercise (Final)", duration: 30 },
-        ]
-    }
-];
-
-export const MOCK_CHECKUP_HISTORY: CheckupReport[] = [
-    {
-        id: 'history-1',
-        date: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days ago
-        results: [
-            { testId: 'visual-acuity', value: '20/20', status: 'good' },
-            { testId: 'macular-health', value: 'No Issues', status: 'good' },
-            { testId: 'color-vision', value: 'Normal', status: 'good' },
-            { testId: 'visual-field', value: '10/10', status: 'good' },
-            { testId: 'accommodation-flexibility', value: '380ms', status: 'good' },
-        ]
-    },
-    {
-        id: 'history-2',
-        date: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString(), // 60 days ago
-        results: [
-            { testId: 'visual-acuity', value: '20/25', status: 'warning' },
-            { testId: 'macular-health', value: 'No Issues', status: 'good' },
-            { testId: 'color-vision', value: 'Normal', status: 'good' },
-            { testId: 'visual-field', value: '9/10', status: 'warning' },
-            { testId: 'accommodation-flexibility', value: '510ms', status: 'warning' },
-        ]
-    }
-]
+export const MOCK_CIRCUITS: Circuit[] = circuits;
