@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -5,6 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import Link from 'next/link';
+import AnimatedEyeModel from '@/components/AnimatedEyeModel';
 
 import { Button } from "@/components/ui/button";
 import {
@@ -37,10 +39,26 @@ const severityColors: Record<string, string> = {
   High: "bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300",
 };
 
+type ConditionName = 'normal' | 'glaucoma' | 'diabetic_retinopathy' | 'amd' | 'cataract';
+
+const conditionMap: { [key: string]: ConditionName } = {
+  'glaucoma': 'glaucoma',
+  'diabetic retinopathy': 'diabetic_retinopathy',
+  'age-related macular degeneration': 'amd',
+  'macular degeneration': 'amd',
+  'cataract': 'cataract',
+  'cataracts': 'cataract',
+};
+
+const getConditionKey = (condition: string): ConditionName => {
+    return conditionMap[condition.toLowerCase()] || 'normal';
+};
+
 
 export function SymptomCheckerForm() {
   const [result, setResult] = useState<SymptomCheckerOutput | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [visualizedCondition, setVisualizedCondition] = useState<ConditionName>('normal');
   const { toast } = useToast();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -53,6 +71,7 @@ export function SymptomCheckerForm() {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
     setResult(null);
+    setVisualizedCondition('normal');
     try {
       const response = await symptomChecker(values);
       setResult(response);
@@ -126,7 +145,7 @@ export function SymptomCheckerForm() {
             </Card>
         )}
 
-        {result && (
+        {result ? (
             <>
               {result.severity === 'High' && (
                 <Alert variant="destructive" className="border-4">
@@ -138,34 +157,48 @@ export function SymptomCheckerForm() {
                 </Alert>
               )}
 
-              <Card>
-                <CardHeader>
-                  <CardTitle>Possible Conditions</CardTitle>
-                  <CardDescription className="flex items-center gap-2">
-                    AI-powered insights based on your symptoms.
-                    <Badge className={severityColors[result.severity] || ''}>Severity: {result.severity}</Badge>
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                    <Alert variant="destructive">
-                        <AlertTriangle className="h-4 w-4" />
-                        <AlertTitle>Disclaimer</AlertTitle>
-                        <AlertDescription>{result.disclaimer}</AlertDescription>
-                    </Alert>
-                    <div className="space-y-4 pt-4">
-                        {result.possibleConditions.sort((a, b) => b.likelihood - a.likelihood).map((item) => (
-                            <div key={item.condition}>
-                                <div className="flex justify-between items-center mb-1">
-                                    <h4 className="font-semibold">{item.condition}</h4>
-                                    <span className="text-sm font-medium text-muted-foreground">{item.likelihood}%</span>
-                                </div>
-                                <Progress value={item.likelihood} className="h-2" />
-                                <p className="text-sm text-muted-foreground mt-1">{item.description}</p>
+                <div className="grid gap-4 items-start" style={{gridTemplateColumns: '1fr 220px'}}>
+                    <Card>
+                        <CardHeader>
+                        <CardTitle>Possible Conditions</CardTitle>
+                        <CardDescription className="flex items-center gap-2">
+                            AI-powered insights based on your symptoms.
+                            <Badge className={severityColors[result.severity] || ''}>Severity: {result.severity}</Badge>
+                        </CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <Alert variant="destructive">
+                                <AlertTriangle className="h-4 w-4" />
+                                <AlertTitle>Disclaimer</AlertTitle>
+                                <AlertDescription>{result.disclaimer}</AlertDescription>
+                            </Alert>
+                            <div className="space-y-4 pt-4" onMouseLeave={() => setVisualizedCondition('normal')}>
+                                {result.possibleConditions.sort((a, b) => b.likelihood - a.likelihood).map((item) => (
+                                    <div 
+                                        key={item.condition}
+                                        onMouseEnter={() => setVisualizedCondition(getConditionKey(item.condition))}
+                                        className="p-3 rounded-lg border bg-background/50 cursor-pointer"
+                                    >
+                                        <div className="flex justify-between items-center mb-1">
+                                            <h4 className="font-semibold">{item.condition}</h4>
+                                            <span className="text-sm font-medium text-muted-foreground">{item.likelihood}%</span>
+                                        </div>
+                                        <Progress value={item.likelihood} className="h-2" />
+                                        <p className="text-sm text-muted-foreground mt-1">{item.description}</p>
+                                    </div>
+                                ))}
                             </div>
-                        ))}
-                    </div>
-                </CardContent>
-              </Card>
+                        </CardContent>
+                    </Card>
+                    <Card className="sticky top-20">
+                         <CardHeader className="pb-2">
+                            <CardTitle className="text-lg">Visualization</CardTitle>
+                         </CardHeader>
+                         <CardContent>
+                            <AnimatedEyeModel condition={visualizedCondition} showLabels={false} size="medium" />
+                         </CardContent>
+                    </Card>
+                </div>
 
               {result.homeCareAdvice && result.homeCareAdvice.length > 0 && (
                 <Card>
@@ -192,9 +225,7 @@ export function SymptomCheckerForm() {
                 </Card>
               )}
             </>
-        )}
-
-        {!isLoading && !result && (
+        ) : !isLoading && (
              <Card className="min-h-[400px]">
                 <CardHeader>
                     <CardTitle>Awaiting Input</CardTitle>
