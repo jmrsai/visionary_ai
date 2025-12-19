@@ -18,7 +18,7 @@
         "id": "astigmatism",
         "title": "Astigmatism Test",
         "description": "Check for astigmatism using a clock dial test.",
-        "icon": "Activity",
+        "icon": "CircleDot",
         "category": "Core Diagnostics"
     },
     {
@@ -32,7 +32,7 @@
         "id": "macular-health",
         "title": "Macular Health (Amsler)",
         "description": "Monitor for macular degeneration with an Amsler grid.",
-        "icon": "HeartPulse",
+        "icon": "Grid",
         "category": "Advanced Screening"
     },
     {

@@ -1,5 +1,5 @@
 
-import { Activity, BookOpen, Brain, Dumbbell, Eye, Glasses, HeartPulse, Target, Video, View, Wind, Sparkles, CalendarCheck, ScanEye, Zap, ListTodo, Contrast, Layers, Palette, Rocket } from "lucide-react";
+import { Activity, BookOpen, Brain, Dumbbell, Eye, Glasses, HeartPulse, Target, Video, View, Wind, Sparkles, CalendarCheck, ScanEye, Zap, ListTodo, Contrast, Layers, Palette, Rocket, Move, Orbit, Grid, CircleDot } from "lucide-react";
 import type { Test, Reminder, ActivityLog, Exercise, Circuit, AdherenceLog, CheckupReport, HrrPlate, D15Cap } from "./types";
 import { StereopsisIcon } from "@/components/icons";
 
@@ -13,10 +13,11 @@ import exercises from './data/exercises.json';
 import circuits from './data/circuits.json';
 import checkupHistory from './data/checkup-history.json';
 
+
 export const MOCK_ACTIVITIES: ActivityLog[] = activities;
 export const MOCK_ADHERENCE_HISTORY: AdherenceLog[] = adherenceHistory;
 export const MOCK_VISION_SCORE_HISTORY: { date: string, score: number }[] = visionScoreHistory;
-export const MOCK_HRR_PLATES: HrrPlate[] = hrrPlates;
+export const MOCK_HRR_PLATES: HrrPlate[] = hrrPlates.map(plate => ({ ...plate, plateImageUri: `https://i.ibb.co/${plate.plateImageUri}`}));
 export const MOCK_D15_CAPS: D15Cap[] = d15Caps;
 export const MOCK_CHECKUP_HISTORY: CheckupReport[] = checkupHistory;
 
@@ -38,7 +39,11 @@ const iconMapping: { [key: string]: React.ElementType } = {
     Wind,
     Dumbbell,
     ListTodo,
-    Rocket
+    Rocket,
+    Move,
+    Orbit,
+    Grid,
+    CircleDot,
 };
 
 export const MOCK_TESTS: Test[] = tests.map(test => ({

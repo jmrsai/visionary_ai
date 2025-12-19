@@ -29,6 +29,42 @@
       "description": "A cartoon frog character",
       "imageUrl": "https://i.ibb.co/YPMY1P0/frog.png",
       "imageHint": "frog cartoon"
+    },
+    {
+      "id": "hrr-rg-triangle",
+      "description": "HRR Plate for Red-Green, Triangle",
+      "imageUrl": "https://i.ibb.co/1MjvL0w/hrr-rg-triangle.png",
+      "imageHint": "color blind test"
+    },
+    {
+      "id": "hrr-by-cross",
+      "description": "HRR Plate for Blue-Yellow, Cross",
+      "imageUrl": "https://i.ibb.co/C0hCjL7/hrr-by-cross.png",
+      "imageHint": "color blind test"
+    },
+    {
+      "id": "hrr-rg-circle",
+      "description": "HRR Plate for Red-Green, Circle",
+      "imageUrl": "https://i.ibb.co/GcLb7k9/hrr-rg-circle.png",
+      "imageHint": "color blind test"
+    },
+    {
+      "id": "hrr-by-triangle",
+      "description": "HRR Plate for Blue-Yellow, Triangle",
+      "imageUrl": "https://i.ibb.co/Y0Y3fym/hrr-by-triangle.png",
+      "imageHint": "color blind test"
+    },
+    {
+      "id": "hrr-rg-cross",
+      "description": "HRR Plate for Red-Green, Cross",
+      "imageUrl": "https://i.ibb.co/vYvYmGq/hrr-rg-cross.png",
+      "imageHint": "color blind test"
+    },
+    {
+      "id": "hrr-by-circle",
+      "description": "HRR Plate for Blue-Yellow, Circle",
+      "imageUrl": "https://i.ibb.co/hZ2v1c5/hrr-by-circle.png",
+      "imageHint": "color blind test"
     }
   ]
 }

@@ -5,7 +5,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { Video, Calendar, Users, Clock, Shield } from 'lucide-react';
 import type { Consultation } from '@/lib/types';
 import { useUser, useCollection, useFirestore, useMemoFirebase } from '@/firebase';
-import { collection, query, orderBy, where, getDoc, doc } from 'firebase/firestore';
+import { collection, query, orderBy, where, getDoc, doc, collectionGroup } from 'firebase/firestore';
 import { VideoCall } from './video-call';
 import { ConsultationCard } from './consultation-card';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -83,7 +83,7 @@ export default function TeleMedicine() {
     if (isDoctor) {
       // Doctor's query: Get all consultations across all users where they are the doctor
       return query(
-          collection(firestore, 'consultations'), // This assumes a top-level collection for doctors to query. Let's adjust this.
+          collectionGroup(firestore, 'consultations'), 
           where('doctorId', '==', user.uid),
           orderBy('scheduledTime', 'desc')
       );
@@ -234,6 +234,3 @@ export default function TeleMedicine() {
     </div>
   );
 }
-
-    
-    

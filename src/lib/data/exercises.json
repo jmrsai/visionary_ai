@@ -28,7 +28,7 @@
         "id": "saccades",
         "title": "Saccades",
         "description": "Improve the speed and accuracy of your rapid eye movements.",
-        "icon": "Wind",
+        "icon": "Move",
         "category": "Focus & Flexibility",
         "duration": "30 seconds"
     },
@@ -36,7 +36,7 @@
         "id": "shape-tracer",
         "title": "Shape Tracer",
         "description": "Train your eyes to smoothly follow a moving object.",
-        "icon": "Wind",
+        "icon": "Orbit",
         "category": "Focus & Flexibility",
         "duration": "30 seconds"
     },
