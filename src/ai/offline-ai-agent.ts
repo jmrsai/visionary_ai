@@ -1,3 +1,5 @@
+'use server';
+
 import * as tf from '@tensorflow/tfjs';
 
 // Define a simple model for demonstration purposes

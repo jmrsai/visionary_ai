@@ -32,14 +32,16 @@ const prompt = ai.definePrompt({
   name: 'holisticHealthInsightsPrompt',
   input: {schema: HolisticHealthInsightsInputSchema},
   output: {schema: HolisticHealthInsightsOutputSchema},
+  tools: [offlineTextAnalysisTool],
   prompt: `You are a holistic health analyst for the Visionary eye care app. Your job is to find meaningful correlations between a user's lifestyle habits and their reported eye symptoms.
 
-Analyze the provided screen time data and symptom reports for the past week. Generate a single, actionable insight based on your analysis.
+Analyze the provided screen time data, symptom reports for the past week, and the results from the offline text analysis tool. Generate a single, actionable insight based on your combined analysis.
 
 - Look for patterns: Do symptoms appear more on days with high screen time?
+- Correlate with user notes: Does the sentiment from the offline analysis match the data patterns?
 - Be specific: Mention the symptom and the habit. Quantify if possible (e.g., "increased by 40%").
 - Suggest a solution: Recommend a specific exercise or action from the app to help mitigate the issue.
-- If no direct correlation is obvious, provide a general but relevant eye health tip.
+- If no direct correlation is obvious, provide a general but relevant eye health tip based on all available data.
 
 Screen Time Data (JSON):
 {{{screenTimeData}}}
@@ -56,17 +58,18 @@ const holisticHealthInsightsFlow = ai.defineFlow(
     outputSchema: HolisticHealthInsightsOutputSchema,
   },
   async input => {
-    // Step 1: Get initial insight from the language model
-    const {output: llmOutput} = await prompt(input);
-    let combinedInsight = llmOutput!.insight; // Use the insight from the LLM
+    
+    const llmResponse = await prompt(input);
+    const toolRequest = llmResponse.toolRequest();
 
-    // Step 2: Perform offline text analysis if userInputText is provided
-    if (input.userInputText) {
-      const offlineAnalysisResult = await offlineTextAnalysisTool.run({ text: input.userInputText });
-      // Augment the LLM insight with the offline analysis result
-      combinedInsight += `\n\nOffline AI analysis of your additional notes: ${offlineAnalysisResult}`;
+    if (toolRequest && input.userInputText) {
+        const toolResponse = await toolRequest.run({text: input.userInputText});
+        const finalResponse = await llmResponse.send(toolResponse);
+        return finalResponse.output()!;
     }
-
-    return { insight: combinedInsight };
+    
+    const {output} = llmResponse;
+    
+    return output!;
   }
 );
