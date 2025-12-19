@@ -232,6 +232,25 @@
         "response",
         "apiEndpoint"
       ]
+    },
+    "Consultation": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Consultation",
+      "type": "object",
+      "description": "Represents a telemedicine consultation.",
+      "properties": {
+        "id": { "type": "string", "description": "Unique identifier for the consultation." },
+        "userId": { "type": "string", "description": "ID of the user (patient) this consultation belongs to." },
+        "doctorId": { "type": "string", "description": "ID of the doctor conducting the consultation." },
+        "patientName": { "type": "string", "description": "Name of the patient." },
+        "scheduledTime": { "type": "string", "format": "date-time", "description": "The scheduled date and time of the consultation." },
+        "duration": { "type": "number", "description": "Duration of the consultation in minutes." },
+        "type": { "type": "string", "enum": ["routine", "follow_up", "urgent", "second_opinion"], "description": "The type of consultation." },
+        "status": { "type": "string", "enum": ["scheduled", "in_progress", "completed", "cancelled"], "description": "The current status of the consultation." },
+        "meetingLink": { "type": "string", "format": "uri", "description": "The link to the video meeting." },
+        "notes": { "type": "string", "description": "Notes related to the consultation." }
+      },
+      "required": ["id", "userId", "doctorId", "patientName", "scheduledTime", "duration", "type", "status", "meetingLink"]
     }
   },
   "auth": {
@@ -311,6 +330,18 @@
               "name": "reminderId",
               "description": "The unique identifier of the reminder."
             }
+          ]
+        }
+      },
+       {
+        "path": "/users/{userId}/consultations/{consultationId}",
+        "definition": {
+          "entityName": "Consultation",
+          "schema": { "$ref": "#/backend/entities/Consultation" },
+          "description": "Stores user-specific telemedicine consultations. Path-based ownership.",
+          "params": [
+            { "name": "userId", "description": "The unique identifier of the user." },
+            { "name": "consultationId", "description": "The unique identifier of the consultation." }
           ]
         }
       },

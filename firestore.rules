@@ -149,6 +149,17 @@ service cloud.firestore {
     }
 
     /**
+     * @description Stores user-specific telemedicine consultations.
+     * @path /users/{userId}/consultations/{consultationId}
+     * @allow A user can manage their own consultations. A doctor role (not yet implemented) could also have access.
+     * @deny A different user tries to access another user's consultations.
+     * @principle Enforces document ownership within a user's private subcollection.
+     */
+    match /users/{userId}/consultations/{consultationId} {
+      allow get, list, create, update, delete: if isOwner(userId);
+    }
+
+    /**
      * @description Stores a global, read-only catalog of medications.
      * @path /medications/{medicationId}
      * @allow (get, list) Any user (authenticated or not) can read the list of medications.

@@ -91,6 +91,18 @@ export type D15Cap = {
     color: string;
 }
 
+export interface Consultation {
+  id: string;
+  patientName: string;
+  patientId: string;
+  scheduledTime: string;
+  duration: number;
+  type: 'routine' | 'follow_up' | 'urgent' | 'second_opinion';
+  status: 'scheduled' | 'in_progress' | 'completed' | 'cancelled';
+  meetingLink: string;
+  notes?: string;
+}
+
 
 // --- App-specific Helper Types (Mock Data etc.) ---
 
