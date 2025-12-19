@@ -12,10 +12,12 @@ import { HrrTest } from './hrr-test';
 import { Progress } from '../ui/progress';
 import { Badge } from '../ui/badge';
 import { MOCK_D15_CAPS } from '@/lib/data';
+import { IshiharaPlateSVG } from './ishihara-plate-svg';
+
 
 // Mock type
 type IshiharaPlateOutput = {
-    plateImageUri: string;
+    // plateImageUri: string; (No longer needed, will generate SVG directly)
     correctNumber: number;
     options: number[];
 };
@@ -67,8 +69,7 @@ const IshiharaTest = ({ onBack }: { onBack: () => void }) => {
   const getNextPlate = useCallback(async () => {
     setStep('loading');
     try {
-        // const data = await generateIshiharaPlate();
-        // Mock data
+        // Mocking the AI generation logic locally
         const randomNumber = Math.floor(Math.random() * 90) + 10;
         const distractors = new Set<number>();
         while(distractors.size < 3) {
@@ -77,7 +78,6 @@ const IshiharaTest = ({ onBack }: { onBack: () => void }) => {
         }
         const options = [randomNumber, ...Array.from(distractors)].sort(() => Math.random() - 0.5);
         const data: IshiharaPlateOutput = {
-            plateImageUri: `https://i.ibb.co/GcLb7k9/hrr-rg-circle.png`, // Using a mock image
             correctNumber: randomNumber,
             options: options
         };
@@ -87,7 +87,7 @@ const IshiharaTest = ({ onBack }: { onBack: () => void }) => {
         console.error("Failed to generate Ishihara plate:", error);
         toast({
             title: "Error Generating Test",
-            description: "Could not generate the next plate. The AI service may be temporarily unavailable. Please try again.",
+            description: "Could not generate the next plate. Please try again.",
             variant: "destructive"
         });
         setStep('instructions');
@@ -124,9 +124,9 @@ const IshiharaTest = ({ onBack }: { onBack: () => void }) => {
   if (step === 'instructions') {
     return (
       <div className="text-center">
-        <h3 className="text-xl font-semibold">AI-Powered Ishihara Test</h3>
+        <h3 className="text-xl font-semibold">Dynamically Generated Ishihara Test</h3>
         <p className="text-muted-foreground mt-2 mb-4">
-          You will be shown a series of unique, AI-generated plates. Click the number you see in the plate. This test primarily screens for red-green color deficiencies. (AI is currently disabled)
+          You will be shown a series of unique, computer-generated plates. Click the number you see in the plate. This test primarily screens for red-green color deficiencies.
         </p>
         <div className="flex justify-center gap-4">
             <Button variant="outline" onClick={onBack}><ArrowLeft className="mr-2 h-4 w-4" />Back</Button>
@@ -183,7 +183,7 @@ const IshiharaTest = ({ onBack }: { onBack: () => void }) => {
 
         <div className="grid grid-cols-2 gap-4">
             <Button variant="outline" size="lg" onClick={restartTest}>
-                <RotateCcw className="mr-2 h-4 w-4" /> Retake Test
+                <RefreshCw className="mr-2 h-4 w-4" /> Retake Test
             </Button>
             <Button size="lg" onClick={onBack}>
                 Done
@@ -198,9 +198,9 @@ const IshiharaTest = ({ onBack }: { onBack: () => void }) => {
         <div className="w-full text-center">
             <p className="text-muted-foreground">Plate {currentPlate + 1} of {TOTAL_PLATES}</p>
         </div>
-        <div className="w-64 h-64 relative rounded-full overflow-hidden border-4 border-muted">
+        <div className="w-64 h-64 relative rounded-full overflow-hidden border-4 border-muted flex items-center justify-center bg-gray-100 dark:bg-gray-800">
             {plateData ? (
-                <Image src={plateData.plateImageUri} alt="AI-generated Ishihara plate" layout="fill" objectFit="cover" data-ai-hint="abstract pattern"/>
+                <IshiharaPlateSVG numberToDisplay={plateData.correctNumber} difficulty={currentPlate + 1} />
             ) : (
                  <div className="w-full h-full bg-muted animate-pulse" />
             )}
@@ -586,8 +586,8 @@ export function ColorVisionTest() {
               </Card>
               <Card className="hover:border-primary transition-colors">
                   <CardHeader>
-                      <CardTitle>AI Ishihara Plate Test</CardTitle>
-                      <CardDescription>Screens for red-green color deficiencies using AI-generated plates.</CardDescription>
+                      <CardTitle>Generated Ishihara Test</CardTitle>
+                      <CardDescription>Screens for red-green color deficiencies using generated plates.</CardDescription>
                   </CardHeader>
                   <CardContent>
                       <Button onClick={() => setTestType('ishihara')} className="w-full">Start Ishihara Test</Button>
