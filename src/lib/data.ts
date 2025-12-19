@@ -1,3 +1,4 @@
+
 import { Activity, BookOpen, Brain, Dumbbell, Eye, Glasses, HeartPulse, Target, Video, View, Wind, Sparkles, CalendarCheck, ScanEye, Zap, ListTodo, Contrast, Layers, Palette } from "lucide-react";
 import type { Test, Reminder, ActivityLog, Exercise, Circuit, AdherenceLog, CheckupReport, HrrPlate, D15Cap, Consultation } from "./types";
 import { StereopsisIcon } from "@/components/icons";
@@ -12,7 +13,6 @@ import tests from './data/tests.json';
 import exercises from './data/exercises.json';
 import circuits from './data/circuits.json';
 import checkupHistory from './data/checkup-history.json';
-// consultations.json is no longer used for mock data
 
 export const MOCK_REMINDERS: Reminder[] = reminders;
 export const MOCK_ACTIVITIES: ActivityLog[] = activities;
