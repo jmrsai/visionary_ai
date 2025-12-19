@@ -1,0 +1,372 @@
+{
+  "entities": {
+    "User": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "User",
+      "type": "object",
+      "description": "Represents a user of the Visionary app.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the user entity."
+        },
+        "email": {
+          "type": "string",
+          "description": "User's email address.",
+          "format": "email"
+        },
+        "firstName": {
+          "type": "string",
+          "description": "User's first name."
+        },
+        "lastName": {
+          "type": "string",
+          "description": "User's last name."
+        },
+        "dateOfBirth": {
+          "type": "string",
+          "description": "User's date of birth.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "email",
+        "firstName",
+        "lastName"
+      ]
+    },
+    "EyeExercise": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "EyeExercise",
+      "type": "object",
+      "description": "Represents an eye exercise routine.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the eye exercise entity."
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the eye exercise."
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the eye exercise."
+        },
+        "instructions": {
+          "type": "string",
+          "description": "Instructions for performing the eye exercise."
+        },
+        "exerciseType": {
+          "type": "string",
+          "description": "Type of eye exercise (e.g., tracking, focus shifting)."
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "description",
+        "instructions",
+        "exerciseType"
+      ]
+    },
+    "UserExerciseLog": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "UserExerciseLog",
+      "type": "object",
+      "description": "Represents a user's log of completed eye exercises.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the user exercise log entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N UserExerciseLog)"
+        },
+        "exerciseId": {
+          "type": "string",
+          "description": "Reference to EyeExercise. (Relationship: EyeExercise 1:N UserExerciseLog)"
+        },
+        "completionDate": {
+          "type": "string",
+          "description": "Date and time when the exercise was completed.",
+          "format": "date-time"
+        },
+        "duration": {
+          "type": "number",
+          "description": "Duration of the exercise in seconds."
+        },
+        "score": {
+          "type": "number",
+          "description": "Score achieved during the exercise (if applicable)."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "exerciseId",
+        "completionDate"
+      ]
+    },
+    "Reminder": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Reminder",
+      "type": "object",
+      "description": "Represents a reminder for eye exercises or medication.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the reminder entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N Reminder)"
+        },
+        "reminderType": {
+          "type": "string",
+          "description": "Type of reminder (e.g., exercise, medication)."
+        },
+        "reminderTime": {
+          "type": "string",
+          "description": "Time for the reminder.",
+          "format": "date-time"
+        },
+        "message": {
+          "type": "string",
+          "description": "Message to display in the reminder."
+        },
+        "isRecurring": {
+          "type": "boolean",
+          "description": "Indicates if the reminder is recurring."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "reminderType",
+        "reminderTime",
+        "message"
+      ]
+    },
+    "Medication": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Medication",
+      "type": "object",
+      "description": "Represents an eye related medication.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the medication entity."
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the medication."
+        },
+        "dosage": {
+          "type": "string",
+          "description": "Dosage of the medication."
+        },
+        "frequency": {
+          "type": "string",
+          "description": "Frequency of medication intake."
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the medication."
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "dosage",
+        "frequency"
+      ]
+    },
+    "LLMCall": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "LLMCall",
+      "type": "object",
+      "description": "Represents a call to a Large Language Model (LLM) API.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the LLM call entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N LLMCall)"
+        },
+        "callTime": {
+          "type": "string",
+          "description": "Timestamp of when the LLM API was called.",
+          "format": "date-time"
+        },
+        "inputPrompt": {
+          "type": "string",
+          "description": "Input prompt sent to the LLM."
+        },
+        "apiEndpoint": {
+          "type": "string",
+          "description": "The specific API endpoint that was called."
+        },
+        "response": {
+          "type": "string",
+          "description": "Response received from the LLM API."
+        },
+        "modelUsed": {
+          "type": "string",
+          "description": "The LLM model used for the API call."
+        },
+        "tokensUsed": {
+          "type": "number",
+          "description": "The number of tokens used for the API call."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "callTime",
+        "inputPrompt",
+        "response",
+        "apiEndpoint"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "User",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "Stores user profile information. Path-based ownership for private user data.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/eye_exercises/{exerciseId}",
+        "definition": {
+          "entityName": "EyeExercise",
+          "schema": {
+            "$ref": "#/backend/entities/EyeExercise"
+          },
+          "description": "Stores a catalog of available eye exercises.  Accessible to all users.",
+          "params": [
+            {
+              "name": "exerciseId",
+              "description": "The unique identifier of the eye exercise."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/exerciseLogs/{logId}",
+        "definition": {
+          "entityName": "UserExerciseLog",
+          "schema": {
+            "$ref": "#/backend/entities/UserExerciseLog"
+          },
+          "description": "Stores user-specific exercise logs. Path-based ownership; only the user can access their logs.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            },
+            {
+              "name": "logId",
+              "description": "The unique identifier of the exercise log."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/reminders/{reminderId}",
+        "definition": {
+          "entityName": "Reminder",
+          "schema": {
+            "$ref": "#/backend/entities/Reminder"
+          },
+          "description": "Stores user-specific reminders. Path-based ownership; only the user can access their reminders.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            },
+            {
+              "name": "reminderId",
+              "description": "The unique identifier of the reminder."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/medications/{medicationId}",
+        "definition": {
+          "entityName": "Medication",
+          "schema": {
+            "$ref": "#/backend/entities/Medication"
+          },
+          "description": "Stores global medication information.",
+          "params": [
+            {
+              "name": "medicationId",
+              "description": "The unique identifier for the medication."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/llm_calls/{callId}",
+        "definition": {
+          "entityName": "LLMCall",
+          "schema": {
+            "$ref": "#/backend/entities/LLMCall"
+          },
+          "description": "Stores the history of LLM API calls made by a specific user. Path-based ownership.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            },
+            {
+              "name": "callId",
+              "description": "The unique identifier of the LLM call."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/roles_admin/{userId}",
+        "definition": {
+          "entityName": "adminRole",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "This collection is used for DBAC, where the existence of a document indicates admin privileges.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user, used as the document ID."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore structure is designed to ensure Authorization Independence, DBAC, and QAPs. It leverages path-based ownership for user-specific data and denormalization to avoid hierarchical authorization dependencies. \n\nUser data is stored under `/users/{userId}`, which enables simple path-based security rules for private user data. Eye exercises are stored globally and accessible, while user-specific logs, reminders, and LLM call histories are nested under the respective user document for clear ownership and simplified security rules.\n\nAuthorization Independence is achieved by avoiding `get()` calls in security rules. For instance, access to `/users/{userId}/exerciseLogs/{logId}` is determined solely by the `userId` in the path, without needing to fetch the user document.  The `roles_admin/{uid}` collection supports DBAC, granting global admin roles based on document existence.\n\nQAPs are supported through structural segregation. Public eye exercises are stored in `/eye_exercises`, and user-specific data is stored under `/users/{userId}`. This segregation prevents mixing data with different access needs in the same collection, enabling secure `list` operations. The membership map pattern is not directly applicable here as there is no collaborative data requirement, but the principles of ownership and segregation ensure secure data access."
+  }
+}

@@ -1,0 +1,190 @@
+/**
+ * Core Philosophy: This ruleset enforces a strict user-ownership model combined with role-based access for administrative tasks.
+ * All sensitive user data is isolated within a user-specific document tree, accessible only to the authenticated owner.
+ *
+ * Data Structure: The data is organized hierarchically. Core user data and its related subcollections (exerciseLogs, reminders, llm_calls)
+ * are stored under `/users/{userId}`. This path-based nesting provides a simple and secure way to manage user-private information.
+ * Global, read-only data catalogs, such as eye exercises and medications, are stored in top-level collections. A dedicated `/roles_admin`
+ * collection manages administrative privileges.
+ *
+ * Key Security Decisions:
+ * - User Isolation: Users can only read or write data within their own `/users/{userId}` document tree. They cannot see or interact with other users' data.
+ * - Admin-Managed Catalogs: Public-facing collections like `/eye_exercises` and `/medications` are readable by anyone but can only be modified by users with an admin role.
+ * - No User Listing: To protect user privacy, listing the top-level `/users` collection is explicitly disallowed.
+ * - Role-Based Access Control (RBAC): The existence of a document in `/roles_admin/{userId}` grants a user administrative privileges across the database, such as managing public catalogs.
+ *
+ * Denormalization for Authorization: The rules rely on path-based ownership (`/users/{userId}/...`) to grant access, which is highly performant as it avoids extra `get()` calls.
+ * For user-owned subcollection documents, a `userId` field is required and validated to ensure a clear and immutable link back to the owner.
+ *
+ * Structural Segregation: The design separates private user data (e.g., `/users/{userId}/exerciseLogs`) from public catalog data (e.g., `/eye_exercises`).
+ * This separation is critical for safely allowing public list operations on the catalog without exposing any private user information.
+ */
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper Functions
+    /**
+     * Checks if a user is authenticated.
+     */
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    /**
+     * Checks if the currently authenticated user's UID matches the provided userId.
+     * This is the foundation of the user-ownership model.
+     */
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    /**
+     * Checks if the document being operated on already exists.
+     * Crucial for protecting against unintended writes on non-existent paths.
+     */
+    function isExistingDoc() {
+      return resource != null;
+    }
+
+    /**
+     * Combines owner and existence checks for secure updates and deletes.
+     */
+    function isExistingOwner(userId) {
+      return isOwner(userId) && isExistingDoc();
+    }
+
+    /**
+     * Checks if the requesting user has an admin role by checking for a document
+     * with their UID in the /roles_admin collection.
+     */
+    function isAdmin() {
+      return isSignedIn() && exists(/databases/$(database)/documents/roles_admin/$(request.auth.uid));
+    }
+
+    /**
+     * Validates the core `User` document on creation.
+     * Enforces that the document's internal `id` matches the document's ID in the path.
+     */
+    function hasValidNewUserData(userId) {
+      return request.resource.data.id == userId;
+    }
+
+    /**
+     * Validates that the core `User` document's ID is not changed on update.
+     */
+    function isUserIdImmutable() {
+      return request.resource.data.id == resource.data.id;
+    }
+
+    /**
+     * Validates that a subcollection document contains a `userId` field
+     * that correctly points back to its parent user document in the path.
+     */
+    function hasValidSubcollectionData(userId) {
+      return request.resource.data.userId == userId;
+    }
+
+    /**
+     * Validates that the ownership link (`userId`) in a subcollection document is not changed on update.
+     */
+    function isSubcollectionUserIdImmutable() {
+      return request.resource.data.userId == resource.data.userId;
+    }
+
+
+    /**
+     * @description Manages user profile documents.
+     * @path /users/{userId}
+     * @allow (create) An authenticated user creates their own profile document.
+     * @deny (list) An authenticated user tries to list all user profiles.
+     * @principle Restricts access to a user's own data tree and enforces self-creation.
+     */
+    match /users/{userId} {
+      allow get: if isOwner(userId);
+      allow list: if false;
+      allow create: if isOwner(userId) && hasValidNewUserData(userId);
+      allow update: if isExistingOwner(userId) && isUserIdImmutable();
+      allow delete: if false;
+    }
+
+    /**
+     * @description Stores a global, read-only catalog of eye exercises.
+     * @path /eye_exercises/{exerciseId}
+     * @allow (get, list) Any user (authenticated or not) can read the list of exercises.
+     * @deny (create, update, delete) A non-admin user tries to modify an exercise.
+     * @principle Segregates public data and restricts write access to privileged admin users.
+     */
+    match /eye_exercises/{exerciseId} {
+      allow get, list: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    /**
+     * @description Stores user-specific logs of completed eye exercises.
+     * @path /users/{userId}/exerciseLogs/{logId}
+     * @allow (create, update, delete) A user manages their own exercise logs.
+     * @deny (get, list) A different user tries to access another user's logs.
+     * @principle Enforces document ownership within a user's private subcollection.
+     */
+    match /users/{userId}/exerciseLogs/{logId} {
+      allow get, list: if isOwner(userId);
+      allow create: if isOwner(userId) && hasValidSubcollectionData(userId);
+      allow update: if isExistingOwner(userId) && isSubcollectionUserIdImmutable();
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Stores user-specific reminders for exercises or medication.
+     * @path /users/{userId}/reminders/{reminderId}
+     * @allow (create, update, delete) A user manages their own reminders.
+     * @deny (get, list) A different user tries to access another user's reminders.
+     * @principle Enforces document ownership within a user's private subcollection.
+     */
+    match /users/{userId}/reminders/{reminderId} {
+      allow get, list: if isOwner(userId);
+      allow create: if isOwner(userId) && hasValidSubcollectionData(userId);
+      allow update: if isExistingOwner(userId) && isSubcollectionUserIdImmutable();
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Stores a global, read-only catalog of medications.
+     * @path /medications/{medicationId}
+     * @allow (get, list) Any user (authenticated or not) can read the list of medications.
+     * @deny (create, update, delete) A non-admin user tries to modify a medication entry.
+     * @principle Segregates public data and restricts write access to privileged admin users.
+     */
+    match /medications/{medicationId} {
+      allow get, list: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    /**
+     * @description Stores a user's private history of calls made to an LLM API.
+     * @path /users/{userId}/llm_calls/{callId}
+     * @allow (create, update, delete) A user manages their own LLM call history.
+     * @deny (get, list) A different user tries to access another user's LLM call history.
+     * @principle Enforces document ownership within a user's private subcollection.
+     */
+    match /users/{userId}/llm_calls/{callId} {
+      allow get, list: if isOwner(userId);
+      allow create: if isOwner(userId) && hasValidSubcollectionData(userId);
+      allow update: if isExistingOwner(userId) && isSubcollectionUserIdImmutable();
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Manages admin role documents. The existence of a document grants admin privileges.
+     * @path /roles_admin/{userId}
+     * @allow (create, get, list) An existing admin manages the list of other admins.
+     * @deny (get, list, create, delete) A non-admin tries to read or modify the admin list.
+     * @principle Protects the admin role management system, ensuring only admins can grant or revoke admin access.
+     */
+    match /roles_admin/{userId} {
+      allow get, list: if isAdmin();
+      allow create, update, delete: if isAdmin();
+    }
+
+  }
+}
