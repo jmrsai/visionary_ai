@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import { useState, useMemo, useCallback, useEffect } from 'react';
@@ -188,6 +189,8 @@ const IshiharaTest = ({ onBack }: { onBack: () => void }) => {
     <div className="flex flex-col items-center space-y-6 max-w-md mx-auto">
         <div className="w-full text-center">
             <p className="text-muted-foreground">Plate {currentPlate + 1} of {TOTAL_PLATES}</p>
+            <p className="font-semibold text-lg mt-4">What number do you see?</p>
+             <p className="text-sm text-muted-foreground">If you see nothing, take your best guess.</p>
         </div>
         <div className="w-80 h-80 relative rounded-full overflow-hidden border-4 border-muted flex items-center justify-center bg-gray-100 dark:bg-gray-800">
             {plateData ? (
@@ -196,7 +199,6 @@ const IshiharaTest = ({ onBack }: { onBack: () => void }) => {
                  <div className="w-full h-full bg-muted animate-pulse" />
             )}
         </div>
-        <p className="font-semibold text-lg">What number do you see?</p>
         <div className="grid grid-cols-2 gap-4 w-full">
             {plateData?.options.map(option => (
             <Button key={option} size="lg" variant="outline" className="h-24 text-3xl font-bold" onClick={() => handleAnswer(option)}>

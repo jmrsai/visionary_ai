@@ -17,12 +17,12 @@
         "duration": "20 seconds"
     },
     {
-        "id": "blinking-exercise",
-        "title": "Blinking Exercise",
-        "description": "Helps rehydrate your eyes and prevent dryness.",
-        "icon": "Video",
+        "id": "blinking-owl-therapy",
+        "title": "Blinking Owl Therapy",
+        "description": "A calming session to guide you through healthy, mindful blinking.",
+        "icon": "Wind",
         "category": "Strain Reduction",
-        "duration": "30 seconds"
+        "duration": "1 minute"
     },
      {
         "id": "saccades",

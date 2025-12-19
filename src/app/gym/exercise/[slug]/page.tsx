@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { InteractiveExercise } from "./interactive-exercise";
+import { BlinkingOwlTherapy } from "@/components/therapies/blinking-owl-therapy";
 
 export async function generateStaticParams() {
   const exercises = MOCK_EXERCISES.filter(ex => ex.category !== 'AI Tools');
@@ -17,6 +18,8 @@ export default function ExercisePage({ params }: { params: { slug: string } }) {
   if (!exercise) {
     notFound();
   }
+  
+  const isBlinkingOwl = exercise.id === 'blinking-owl-therapy';
 
   return (
     <div className="space-y-6">
@@ -28,15 +31,19 @@ export default function ExercisePage({ params }: { params: { slug: string } }) {
         </p>
       </div>
       
-      <Card>
-        <CardHeader>
-          <CardTitle>Guided Exercise</CardTitle>
-          <CardDescription>Follow the instructions on the screen to complete the exercise.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <InteractiveExercise id={exercise.id} title={exercise.title} />
-        </CardContent>
-      </Card>
+       {isBlinkingOwl ? (
+          <BlinkingOwlTherapy />
+       ) : (
+          <Card>
+            <CardHeader>
+              <CardTitle>Guided Exercise</CardTitle>
+              <CardDescription>Follow the instructions on the screen to complete the exercise.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <InteractiveExercise id={exercise.id} title={exercise.title} />
+            </CardContent>
+          </Card>
+       )}
     </div>
   );
 }
