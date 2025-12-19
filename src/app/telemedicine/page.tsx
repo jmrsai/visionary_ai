@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react';
 import { Video, Calendar, Users, Clock, Shield } from 'lucide-react';
-import { motion } from 'framer-motion';
 import type { Consultation } from '@/lib/types';
 import { MOCK_CONSULTATIONS } from '@/lib/data';
 import { VideoCall } from './video-call';
