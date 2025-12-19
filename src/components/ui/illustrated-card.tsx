@@ -12,6 +12,7 @@ interface IllustratedCardProps {
   href: string;
   illustration: React.ReactNode;
   className?: string;
+  style?: React.CSSProperties;
 }
 
 export function IllustratedCard({
@@ -21,15 +22,16 @@ export function IllustratedCard({
   href,
   illustration,
   className,
+  style,
 }: IllustratedCardProps) {
   return (
-    <Card className={cn("flex flex-col justify-between overflow-hidden", className)}>
+    <Card className={cn("flex flex-col justify-between overflow-hidden group transition-all hover:border-primary/50", className)} style={style}>
       <CardHeader>
         <CardTitle>{title}</CardTitle>
         <CardDescription>{description}</CardDescription>
       </CardHeader>
       <CardContent className="flex-grow flex flex-col items-center justify-center gap-4">
-        <div className="flex-grow flex items-center justify-center">
+        <div className="flex-grow flex items-center justify-center transition-transform duration-300 group-hover:scale-105">
             {illustration}
         </div>
         <Button asChild className="w-full mt-4">

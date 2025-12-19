@@ -23,14 +23,14 @@ export default function Home() {
     <div className="flex flex-1 flex-col gap-4 md:gap-8">
       {/* Top Row Cards */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        <div className="lg:col-span-2 grid gap-6 md:grid-cols-2 animate-fade-in">
+        <div className="lg:col-span-2 grid gap-6 md:grid-cols-2">
           <IllustratedCard 
             title="Daily Check-up"
             description="Complete your 5-minute daily vision health check-up."
             buttonText="Start Check-up"
             href="/primary-check-up"
             illustration={<CheckupIcon className="w-48 h-auto text-primary" />}
-            className="animate-slide-in-from-left"
+            className="animate-fade-in-up"
           />
            <IllustratedCard 
             title="Eye Gym"
@@ -38,11 +38,12 @@ export default function Home() {
             buttonText="Go to Gym"
             href="/gym"
             illustration={<EyeGymIcon className="w-48 h-auto text-accent" />}
-            className="animate-slide-in-from-right"
+            className="animate-fade-in-up"
+            style={{ animationDelay: '200ms' }}
           />
         </div>
         
-        <Card className="animate-fade-in" style={{ animationDelay: '400ms' }}>
+        <Card className="animate-fade-in-up" style={{ animationDelay: '400ms' }}>
           <CardHeader className="pb-2">
             <CardTitle>Vision Score</CardTitle>
             <CardDescription>Your weekly progress.</CardDescription>
@@ -61,7 +62,7 @@ export default function Home() {
 
       {/* Bottom Row Cards */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7">
-        <Card className="col-span-1 lg:col-span-3 animate-fade-in" style={{ animationDelay: '500ms' }}>
+        <Card className="col-span-1 lg:col-span-3 animate-fade-in-up" style={{ animationDelay: '500ms' }}>
            <CardHeader>
              <CardTitle>Profile & Progress</CardTitle>
             <CardDescription>
@@ -79,7 +80,7 @@ export default function Home() {
           </CardContent>
         </Card>
 
-        <Card className="col-span-1 lg:col-span-4 animate-fade-in" style={{ animationDelay: '600ms' }}>
+        <Card className="col-span-1 lg:col-span-4 animate-fade-in-up" style={{ animationDelay: '600ms' }}>
           <CardHeader>
             <CardTitle>Recent Activity</CardTitle>
             <CardDescription>
