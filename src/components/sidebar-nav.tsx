@@ -7,10 +7,12 @@ import { cn } from "@/lib/utils";
 import { VisionaryLogo } from "./icons";
 import { buttonVariants } from "./ui/button";
 import { useSidebar } from "./ui/sidebar";
+import { useUser } from "@/firebase";
 
 export function SidebarNav() {
   const pathname = usePathname();
   const { open } = useSidebar();
+  const { user } = useUser();
 
   return (
     <div className="flex h-full flex-col">
@@ -21,23 +23,46 @@ export function SidebarNav() {
          </Link>
        </div>
       <nav className="flex-1 space-y-2 p-2">
-        {NAV_ITEMS.map((item) => (
-          <Link
-            key={item.label}
-            href={item.href}
-            className={cn(
-              buttonVariants({
-                variant: (pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href))) ? "secondary" : "ghost",
-              }),
-              "w-full justify-start text-base h-11",
-              !open && "justify-center"
-            )}
-            title={open ? "" : item.label}
-          >
-            <item.icon className={cn(!open ? "h-6 w-6" : "mr-3 h-5 w-5")} />
-            <span className={cn(open ? "inline-block" : "hidden")}>{item.label}</span>
-          </Link>
-        ))}
+        {NAV_ITEMS.map((item) => {
+          // The profile link requires special handling based on auth state
+          if (item.href === '/profile' && !user) {
+            return (
+              <Link
+                key={item.label}
+                href="/login"
+                className={cn(
+                  buttonVariants({
+                    variant: pathname.startsWith('/login') ? "secondary" : "ghost",
+                  }),
+                  "w-full justify-start text-base h-11",
+                  !open && "justify-center"
+                )}
+                title={open ? "" : item.label}
+              >
+                <item.icon className={cn(!open ? "h-6 w-6" : "mr-3 h-5 w-5")} />
+                <span className={cn(open ? "inline-block" : "hidden")}>{item.label}</span>
+              </Link>
+            )
+          }
+
+          return (
+            <Link
+              key={item.label}
+              href={item.href}
+              className={cn(
+                buttonVariants({
+                  variant: (pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href))) ? "secondary" : "ghost",
+                }),
+                "w-full justify-start text-base h-11",
+                !open && "justify-center"
+              )}
+              title={open ? "" : item.label}
+            >
+              <item.icon className={cn(!open ? "h-6 w-6" : "mr-3 h-5 w-5")} />
+              <span className={cn(open ? "inline-block" : "hidden")}>{item.label}</span>
+            </Link>
+          )
+        })}
       </nav>
     </div>
   );

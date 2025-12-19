@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { FloatingChatbot } from "@/components/floating-chatbot";
 import { SidebarProvider, Sidebar, SidebarInset } from "@/components/ui/sidebar";
 import { SidebarNav } from "@/components/sidebar-nav";
+import { FirebaseClientProvider } from "@/firebase/client-provider";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -62,23 +63,25 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
         >
-          <SidebarProvider>
-            <Sidebar>
-                <SidebarNav />
-            </Sidebar>
-            <SidebarInset>
-                <div className="relative flex min-h-screen w-full flex-col bg-background pb-16 md:pb-0">
-                  <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-background via-background to-blue-500/10 dark:to-blue-900/20 -z-10" />
-                  <Header />
-                  <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
-                    {children}
-                  </main>
-                </div>
-                <MobileNav />
-            </SidebarInset>
-          </SidebarProvider>
-          <FloatingChatbot />
-          <Toaster />
+          <FirebaseClientProvider>
+            <SidebarProvider>
+              <Sidebar>
+                  <SidebarNav />
+              </Sidebar>
+              <SidebarInset>
+                  <div className="relative flex min-h-screen w-full flex-col bg-background pb-16 md:pb-0">
+                    <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-background via-background to-blue-500/10 dark:to-blue-900/20 -z-10" />
+                    <Header />
+                    <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
+                      {children}
+                    </main>
+                  </div>
+                  <MobileNav />
+              </SidebarInset>
+            </SidebarProvider>
+            <FloatingChatbot />
+            <Toaster />
+          </FirebaseClientProvider>
         </ThemeProvider>
       </body>
     </html>
