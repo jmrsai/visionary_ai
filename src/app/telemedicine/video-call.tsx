@@ -2,13 +2,21 @@
 
 import { Video, Phone, MessageSquare, Monitor } from 'lucide-react';
 import type { Consultation } from '@/lib/types';
+import { useUser } from '@/firebase';
 
 interface VideoCallProps {
     consultation: Consultation;
     onEndCall: () => void;
+    isDoctor: boolean;
 }
 
-export function VideoCall({ consultation, onEndCall }: VideoCallProps) {
+export function VideoCall({ consultation, onEndCall, isDoctor }: VideoCallProps) {
+    const { user } = useUser();
+    const doctorName = "Dr. Chen";
+    const patientName = consultation.patientName;
+    const selfName = isDoctor ? doctorName : patientName;
+    const otherName = isDoctor ? patientName : doctorName;
+
     return (
         <div className="fixed inset-0 bg-gray-900 z-50">
             <div className="h-full flex flex-col">
@@ -17,12 +25,12 @@ export function VideoCall({ consultation, onEndCall }: VideoCallProps) {
                     <div className="flex items-center space-x-4">
                         <div className="w-10 h-10 bg-gradient-to-r from-primary to-accent rounded-full flex items-center justify-center">
                             <span className="text-white font-medium">
-                                {consultation.patientName.charAt(0)}
+                                {otherName.charAt(0)}
                             </span>
                         </div>
                         <div>
-                            <h3 className="text-white font-medium">{consultation.patientName}</h3>
-                            <p className="text-gray-300 text-sm">Patient ID: {consultation.patientId}</p>
+                            <h3 className="text-white font-medium">{otherName}</h3>
+                            <p className="text-gray-300 text-sm">Patient ID: {consultation.userId}</p>
                         </div>
                     </div>
                     <div className="flex items-center space-x-2">
@@ -38,10 +46,10 @@ export function VideoCall({ consultation, onEndCall }: VideoCallProps) {
                         <div className="text-center">
                             <div className="w-32 h-32 bg-gradient-to-r from-primary to-accent rounded-full flex items-center justify-center mx-auto mb-4">
                                 <span className="text-white text-4xl font-medium">
-                                    {consultation.patientName.charAt(0)}
+                                    {otherName.charAt(0)}
                                 </span>
                             </div>
-                            <h3 className="text-white text-xl font-medium">{consultation.patientName}</h3>
+                            <h3 className="text-white text-xl font-medium">{otherName}</h3>
                             <p className="text-gray-400">Audio only - Camera disabled</p>
                         </div>
                     </div>
@@ -50,9 +58,12 @@ export function VideoCall({ consultation, onEndCall }: VideoCallProps) {
                     <div className="absolute top-4 right-4 w-48 h-36 bg-gray-700 rounded-lg border-2 border-gray-600 flex items-center justify-center">
                         <div className="text-center">
                             <div className="w-16 h-16 bg-gradient-to-r from-accent to-primary rounded-full flex items-center justify-center mx-auto mb-2">
-                                <span className="text-white text-lg font-medium">DC</span>
+                                <span className="text-white text-lg font-medium">
+                                    {selfName.charAt(0)}
+                                    {selfName.split(' ')[1]?.charAt(0) || ''}
+                                </span>
                             </div>
-                            <p className="text-white text-sm">Dr. Chen</p>
+                            <p className="text-white text-sm">{selfName}</p>
                         </div>
                     </div>
 
@@ -90,3 +101,5 @@ export function VideoCall({ consultation, onEndCall }: VideoCallProps) {
         </div>
     );
 }
+
+    

@@ -334,13 +334,12 @@
         }
       },
        {
-        "path": "/users/{userId}/consultations/{consultationId}",
+        "path": "/consultations/{consultationId}",
         "definition": {
           "entityName": "Consultation",
           "schema": { "$ref": "#/backend/entities/Consultation" },
-          "description": "Stores user-specific telemedicine consultations. Path-based ownership.",
+          "description": "Stores all consultations. Access is controlled by security rules based on user and doctor IDs.",
           "params": [
-            { "name": "userId", "description": "The unique identifier of the user." },
             { "name": "consultationId", "description": "The unique identifier of the consultation." }
           ]
         }
@@ -396,8 +395,26 @@
             }
           ]
         }
+      },
+      {
+        "path": "/roles_doctor/{userId}",
+        "definition": {
+          "entityName": "doctorRole",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "This collection is used for DBAC, where the existence of a document indicates doctor privileges.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user, used as the document ID."
+            }
+          ]
+        }
       }
     ],
-    "reasoning": "The Firestore structure is designed to ensure Authorization Independence, DBAC, and QAPs. It leverages path-based ownership for user-specific data and denormalization to avoid hierarchical authorization dependencies. \n\nUser data is stored under `/users/{userId}`, which enables simple path-based security rules for private user data. Eye exercises are stored globally and accessible, while user-specific logs, reminders, and LLM call histories are nested under the respective user document for clear ownership and simplified security rules.\n\nAuthorization Independence is achieved by avoiding `get()` calls in security rules. For instance, access to `/users/{userId}/exerciseLogs/{logId}` is determined solely by the `userId` in the path, without needing to fetch the user document.  The `roles_admin/{uid}` collection supports DBAC, granting global admin roles based on document existence.\n\nQAPs are supported through structural segregation. Public eye exercises are stored in `/eye_exercises`, and user-specific data is stored under `/users/{userId}`. This segregation prevents mixing data with different access needs in the same collection, enabling secure `list` operations. The membership map pattern is not directly applicable here as there is no collaborative data requirement, but the principles of ownership and segregation ensure secure data access."
+    "reasoning": "The Firestore structure is designed to ensure Authorization Independence, DBAC, and QAPs. It leverages path-based ownership for user-specific data and denormalization to avoid hierarchical authorization dependencies. \n\nUser data is stored under `/users/{userId}`, which enables simple path-based security rules for private user data. Eye exercises are stored globally and accessible, while user-specific logs, reminders, and LLM call histories are nested under the respective user document for clear ownership and simplified security rules.\n\nAuthorization Independence is achieved by avoiding `get()` calls in security rules. For instance, access to `/users/{userId}/exerciseLogs/{logId}` is determined solely by the `userId` in the path, without needing to fetch the user document. The `/roles_admin/{uid}` and `/roles_doctor/{uid}` collections support DBAC, granting global admin or doctor roles based on document existence.\n\nQAPs are supported through structural segregation. Public eye exercises are stored in `/eye_exercises`, and user-specific data is stored under `/users/{userId}`. Consultations are stored in a top-level collection to allow doctors to query across all patients, with access controlled via security rules."
   }
 }
+
+    

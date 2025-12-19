@@ -1,22 +1,21 @@
 
 "use client";
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Video, Calendar, Users, Clock, Shield } from 'lucide-react';
 import type { Consultation } from '@/lib/types';
 import { useUser, useCollection, useFirestore, useMemoFirebase } from '@/firebase';
-import { collection, query, orderBy } from 'firebase/firestore';
+import { collection, query, orderBy, where, getDoc, doc } from 'firebase/firestore';
 import { VideoCall } from './video-call';
 import { ConsultationCard } from './consultation-card';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
 import { LoginForm } from '../login/login-form';
 
-
-function ConsultationList({ consultations, onJoin }: { consultations: Consultation[], onJoin: (c: Consultation) => void }) {
+function ConsultationList({ consultations, onJoin, isDoctor }: { consultations: Consultation[], onJoin: (c: Consultation) => void, isDoctor: boolean }) {
     if (consultations.length === 0) {
         return (
             <div className="text-center py-12 text-muted-foreground border-2 border-dashed rounded-lg mt-4">
@@ -31,7 +30,7 @@ function ConsultationList({ consultations, onJoin }: { consultations: Consultati
     return (
         <div className="space-y-4 mt-4">
             {consultations.map((consultation) => (
-              <ConsultationCard key={consultation.id} consultation={consultation} onJoin={() => onJoin(consultation)} />
+              <ConsultationCard key={consultation.id} consultation={consultation} onJoin={() => onJoin(consultation)} isDoctor={isDoctor} />
             ))}
         </div>
     )
@@ -60,17 +59,43 @@ function LoadingSkeleton() {
 export default function TeleMedicine() {
   const [selectedConsultation, setSelectedConsultation] = useState<Consultation | null>(null);
   const [isInCall, setIsInCall] = useState(false);
+  const [isDoctor, setIsDoctor] = useState(false);
   
   const { user, isUserLoading } = useUser();
   const firestore = useFirestore();
+  
+  useEffect(() => {
+    if (user && firestore) {
+      const checkDoctorRole = async () => {
+        const doctorRoleRef = doc(firestore, 'roles_doctor', user.uid);
+        const docSnap = await getDoc(doctorRoleRef);
+        setIsDoctor(docSnap.exists());
+      };
+      checkDoctorRole();
+    } else {
+      setIsDoctor(false);
+    }
+  }, [user, firestore]);
 
   const consultationsQuery = useMemoFirebase(() => {
     if (!user || !firestore) return null;
-    return query(
-        collection(firestore, 'users', user.uid, 'consultations'),
-        orderBy('scheduledTime', 'desc')
-    );
-  }, [user, firestore]);
+    
+    if (isDoctor) {
+      // Doctor's query: Get all consultations where they are the doctor
+      return query(
+          collection(firestore, 'consultations'),
+          where('doctorId', '==', user.uid),
+          orderBy('scheduledTime', 'desc')
+      );
+    } else {
+      // Patient's query: Get their own consultations
+      return query(
+          collection(firestore, 'consultations'),
+          where('userId', '==', user.uid),
+          orderBy('scheduledTime', 'desc')
+      );
+    }
+  }, [user, firestore, isDoctor]);
 
   const { data: consultations, isLoading: isLoadingConsultations } = useCollection<Consultation>(consultationsQuery);
 
@@ -96,7 +121,7 @@ export default function TeleMedicine() {
 
   if (isInCall && selectedConsultation) {
     return (
-      <VideoCall consultation={selectedConsultation} onEndCall={endConsultation} />
+      <VideoCall consultation={selectedConsultation} onEndCall={endConsultation} isDoctor={isDoctor} />
     );
   }
 
@@ -108,7 +133,7 @@ export default function TeleMedicine() {
             TeleMedicine Platform
           </h1>
           <p className="text-muted-foreground mt-1">
-            HIPAA-compliant video consultations and remote patient care
+            {isDoctor ? "Doctor Dashboard" : "Your secure video consultations"}
           </p>
         </div>
         <div className="flex items-center space-x-3">
@@ -157,13 +182,13 @@ export default function TeleMedicine() {
                 <TabsTrigger value="completed">Completed ({completedConsultations.length})</TabsTrigger>
             </TabsList>
             <TabsContent value="upcoming">
-                {isLoadingConsultations ? <LoadingSkeleton /> : <ConsultationList consultations={upcomingConsultations} onJoin={startConsultation} />}
+                {isLoadingConsultations ? <LoadingSkeleton /> : <ConsultationList consultations={upcomingConsultations} onJoin={startConsultation} isDoctor={isDoctor} />}
             </TabsContent>
             <TabsContent value="in_progress">
-                 {isLoadingConsultations ? <LoadingSkeleton /> : <ConsultationList consultations={inProgressConsultations} onJoin={startConsultation} />}
+                 {isLoadingConsultations ? <LoadingSkeleton /> : <ConsultationList consultations={inProgressConsultations} onJoin={startConsultation} isDoctor={isDoctor} />}
             </TabsContent>
             <TabsContent value="completed">
-                 {isLoadingConsultations ? <LoadingSkeleton /> : <ConsultationList consultations={completedConsultations} onJoin={startConsultation} />}
+                 {isLoadingConsultations ? <LoadingSkeleton /> : <ConsultationList consultations={completedConsultations} onJoin={startConsultation} isDoctor={isDoctor} />}
             </TabsContent>
         </Tabs>
       )}
@@ -211,3 +236,4 @@ export default function TeleMedicine() {
   );
 }
 
+    

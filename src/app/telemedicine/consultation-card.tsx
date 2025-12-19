@@ -32,9 +32,10 @@ const getTypeColor = (type: string) => {
 interface ConsultationCardProps {
     consultation: Consultation;
     onJoin: () => void;
+    isDoctor: boolean;
 }
 
-export function ConsultationCard({ consultation, onJoin }: ConsultationCardProps) {
+export function ConsultationCard({ consultation, onJoin, isDoctor }: ConsultationCardProps) {
     const scheduledTime = new Date(consultation.scheduledTime);
 
     const formatTime = (date: Date) => {
@@ -62,7 +63,7 @@ export function ConsultationCard({ consultation, onJoin }: ConsultationCardProps
                         </div>
                         <div>
                             <h3 className="font-medium">
-                                {consultation.patientName}
+                                {isDoctor ? `Patient: ${consultation.patientName}` : `Dr. Chen`}
                             </h3>
                             <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1">
                                 <span className="text-sm text-muted-foreground">
@@ -116,3 +117,5 @@ export function ConsultationCard({ consultation, onJoin }: ConsultationCardProps
         </motion.div>
     );
 }
+
+    
