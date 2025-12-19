@@ -50,8 +50,14 @@ const getStatusInfo = (status: 'normal' | 'attention' | 'concern') => {
 };
 
 
-const generateNewPlateData = (): IshiharaPlateData => {
-    const correctNumber = Math.floor(Math.random() * 90) + 10;
+const generateNewPlateData = (usedNumbers: Set<number>): { data: IshiharaPlateData, newUsedNumbers: Set<number> } => {
+    let correctNumber: number;
+    do {
+        correctNumber = Math.floor(Math.random() * 90) + 10;
+    } while (usedNumbers.has(correctNumber));
+
+    const newUsedNumbers = new Set(usedNumbers).add(correctNumber);
+
     const distractors = new Set<number>();
     while (distractors.size < 3) {
         const d = Math.floor(Math.random() * 90) + 10;
@@ -60,9 +66,13 @@ const generateNewPlateData = (): IshiharaPlateData => {
         }
     }
     const options = [correctNumber, ...Array.from(distractors)].sort(() => Math.random() - 0.5);
+    
     return {
-        numberToDisplay: correctNumber,
-        options,
+        data: {
+            numberToDisplay: correctNumber,
+            options,
+        },
+        newUsedNumbers: newUsedNumbers
     };
 };
 
@@ -73,12 +83,21 @@ const IshiharaTest = ({ onBack }: { onBack: () => void }) => {
   const [score, setScore] = useState(0);
   const [userAnswers, setUserAnswers] = useState<number[]>([]);
   const [plateData, setPlateData] = useState<IshiharaPlateData | null>(null);
+  const [usedNumbers, setUsedNumbers] = useState<Set<number>>(new Set());
+
+  const prepareNextPlate = (currentUsed: Set<number>) => {
+      const { data, newUsedNumbers } = generateNewPlateData(currentUsed);
+      setPlateData(data);
+      setUsedNumbers(newUsedNumbers);
+  }
 
   const startTest = () => {
     setCurrentPlate(0);
     setScore(0);
     setUserAnswers([]);
-    setPlateData(generateNewPlateData());
+    const initialUsed = new Set<number>();
+    setUsedNumbers(initialUsed);
+    prepareNextPlate(initialUsed);
     setStep('test');
   };
 
@@ -91,7 +110,7 @@ const IshiharaTest = ({ onBack }: { onBack: () => void }) => {
     
     if (currentPlate < TOTAL_PLATES - 1) {
       setCurrentPlate(currentPlate + 1);
-      setPlateData(generateNewPlateData());
+      prepareNextPlate(usedNumbers);
     } else {
       setStep('results');
     }
