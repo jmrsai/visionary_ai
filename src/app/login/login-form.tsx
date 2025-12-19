@@ -21,6 +21,8 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
+import { getOrCreateUser } from "@/services/firebase";
 
 const formSchema = z.object({
   email: z.string().email({
@@ -46,25 +48,53 @@ export function LoginForm() {
     },
   });
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+  const onSubmit = (values: z.infer<typeof formSchema>) => {
     setIsLoading(true);
     setError(null);
-    try {
-      if (formType === "signup") {
-        initiateEmailSignUp(auth, values.email, values.password);
-        toast({
-          title: "Check your email!",
-          description: "A verification link has been sent to your email address.",
-        });
-      } else {
-        initiateEmailSignIn(auth, values.email, values.password);
-      }
-      // No need to redirect here, the useUser hook will handle the UI change
-    } catch (e: any) {
-      setError(e.message);
-      setIsLoading(false);
+    
+    const handleAuthSuccess = (userCredential: any) => {
+        getOrCreateUser(userCredential.user);
+        if (formType === 'signup') {
+            toast({
+              title: "Account created!",
+              description: "Welcome to Visionary.",
+            });
+        }
+        // No redirect needed, useUser hook will handle it.
+        // We don't setIsLoading(false) here because we want to wait for the redirect.
+    };
+
+    const handleAuthError = (e: any) => {
+        // Map Firebase auth errors to user-friendly messages
+        let message = "An unexpected error occurred. Please try again.";
+        switch (e.code) {
+            case "auth/user-not-found":
+            case "auth/wrong-password":
+                message = "Invalid email or password.";
+                break;
+            case "auth/email-already-in-use":
+                message = "An account with this email already exists.";
+                break;
+            case "auth/weak-password":
+                message = "The password is too weak. Please use at least 6 characters.";
+                break;
+            case "auth/invalid-email":
+                 message = "Please enter a valid email address.";
+                 break;
+        }
+        setError(message);
+        setIsLoading(false);
+    };
+
+    if (formType === "signup") {
+      createUserWithEmailAndPassword(auth, values.email, values.password)
+        .then(handleAuthSuccess)
+        .catch(handleAuthError);
+    } else {
+      signInWithEmailAndPassword(auth, values.email, values.password)
+        .then(handleAuthSuccess)
+        .catch(handleAuthError);
     }
-    // No need for finally block to set isLoading to false, as we want to wait for auth state change
   };
 
   return (
@@ -118,7 +148,11 @@ export function LoginForm() {
             <Button
               variant="link"
               className="px-1"
-              onClick={() => setFormType(formType === "login" ? "signup" : "login")}
+              onClick={() => {
+                setFormType(formType === "login" ? "signup" : "login");
+                setError(null);
+                form.reset();
+              }}
             >
               {formType === "login" ? "Sign Up" : "Sign In"}
             </Button>
