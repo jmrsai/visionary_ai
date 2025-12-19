@@ -1,28 +1,26 @@
 "use client";
 
-import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
+import { useState, useMemo, useCallback, useRef } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Check, RefreshCw, X, ArrowLeft, Loader2, Palette, Timer } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
-// import { generateIshiharaPlate, type IshiharaPlateOutput } from '@/ai/flows/ishihara-plate-generator';
 import { HrrTest } from './hrr-test';
 import { Progress } from '../ui/progress';
 import { Badge } from '../ui/badge';
 import { MOCK_D15_CAPS } from '@/lib/data';
 import { IshiharaPlateSVG } from './ishihara-plate-svg';
 
-
-// Mock type
+// Mock Type for what the flow *would* return
 type IshiharaPlateOutput = {
-    // plateImageUri: string; (No longer needed, will generate SVG directly)
     correctNumber: number;
     options: number[];
-};
+}
 
-const TOTAL_PLATES = 5; // Let's do 5 plates for the AI version
+
+const TOTAL_PLATES = 5; 
 
 const getStatus = (score: number): 'normal' | 'attention' | 'concern' => {
     const accuracy = score / TOTAL_PLATES;
@@ -69,7 +67,7 @@ const IshiharaTest = ({ onBack }: { onBack: () => void }) => {
   const getNextPlate = useCallback(async () => {
     setStep('loading');
     try {
-        // Mocking the AI generation logic locally
+        // This simulates a call to an AI flow. In a real scenario, this would be an async call.
         const randomNumber = Math.floor(Math.random() * 90) + 10;
         const distractors = new Set<number>();
         while(distractors.size < 3) {
@@ -79,8 +77,9 @@ const IshiharaTest = ({ onBack }: { onBack: () => void }) => {
         const options = [randomNumber, ...Array.from(distractors)].sort(() => Math.random() - 0.5);
         const data: IshiharaPlateOutput = {
             correctNumber: randomNumber,
-            options: options
+            options: options,
         };
+
         setPlateData(data);
         setStep('test');
     } catch (error) {
@@ -198,9 +197,9 @@ const IshiharaTest = ({ onBack }: { onBack: () => void }) => {
         <div className="w-full text-center">
             <p className="text-muted-foreground">Plate {currentPlate + 1} of {TOTAL_PLATES}</p>
         </div>
-        <div className="w-64 h-64 relative rounded-full overflow-hidden border-4 border-muted flex items-center justify-center bg-gray-100 dark:bg-gray-800">
+        <div className="w-80 h-80 relative rounded-full overflow-hidden border-4 border-muted flex items-center justify-center bg-gray-100 dark:bg-gray-800">
             {plateData ? (
-                <IshiharaPlateSVG numberToDisplay={plateData.correctNumber} difficulty={currentPlate + 1} />
+                <IshiharaPlateSVG numberToDisplay={plateData.correctNumber} width={320} height={320} />
             ) : (
                  <div className="w-full h-full bg-muted animate-pulse" />
             )}
