@@ -1,9 +1,8 @@
 
 import { Activity, BookOpen, Brain, Dumbbell, Eye, Glasses, HeartPulse, Target, Video, View, Wind, Sparkles, CalendarCheck, ScanEye, Zap, ListTodo, Contrast, Layers, Palette } from "lucide-react";
-import type { Test, Reminder, ActivityLog, Exercise, Circuit, AdherenceLog, CheckupReport, HrrPlate, D15Cap, Consultation } from "./types";
+import type { Test, Reminder, ActivityLog, Exercise, Circuit, AdherenceLog, CheckupReport, HrrPlate, D15Cap } from "./types";
 import { StereopsisIcon } from "@/components/icons";
 
-import reminders from './data/reminders.json';
 import activities from './data/activities.json';
 import adherenceHistory from './data/adherence-history.json';
 import visionScoreHistory from './data/vision-score-history.json';
@@ -13,16 +12,13 @@ import tests from './data/tests.json';
 import exercises from './data/exercises.json';
 import circuits from './data/circuits.json';
 import checkupHistory from './data/checkup-history.json';
-import consultations from './data/consultations.json';
 
-export const MOCK_REMINDERS: Reminder[] = reminders;
 export const MOCK_ACTIVITIES: ActivityLog[] = activities;
 export const MOCK_ADHERENCE_HISTORY: AdherenceLog[] = adherenceHistory;
 export const MOCK_VISION_SCORE_HISTORY: { date: string, score: number }[] = visionScoreHistory;
 export const MOCK_HRR_PLATES: HrrPlate[] = hrrPlates;
 export const MOCK_D15_CAPS: D15Cap[] = d15Caps;
 export const MOCK_CHECKUP_HISTORY: CheckupReport[] = checkupHistory;
-export const MOCK_CONSULTATIONS: Consultation[] = consultations.map(c => ({...c, scheduledTime: new Date(c.scheduledTime)}));
 
 const iconMapping: { [key: string]: React.ElementType } = {
     Eye,

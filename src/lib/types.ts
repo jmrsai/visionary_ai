@@ -93,9 +93,10 @@ export type D15Cap = {
 
 export interface Consultation {
   id: string;
+  userId: string;
+  doctorId: string;
   patientName: string;
-  patientId: string;
-  scheduledTime: string;
+  scheduledTime: string; // ISO string
   duration: number;
   type: 'routine' | 'follow_up' | 'urgent' | 'second_opinion';
   status: 'scheduled' | 'in_progress' | 'completed' | 'cancelled';
@@ -107,7 +108,7 @@ export interface Consultation {
 // --- App-specific Helper Types (Mock Data etc.) ---
 
 export type Reminder = {
-    id: number;
+    id?: string; // Optional because it will be set by Firestore
     title: string;
     time: string;
     type: 'exercise' | 'Eye Drops' | 'Pill' | 'Capsule' | 'Liquid' | 'appointment';

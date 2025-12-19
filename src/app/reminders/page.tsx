@@ -1,25 +1,39 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Bell, Dumbbell, PlusCircle, Pill, Droplet } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
-import { MOCK_REMINDERS } from "@/lib/data";
 import type { Reminder } from "@/lib/types";
 import { AddReminderDialog } from "@/components/add-reminder-dialog";
+import { useUser, useFirestore, useCollection, useMemoFirebase } from "@/firebase";
+import { collection, doc, addDoc, updateDoc } from "firebase/firestore";
+import { setDocumentNonBlocking, addDocumentNonBlocking } from "@/firebase/non-blocking-updates";
+import { Loader2 } from "lucide-react";
 
 export default function RemindersPage() {
-    const [reminders, setReminders] = useState<Reminder[]>(MOCK_REMINDERS);
+    const { user } = useUser();
+    const firestore = useFirestore();
+
+    const remindersCollectionRef = useMemoFirebase(() => {
+        if (!user || !firestore) return null;
+        return collection(firestore, `users/${user.uid}/reminders`);
+    }, [user, firestore]);
+
+    const { data: reminders, isLoading } = useCollection<Reminder>(remindersCollectionRef);
+    
     const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
 
-
-    const toggleReminder = (id: number) => {
-        setReminders(reminders.map(r => r.id === id ? { ...r, enabled: !r.enabled } : r));
+    const toggleReminder = (id: string, currentStatus: boolean) => {
+        if (!remindersCollectionRef) return;
+        const reminderRef = doc(remindersCollectionRef, id);
+        updateDoc(reminderRef, { enabled: !currentStatus });
     }
     
-    const addReminder = (newReminder: Omit<Reminder, 'id' | 'enabled'>) => {
-        setReminders([...reminders, { ...newReminder, id: reminders.length + 1, enabled: true }]);
+    const addReminder = (newReminder: Omit<Reminder, "id" | "enabled">) => {
+        if (!remindersCollectionRef) return;
+        addDocumentNonBlocking(remindersCollectionRef, { ...newReminder, enabled: true });
     };
 
     const getIcon = (type: Reminder['type']) => {
@@ -45,7 +59,7 @@ export default function RemindersPage() {
                     Manage your exercise, medication, and appointment reminders.
                 </p>
             </div>
-            <Button onClick={() => setIsAddDialogOpen(true)}>
+            <Button onClick={() => setIsAddDialogOpen(true)} disabled={!user}>
                 <PlusCircle className="mr-2 h-4 w-4" />
                 Add Reminder
             </Button>
@@ -58,7 +72,12 @@ export default function RemindersPage() {
             </CardHeader>
             <CardContent>
             <div className="space-y-4">
-                {reminders.map((reminder) => (
+                {isLoading && (
+                    <div className="flex justify-center items-center h-40">
+                        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                    </div>
+                )}
+                {!isLoading && reminders && reminders.map((reminder) => (
                 <div key={reminder.id} className="flex items-center justify-between rounded-lg border p-4">
                     <div className="flex items-center gap-4">
                     <div className="text-muted-foreground">
@@ -71,12 +90,12 @@ export default function RemindersPage() {
                     </div>
                     <Switch 
                         checked={reminder.enabled}
-                        onCheckedChange={() => toggleReminder(reminder.id)}
+                        onCheckedChange={() => toggleReminder(reminder.id!, reminder.enabled)}
                         aria-label={`Toggle reminder for ${reminder.title}`}
                     />
                 </div>
                 ))}
-                {reminders.length === 0 && (
+                {!isLoading && (!reminders || reminders.length === 0) && (
                 <div className="text-center py-12 text-muted-foreground">
                     <Bell className="mx-auto h-12 w-12" />
                     <p className="mt-4">You have no reminders set.</p>
