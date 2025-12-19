@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Toaster } from "@/components/ui/toaster";
 import { MobileNav } from "@/components/mobile-nav";
 import { Header } from "@/components/header";
@@ -12,7 +12,18 @@ export const metadata: Metadata = {
   title: "Visionary - Your Personal Vision Care App",
   description: "An application for eye health, exercises, and therapies.",
   manifest: "/manifest.json",
+  icons: {
+    apple: "/icons/icon-192x192.png",
+  },
 };
+
+export const viewport: Viewport = {
+  themeColor: "#FFFFFF",
+  initialScale: 1,
+  width: "device-width",
+  userScalable: false,
+};
+
 
 export default function RootLayout({
   children,
@@ -28,7 +39,6 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=PT+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap"
           rel="stylesheet"
         />
-        <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="apple-mobile-web-app-title" content="Visionary" />
