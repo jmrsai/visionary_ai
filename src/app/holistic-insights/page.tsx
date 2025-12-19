@@ -35,13 +35,12 @@ export default function HolisticInsightsPage() {
     ]);
 
     try {
-    //   const result = await holisticHealthInsights({
-    //     screenTimeData,
-    //     symptomReports,
-    //     userInputText: userInput,
-    //   });
-    //   setInsight(result.insight);
-      setInsight("AI Insights are temporarily disabled.");
+      const result = await holisticHealthInsights({
+        screenTimeData,
+        symptomReports,
+        userInputText: userInput,
+      });
+      setInsight(result.insight);
     } catch (error) {
       console.error('Error getting insights:', error);
       setInsight('Failed to get insights. Please try again.');

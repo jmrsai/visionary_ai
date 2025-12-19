@@ -7,15 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Loader2, RefreshCw, AlertTriangle, Circle, Square, Star, TriangleIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-// import { generateStereopsisTest, type StereopsisTestOutput } from '@/ai/flows/stereopsis-test-generator';
-
-// Mock type
-type StereopsisTestOutput = {
-    imageUri: string;
-    hiddenShape: "circle" | "square" | "triangle" | "star";
-    options: ("circle" | "square" | "triangle" | "star")[];
-}
-
+import { generateStereopsisTest, type StereopsisTestOutput } from '@/ai/flows/stereopsis-test-generator';
 
 type Step = 'instructions' | 'loading' | 'test' | 'results';
 
@@ -38,20 +30,7 @@ export function StereopsisTest() {
   const loadTest = useCallback(async () => {
     setStep('loading');
     try {
-    //   const data = await generateStereopsisTest();
-      const shapes = ["circle", "square", "triangle", "star"] as const;
-      const hiddenShape = shapes[Math.floor(Math.random() * shapes.length)];
-      const distractors = new Set<typeof shapes[number]>();
-      while(distractors.size < 3) {
-          const d = shapes[Math.floor(Math.random() * shapes.length)];
-          if (d !== hiddenShape) distractors.add(d);
-      }
-      const options = [hiddenShape, ...Array.from(distractors)].sort(() => Math.random() - 0.5);
-      const data: StereopsisTestOutput = {
-        imageUri: `https://picsum.photos/seed/${Math.random()}/400/400`,
-        hiddenShape: hiddenShape,
-        options: options as any,
-      }
+      const data = await generateStereopsisTest();
       setTestData(data);
       setStep('test');
     } catch (error) {
@@ -104,7 +83,7 @@ export function StereopsisTest() {
               </AlertDescription>
             </Alert>
             <p className="text-muted-foreground max-w-md mx-auto">
-              You will be shown an image with a random pattern of dots. When viewed with 3D glasses, a shape should appear to "pop out". Your task is to identify that shape. (AI image generation is disabled).
+              You will be shown an image with a random pattern of dots. When viewed with 3D glasses, a shape should appear to "pop out". Your task is to identify that shape.
             </p>
             <Button onClick={startTest}>I have my 3D glasses, let's start</Button>
           </div>

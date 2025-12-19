@@ -18,7 +18,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, Wand2 } from "lucide-react";
-// import { generatePersonalizedEyeWorkout } from "@/ai/flows/personalized-eye-workouts";
+import { generatePersonalizedEyeWorkout } from "@/ai/flows/personalized-eye-workouts";
 import { useToast } from "@/hooks/use-toast";
 import Markdown from 'react-markdown';
 
@@ -48,9 +48,8 @@ export function WorkoutForm() {
     setIsLoading(true);
     setWorkout(null);
     try {
-    //   const result = await generatePersonalizedEyeWorkout(values);
-    //   setWorkout(result.workoutRoutine);
-       setWorkout("AI workout generation is temporarily disabled.");
+      const result = await generatePersonalizedEyeWorkout(values);
+      setWorkout(result.workoutRoutine);
     } catch (error) {
       console.error("Error generating workout:", error);
       toast({

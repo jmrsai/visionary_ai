@@ -4,20 +4,10 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { RefreshCw, Play, Timer, Loader2, Check, X } from 'lucide-react';
-// import { generateReadingComprehensionTest, type ReadingComprehensionTestOutput } from '@/ai/flows/reading-comprehension-test-generator';
+import { generateReadingComprehensionTest, type ReadingComprehensionTestOutput } from '@/ai/flows/reading-comprehension-test-generator';
 import { useToast } from '@/hooks/use-toast';
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 import { Label } from '../ui/label';
-
-// Mock type
-type ReadingComprehensionTestOutput = {
-    passage: string;
-    questions: {
-        question: string;
-        options: string[];
-        correctAnswer: string;
-    }[];
-}
 
 type Step = 'instructions' | 'loading' | 'reading' | 'answering' | 'results';
 
@@ -33,27 +23,7 @@ export function ReadingSpeedTest() {
   const loadTest = useCallback(async () => {
     setStep('loading');
     try {
-    //   const content = await generateReadingComprehensionTest();
-      const content: ReadingComprehensionTestOutput = {
-          passage: "The human eye is a complex organ that works much like a camera. Light enters through the cornea, which acts as the eye's outer lens. The iris, the colored part of your eye, controls the amount of light that reaches the retina by adjusting the size of the pupil. The retina, located at the back of the eye, contains millions of light-sensitive cells called rods and cones. These cells convert light into electrical signals that are sent to the brain, which interprets them as the images we see.",
-          questions: [
-              {
-                  question: "What part of the eye controls the amount of light entering?",
-                  options: ["Cornea", "Retina", "Iris", "Lens"],
-                  correctAnswer: "Iris"
-              },
-              {
-                  question: "Where are the light-sensitive cells located?",
-                  options: ["In the cornea", "In the pupil", "In the iris", "At the back of the eye"],
-                  correctAnswer: "At the back of the eye"
-              },
-              {
-                  question: "What is the function of rods and cones?",
-                  options: ["To focus light", "To convert light into signals", "To protect the eye", "To color the iris"],
-                  correctAnswer: "To convert light into signals"
-              }
-          ]
-      }
+      const content = await generateReadingComprehensionTest();
       setTestContent(content);
       setStep('reading');
       startTimeRef.current = Date.now();

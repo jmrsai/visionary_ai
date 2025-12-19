@@ -12,12 +12,7 @@ import { Progress } from '../ui/progress';
 import { Badge } from '../ui/badge';
 import { MOCK_D15_CAPS } from '@/lib/data';
 import { IshiharaPlateSVG } from './ishihara-plate-svg';
-
-// Mock Type for what the flow *would* return
-type IshiharaPlateOutput = {
-    correctNumber: number;
-    options: number[];
-}
+import { generateIshiharaPlate, type IshiharaPlateOutput } from '@/ai/flows/ishihara-plate-generator';
 
 
 const TOTAL_PLATES = 5; 
@@ -67,19 +62,7 @@ const IshiharaTest = ({ onBack }: { onBack: () => void }) => {
   const getNextPlate = useCallback(async () => {
     setStep('loading');
     try {
-        // This simulates a call to an AI flow. In a real scenario, this would be an async call.
-        const randomNumber = Math.floor(Math.random() * 90) + 10;
-        const distractors = new Set<number>();
-        while(distractors.size < 3) {
-            const d = Math.floor(Math.random() * 90) + 10;
-            if (d !== randomNumber) distractors.add(d);
-        }
-        const options = [randomNumber, ...Array.from(distractors)].sort(() => Math.random() - 0.5);
-        const data: IshiharaPlateOutput = {
-            correctNumber: randomNumber,
-            options: options,
-        };
-
+        const data = await generateIshiharaPlate();
         setPlateData(data);
         setStep('test');
     } catch (error) {

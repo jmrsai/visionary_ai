@@ -20,7 +20,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Loader2, AlertTriangle, Lightbulb, Hospital, Home, Youtube } from "lucide-react";
-// import { symptomChecker, type SymptomCheckerOutput } from "@/ai/flows/symptom-checker";
+import { symptomChecker, type SymptomCheckerOutput } from "@/ai/flows/symptom-checker";
 import { useToast } from "@/hooks/use-toast";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
@@ -30,22 +30,6 @@ const formSchema = z.object({
     message: "Please describe your symptoms in at least 10 characters.",
   }),
 });
-
-// Mock type for SymptomCheckerOutput
-type SymptomCheckerOutput = {
-    possibleConditions: {
-        condition: string;
-        description: string;
-        likelihood: number;
-    }[];
-    severity: "Low" | "Moderate" | "High";
-    homeCareAdvice: {
-        advice: string;
-        youtubeLink?: string;
-    }[];
-    disclaimer: string;
-}
-
 
 const severityColors: Record<string, string> = {
   Low: "bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300",
@@ -70,13 +54,7 @@ export function SymptomCheckerForm() {
     setIsLoading(true);
     setResult(null);
     try {
-    //   const response = await symptomChecker(values);
-        const response: SymptomCheckerOutput = {
-            possibleConditions: [{condition: "AI Disabled", description: "The AI symptom checker is temporarily disabled.", likelihood: 100}],
-            severity: "Low",
-            homeCareAdvice: [],
-            disclaimer: "This is a demo. AI functionality is currently disabled."
-        }
+      const response = await symptomChecker(values);
       setResult(response);
     } catch (error) {
       console.error("Error checking symptoms:", error);

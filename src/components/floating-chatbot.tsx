@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Loader2, Send, MessageCircle, Mic, X } from "lucide-react";
-// import { chat, type ChartData } from "@/ai/flows/chatbot";
+import { chat, type ChartData } from "@/ai/flows/chatbot";
 import { useToast } from "@/hooks/use-toast";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { VisionaryLogo } from "@/components/icons";
@@ -17,14 +17,6 @@ import { ChartConfig, ChartContainer, ChartTooltipContent } from "@/components/u
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger, SheetFooter, SheetClose } from "@/components/ui/sheet";
 import { useIsMobile } from "@/hooks/use-mobile";
 import Markdown from 'react-markdown';
-
-
-// Mock types
-type ChartData = {
-    chartType: 'line' | 'bar';
-    dataPoints: { x: string; y: number; }[];
-    summaryText: string;
-};
 
 type Message = {
   id?: string;
@@ -118,8 +110,7 @@ function ChatInterface() {
           content: [{ text: msg.text }]
       }));
         
-      // const result = await chat({ message: input, history });
-      const result = { response: "AI chat is temporarily disabled.", chartData: undefined, media: undefined };
+      const result = await chat({ message: input, history });
       const aiMessage: Message = { 
           id: uuidv4(),
           text: result.response, 

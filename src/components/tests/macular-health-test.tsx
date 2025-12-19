@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { RefreshCw, Check, X, Loader2, Eraser } from 'lucide-react';
-// import { generateAmslerGrid } from '@/ai/flows/amsler-grid-generator';
+import { generateAmslerGrid } from '@/ai/flows/amsler-grid-generator';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 
@@ -16,7 +16,7 @@ type DistortionMark = {
   y: number; // percentage
 };
 
-const GridGuardian = ({ onTestComplete }: { onTestComplete: (marks: DistortionMark[]) => void }) => {
+const GridGuardian = ({ gridImage, onTestComplete }: { gridImage: string, onTestComplete: (marks: DistortionMark[]) => void }) => {
     const [marks, setMarks] = useState<DistortionMark[]>([]);
     const gridRef = useRef<HTMLDivElement>(null);
 
@@ -39,17 +39,7 @@ const GridGuardian = ({ onTestComplete }: { onTestComplete: (marks: DistortionMa
                 className="relative w-full aspect-square max-w-sm bg-muted rounded-lg border cursor-crosshair"
                 onClick={handleGridClick}
             >
-                <div className="absolute inset-0 bg-white">
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full">
-                         {[...Array(21)].map((_, i) => (
-                            <div key={`v-${i}`} className="absolute top-0 bottom-0 bg-gray-300" style={{left: `${i*5}%`, width: '1px'}}></div>
-                         ))}
-                         {[...Array(21)].map((_, i) => (
-                            <div key={`h-${i}`} className="absolute left-0 right-0 bg-gray-300" style={{top: `${i*5}%`, height: '1px'}}></div>
-                         ))}
-                    </div>
-                </div>
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-black rounded-full z-10" />
+                <Image src={gridImage} alt="Amsler Grid" layout="fill" objectFit="contain" />
 
                 {marks.map((mark, i) => (
                     <div
@@ -88,13 +78,45 @@ const GridGuardian = ({ onTestComplete }: { onTestComplete: (marks: DistortionMa
 
 export function MacularHealthTest() {
   const [step, setStep] = useState<Step>('instructions');
+  const [gridImage, setGridImage] = useState<string | null>(null);
   const [leftEyeMarks, setLeftEyeMarks] = useState<DistortionMark[]>([]);
   const [rightEyeMarks, setRightEyeMarks] = useState<DistortionMark[]>([]);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    const loadGrid = async () => {
+      setStep('loading');
+      try {
+        const result = await generateAmslerGrid();
+        setGridImage(result.gridImageUri);
+        setStep('test-left');
+      } catch (error) {
+        console.error("Failed to generate Amsler grid:", error);
+        toast({
+          title: "Error loading test",
+          description: "Could not load the Amsler grid. Please try again.",
+          variant: "destructive",
+        });
+        setStep('instructions');
+      }
+    };
+
+    if (step === 'instructions') {
+        // Reset state when going back to instructions
+        setGridImage(null);
+        setLeftEyeMarks([]);
+        setRightEyeMarks([]);
+    } else if (step === 'test-left' && !gridImage) {
+        loadGrid();
+    }
+  }, [step, gridImage, toast]);
 
   const startTest = () => {
-    setStep('test-left');
-    setLeftEyeMarks([]);
-    setRightEyeMarks([]);
+    if (!gridImage) {
+      setStep('test-left'); // This will trigger the useEffect to load the grid
+    } else {
+      setStep('test-left');
+    }
   };
 
   const handleLeftTestComplete = (marks: DistortionMark[]) => {
@@ -116,17 +138,10 @@ export function MacularHealthTest() {
   };
   
   const renderMarkedGrid = (marks: DistortionMark[]) => {
+    if (!gridImage) return null;
     return (
         <div className="relative w-full aspect-square bg-white rounded-md border">
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full">
-                 {[...Array(11)].map((_, i) => (
-                    <div key={`v-${i}`} className="absolute top-0 bottom-0 bg-gray-200" style={{left: `${i*10}%`, width: '1px'}}></div>
-                 ))}
-                 {[...Array(11)].map((_, i) => (
-                    <div key={`h-${i}`} className="absolute left-0 right-0 bg-gray-200" style={{top: `${i*10}%`, height: '1px'}}></div>
-                 ))}
-            </div>
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-black rounded-full z-10" />
+            <Image src={gridImage} alt="Amsler Grid" layout="fill" objectFit="contain" />
             {marks.map((mark, i) => (
                 <div
                     key={i}
@@ -143,12 +158,13 @@ export function MacularHealthTest() {
   };
 
   const renderTestForEye = (eye: Eye) => {
+    if (!gridImage) return <p>Loading grid...</p>;
     const onTestComplete = eye === 'left' ? handleLeftTestComplete : handleRightTestComplete;
     return (
         <div className="flex flex-col items-center space-y-6">
             <h3 className="text-xl font-semibold">Testing {eye === 'left' ? 'Left' : 'Right'} Eye</h3>
             <p className="text-muted-foreground">Cover your {eye === 'left' ? 'right' : 'left'} eye and focus only on the center dot.</p>
-            <GridGuardian onTestComplete={onTestComplete} />
+            <GridGuardian gridImage={gridImage} onTestComplete={onTestComplete} />
         </div>
     )
   }
@@ -163,6 +179,15 @@ export function MacularHealthTest() {
         <Button onClick={startTest}>Start Test</Button>
       </div>
     );
+  }
+  
+  if (step === 'loading') {
+      return (
+          <div className="flex flex-col items-center justify-center h-64 space-y-4">
+              <Loader2 className="h-12 w-12 animate-spin text-primary" />
+              <p className="text-muted-foreground">Generating Amsler Grid...</p>
+          </div>
+      )
   }
 
   if (step === 'results') {
