@@ -11,8 +11,7 @@ import { HrrTest } from './hrr-test';
 import { Progress } from '../ui/progress';
 import { Badge } from '../ui/badge';
 import { MOCK_D15_CAPS } from '@/lib/data';
-import { IshiharaPlateSVG } from './ishihara-plate-svg';
-import { generateIshiharaPlate, type IshiharaPlateOutput } from '@/ai/flows/ishihara-plate-generator';
+import { IshiharaPlateSVG, type IshiharaPlateData } from './ishihara-plate-svg';
 
 
 const TOTAL_PLATES = 5; 
@@ -51,49 +50,48 @@ const getStatusInfo = (status: 'normal' | 'attention' | 'concern') => {
 };
 
 
+const generateNewPlateData = (): IshiharaPlateData => {
+    const correctNumber = Math.floor(Math.random() * 90) + 10;
+    const distractors = new Set<number>();
+    while (distractors.size < 3) {
+        const d = Math.floor(Math.random() * 90) + 10;
+        if (d !== correctNumber) {
+            distractors.add(d);
+        }
+    }
+    const options = [correctNumber, ...Array.from(distractors)].sort(() => Math.random() - 0.5);
+    return {
+        numberToDisplay: correctNumber,
+        options,
+    };
+};
+
+
 const IshiharaTest = ({ onBack }: { onBack: () => void }) => {
-  const [step, setStep] = useState<'instructions' | 'test' | 'results' | 'loading'>('instructions');
+  const [step, setStep] = useState<'instructions' | 'test' | 'results'>('instructions');
   const [currentPlate, setCurrentPlate] = useState(0);
   const [score, setScore] = useState(0);
   const [userAnswers, setUserAnswers] = useState<number[]>([]);
-  const [plateData, setPlateData] = useState<IshiharaPlateOutput | null>(null);
-  const { toast } = useToast();
-
-  const getNextPlate = useCallback(async () => {
-    setStep('loading');
-    try {
-        const data = await generateIshiharaPlate();
-        setPlateData(data);
-        setStep('test');
-    } catch (error) {
-        console.error("Failed to generate Ishihara plate:", error);
-        toast({
-            title: "Error Generating Test",
-            description: "Could not generate the next plate. Please try again.",
-            variant: "destructive"
-        });
-        setStep('instructions');
-    }
-  }, [toast]);
-
+  const [plateData, setPlateData] = useState<IshiharaPlateData | null>(null);
 
   const startTest = () => {
     setCurrentPlate(0);
     setScore(0);
     setUserAnswers([]);
-    getNextPlate();
+    setPlateData(generateNewPlateData());
+    setStep('test');
   };
 
   const handleAnswer = (answer: number) => {
     if (!plateData) return;
     setUserAnswers([...userAnswers, answer]);
-    if (answer === plateData.correctNumber) {
+    if (answer === plateData.numberToDisplay) {
       setScore(score + 1);
     }
     
     if (currentPlate < TOTAL_PLATES - 1) {
       setCurrentPlate(currentPlate + 1);
-      getNextPlate();
+      setPlateData(generateNewPlateData());
     } else {
       setStep('results');
     }
@@ -106,7 +104,7 @@ const IshiharaTest = ({ onBack }: { onBack: () => void }) => {
   if (step === 'instructions') {
     return (
       <div className="text-center">
-        <h3 className="text-xl font-semibold">Dynamically Generated Ishihara Test</h3>
+        <h3 className="text-xl font-semibold">Algorithmic Ishihara Test</h3>
         <p className="text-muted-foreground mt-2 mb-4">
           You will be shown a series of unique, computer-generated plates. Click the number you see in the plate. This test primarily screens for red-green color deficiencies.
         </p>
@@ -116,15 +114,6 @@ const IshiharaTest = ({ onBack }: { onBack: () => void }) => {
         </div>
       </div>
     );
-  }
-
-  if (step === 'loading') {
-    return (
-        <div className="flex flex-col items-center justify-center text-center h-64 space-y-4">
-            <Loader2 className="h-12 w-12 animate-spin text-primary" />
-            <p className="text-muted-foreground">Generating next test plate...</p>
-        </div>
-    )
   }
 
   if (step === 'results') {
@@ -182,7 +171,7 @@ const IshiharaTest = ({ onBack }: { onBack: () => void }) => {
         </div>
         <div className="w-80 h-80 relative rounded-full overflow-hidden border-4 border-muted flex items-center justify-center bg-gray-100 dark:bg-gray-800">
             {plateData ? (
-                <IshiharaPlateSVG numberToDisplay={plateData.correctNumber} width={320} height={320} />
+                <IshiharaPlateSVG numberToDisplay={plateData.numberToDisplay} width={320} height={320} />
             ) : (
                  <div className="w-full h-full bg-muted animate-pulse" />
             )}
@@ -568,7 +557,7 @@ export function ColorVisionTest() {
               </Card>
               <Card className="hover:border-primary transition-colors">
                   <CardHeader>
-                      <CardTitle>Generated Ishihara Test</CardTitle>
+                      <CardTitle>Algorithmic Ishihara Test</CardTitle>
                       <CardDescription>Screens for red-green color deficiencies using generated plates.</CardDescription>
                   </CardHeader>
                   <CardContent>
