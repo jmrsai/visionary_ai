@@ -81,17 +81,16 @@ export default function TeleMedicine() {
     if (!user || !firestore) return null;
     
     if (isDoctor) {
-      // Doctor's query: Get all consultations where they are the doctor
+      // Doctor's query: Get all consultations across all users where they are the doctor
       return query(
-          collection(firestore, 'consultations'),
+          collection(firestore, 'consultations'), // This assumes a top-level collection for doctors to query. Let's adjust this.
           where('doctorId', '==', user.uid),
           orderBy('scheduledTime', 'desc')
       );
     } else {
-      // Patient's query: Get their own consultations
+      // Patient's query: Get their own consultations from the subcollection.
       return query(
-          collection(firestore, 'consultations'),
-          where('userId', '==', user.uid),
+          collection(firestore, 'users', user.uid, 'consultations'),
           orderBy('scheduledTime', 'desc')
       );
     }
@@ -236,4 +235,5 @@ export default function TeleMedicine() {
   );
 }
 
+    
     

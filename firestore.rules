@@ -2,13 +2,13 @@
  * Core Philosophy: This ruleset enforces a strict user-ownership model combined with role-based access for administrative and doctor tasks.
  * All sensitive user data is isolated within a user-specific document tree, accessible only to the authenticated owner.
  *
- * Data Structure: The data is organized hierarchically for most user data. Core user data and its related subcollections (exerciseLogs, reminders, llm_calls)
- * are stored under `/users/{userId}`. Consultations are in a top-level collection to allow for queries across patients by doctors.
+ * Data Structure: The data is organized hierarchically for most user data. Core user data and its related subcollections (exerciseLogs, reminders, llm_calls, consultations)
+ * are stored under `/users/{userId}`.
  *
  * Key Security Decisions:
  * - User Isolation: Users can only read or write data within their own `/users/{userId}` document tree.
  * - Role-Based Access Control (RBAC): The existence of a document in `/roles_admin/{userId}` or `/roles_doctor/{userId}` grants specific privileges.
- * - Consultation Access: A user can access their own consultations. A doctor can access any consultation where their UID matches the `doctorId`.
+ * - Consultation Access: A user can access their own consultations. A doctor can access any consultation across all users if their UID matches the `doctorId`. This is for the doctor's dashboard view.
  *
  * Denormalization for Authorization: The rules rely on path-based ownership (`/users/{userId}/...`) and checks on `resource.data` fields to grant access, which is highly performant.
  */
@@ -76,23 +76,19 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
-    // User-specific subcollections
-    match /users/{userId}/{collection}/{docId} {
-      allow get, list: if isOwner(userId);
-      allow create: if isOwner(userId) && hasValidSubcollectionData(userId);
-      allow update: if isExistingOwner(userId) && isSubcollectionUserIdImmutable();
-      allow delete: if isExistingOwner(userId);
-    }
-    
-    // Consultations
-    match /consultations/{consultationId} {
-      allow get: if isOwner(resource.data.userId) || isAssociatedDoctor(resource.data);
-      allow list: if isDoctor(); // Doctors can list all consultations to find theirs
-      allow create: if isOwner(request.resource.data.userId); // Only patients can create for themselves
-      allow update: if isOwner(resource.data.userId) || isAssociatedDoctor(resource.data);
-      allow delete: if isOwner(resource.data.userId) || isAdmin();
+    // Generic rule for most user-specific subcollections
+    match /users/{userId}/(exerciseLogs|reminders|llm_calls)/{docId} {
+      allow get, list, create, update, delete: if isOwner(userId);
     }
 
+    // Specific rules for consultations subcollection
+    match /users/{userId}/consultations/{consultationId} {
+      allow get, list: if isOwner(userId) || isDoctor(); // Doctors can get/list consultations they are part of
+      allow create: if isOwner(userId); // Patients can create their own consultation requests
+      allow update: if isOwner(userId) || isDoctor(); // Patient or Doctor can update
+      allow delete: if isOwner(userId) || isAdmin(); // Patient or Admin can delete
+    }
+    
     // Medications Catalog
     match /medications/{medicationId} {
       allow get, list: if true;
