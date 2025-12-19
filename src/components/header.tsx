@@ -80,15 +80,17 @@ export function Header() {
             <>
               <DropdownMenuLabel>My Account</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>
+              <DropdownMenuItem asChild>
                 <Link href="/profile" className="flex w-full items-center">
                   <User className="mr-2 h-4 w-4" />
                   Profile
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Settings className="mr-2 h-4 w-4" />
-                Settings
+              <DropdownMenuItem asChild>
+                <Link href="/settings" className="flex w-full items-center">
+                  <Settings className="mr-2 h-4 w-4" />
+                  Settings
+                </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleLogout}>
@@ -100,7 +102,7 @@ export function Header() {
             <>
               <DropdownMenuLabel>Welcome</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>
+              <DropdownMenuItem asChild>
                 <Link href="/profile" className="flex w-full items-center">
                   <LogIn className="mr-2 h-4 w-4" />
                   Login / Sign Up
