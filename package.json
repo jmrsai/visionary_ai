@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev --hostname 0.0.0.0",
-    "genkit:dev": "echo 'Genkit disabled'",
-    "genkit:watch": "echo 'Genkit disabled'",
+    "genkit:dev": "genkit dev",
+    "genkit:watch": "genkit watch",
     "build": "NODE_ENV=production next build",
     "start": "next start",
     "lint": "next lint",

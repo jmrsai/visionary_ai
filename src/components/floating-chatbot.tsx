@@ -113,15 +113,18 @@ function ChatInterface() {
     setIsLoading(true);
 
     try {
-    //   const history = newMessages.slice(0, -1).map(msg => ({
-    //       role: msg.isUser ? 'user' as const : 'model' as const,
-    //       content: [{ text: msg.text }]
-    //   }));
+      const history = newMessages.slice(0, -1).map(msg => ({
+          role: msg.isUser ? 'user' as const : 'model' as const,
+          content: [{ text: msg.text }]
+      }));
         
-    //   const result = await chat({ message: input, history });
+      // const result = await chat({ message: input, history });
+      const result = { response: "AI chat is temporarily disabled.", chartData: undefined, media: undefined };
       const aiMessage: Message = { 
           id: uuidv4(),
-          text: "The AI chatbot is temporarily disabled.", 
+          text: result.response, 
+          media: result.media,
+          chartData: result.chartData,
           isUser: false, 
           timestamp: new Date() 
       };
