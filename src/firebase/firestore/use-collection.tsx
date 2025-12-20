@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -69,10 +70,10 @@ export function useCollection<T = any>(
       return;
     }
     
-    // Check for memoization in development
     if (process.env.NODE_ENV === 'development' && memoizedTargetRefOrQuery && !memoizedTargetRefOrQuery.__memo) {
       console.warn('useCollection was not properly memoized using useMemoFirebase. This can lead to infinite loops.', memoizedTargetRefOrQuery);
     }
+
 
     setIsLoading(true);
     setError(null);

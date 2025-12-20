@@ -1,9 +1,21 @@
+
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { MOCK_ADHERENCE_HISTORY } from "@/lib/data";
 import type { AdherenceLog } from "@/lib/types";
 import { CheckCircle, XCircle, Clock } from "lucide-react";
+
+const MOCK_ADHERENCE_HISTORY = [
+    { "id": "1", "medication": "Latanoprost", "type": "Eye Drops", "status": "taken", "time": "09:00", "date": "Today" },
+    { "id": "2", "medication": "Vitamin C", "type": "Capsule", "status": "taken", "time": "09:05", "date": "Today" },
+    { "id": "3", "medication": "Latanoprost", "type": "Eye Drops", "status": "upcoming", "time": "21:00", "date": "Today" },
+    { "id": "4", "medication": "Latanoprost", "type": "Eye Drops", "status": "skipped", "time": "21:00", "date": "Yesterday" },
+    { "id": "5", "medication": "Vitamin C", "type": "Capsule", "status": "taken", "time": "09:02", "date": "Yesterday" },
+    { "id": "6", "medication": "Latanoprost", "type": "Eye Drops", "status": "taken", "time": "08:58", "date": "Yesterday" },
+    { "id": "7", "medication": "Latanoprost", "type": "Eye Drops", "status": "taken_late", "time": "10:30", "date": "2 days ago" },
+    { "id": "8", "medication": "Vitamin C", "type": "Capsule", "status": "taken", "time": "09:01", "date": "2 days ago" }
+];
+
 
 const statusIcons = {
   taken: <CheckCircle className="h-5 w-5 text-green-500" />,

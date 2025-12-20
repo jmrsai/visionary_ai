@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useMemo } from "react";
@@ -9,7 +10,7 @@ import type { Reminder } from "@/lib/types";
 import { AddReminderDialog } from "@/components/add-reminder-dialog";
 import { useUser, useFirestore, useCollection, useMemoFirebase } from "@/firebase";
 import { collection, doc, addDoc, updateDoc } from "firebase/firestore";
-import { setDocumentNonBlocking, addDocumentNonBlocking } from "@/firebase/non-blocking-updates";
+import { setDocumentNonBlocking, addDocumentNonBlocking, updateDocumentNonBlocking } from "@/firebase/non-blocking-updates";
 import { Loader2 } from "lucide-react";
 
 export default function RemindersPage() {
@@ -28,7 +29,7 @@ export default function RemindersPage() {
     const toggleReminder = (id: string, currentStatus: boolean) => {
         if (!remindersCollectionRef) return;
         const reminderRef = doc(remindersCollectionRef, id);
-        updateDoc(reminderRef, { enabled: !currentStatus });
+        updateDocumentNonBlocking(reminderRef, { enabled: !currentStatus });
     }
     
     const addReminder = (newReminder: Omit<Reminder, "id" | "enabled">) => {
@@ -77,25 +78,26 @@ export default function RemindersPage() {
                         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
                     </div>
                 )}
-                {!isLoading && reminders && reminders.map((reminder) => (
-                <div key={reminder.id} className="flex items-center justify-between rounded-lg border p-4">
-                    <div className="flex items-center gap-4">
-                    <div className="text-muted-foreground">
-                        {getIcon(reminder.type)}
-                    </div>
-                    <div>
-                        <p className="font-semibold">{reminder.title}</p>
-                        <p className="text-sm text-muted-foreground">{reminder.time}</p>
-                    </div>
-                    </div>
-                    <Switch 
-                        checked={reminder.enabled}
-                        onCheckedChange={() => toggleReminder(reminder.id!, reminder.enabled)}
-                        aria-label={`Toggle reminder for ${reminder.title}`}
-                    />
-                </div>
-                ))}
-                {!isLoading && (!reminders || reminders.length === 0) && (
+                {!isLoading && reminders && reminders.length > 0 ? (
+                    reminders.map((reminder) => (
+                        <div key={reminder.id} className="flex items-center justify-between rounded-lg border p-4">
+                            <div className="flex items-center gap-4">
+                            <div className="text-muted-foreground">
+                                {getIcon(reminder.type)}
+                            </div>
+                            <div>
+                                <p className="font-semibold">{reminder.title}</p>
+                                <p className="text-sm text-muted-foreground">{reminder.time}</p>
+                            </div>
+                            </div>
+                            <Switch 
+                                checked={reminder.enabled}
+                                onCheckedChange={() => toggleReminder(reminder.id!, reminder.enabled)}
+                                aria-label={`Toggle reminder for ${reminder.title}`}
+                            />
+                        </div>
+                    ))
+                ) : !isLoading && (
                 <div className="text-center py-12 text-muted-foreground">
                     <Bell className="mx-auto h-12 w-12" />
                     <p className="mt-4">You have no reminders set.</p>

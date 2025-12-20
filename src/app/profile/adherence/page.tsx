@@ -1,4 +1,5 @@
 
+
 import { CheckCircle } from "lucide-react";
 import { AdherenceHistory } from "./adherence-history";
 import Link from "next/link";
@@ -17,7 +18,7 @@ export default function AdherencePage() {
           <div>
             <h1 className="text-3xl font-bold">Adherence History</h1>
             <p className="text-muted-foreground">
-              A complete log of your medication schedule.
+              A complete log of your medication schedule. Data is currently mocked.
             </p>
           </div>
         </div>

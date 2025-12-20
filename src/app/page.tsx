@@ -1,4 +1,5 @@
 
+
 import {
   Activity,
   ChevronRight,
@@ -13,7 +14,6 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { VisionScoreChart } from "@/components/vision-score-chart";
-import { MOCK_ACTIVITIES } from "@/lib/data";
 import { Badge } from "@/components/ui/badge";
 import { IllustratedCard } from "@/components/ui/illustrated-card";
 import { EyeGymIcon, CheckupIcon, ProfileIcon } from "@/components/icons";
@@ -89,24 +89,33 @@ export default function Home() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {MOCK_ACTIVITIES.map((activity) => (
-                <div key={activity.id} className="flex items-center gap-4">
+              <div className="flex items-center gap-4">
                   <div className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary">
                     <Activity className="h-5 w-5 text-secondary-foreground" />
                   </div>
                   <div className="flex-1 space-y-1">
                     <p className="text-sm font-medium leading-none">
-                      {activity.description}
+                      Completed: Focus Shift exercise.
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      {activity.timestamp}
+                      2 hours ago
                     </p>
                   </div>
-                   {activity.score && (
-                      <Badge variant="outline">{activity.score}</Badge>
-                    )}
+                   <Badge variant="outline">+5 pts</Badge>
                 </div>
-              ))}
+                 <div className="flex items-center gap-4">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary">
+                    <Activity className="h-5 w-5 text-secondary-foreground" />
+                  </div>
+                  <div className="flex-1 space-y-1">
+                    <p className="text-sm font-medium leading-none">
+                      New personalized workout available.
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      5 hours ago
+                    </p>
+                  </div>
+                </div>
             </div>
           </CardContent>
         </Card>
