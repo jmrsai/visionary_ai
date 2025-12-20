@@ -10,7 +10,7 @@
     {
         "id": "color-vision",
         "title": "Color Vision Test",
-        "description": "Screen for color blindness with Ishihara, HRR, and D-15 tests.",
+        "description": "Screen for color blindness with an algorithmically generated Ishihara test.",
         "icon": "Palette",
         "category": "Core Diagnostics"
     },
@@ -31,7 +31,7 @@
     {
         "id": "macular-health",
         "title": "Macular Health (Amsler)",
-        "description": "Monitor for macular degeneration with an Amsler grid.",
+        "description": "Monitor for macular degeneration with an interactive Amsler grid.",
         "icon": "Grid",
         "category": "Advanced Screening"
     },
