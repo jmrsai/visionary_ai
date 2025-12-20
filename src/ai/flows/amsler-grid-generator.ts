@@ -19,6 +19,7 @@ const AmslerGridOutputSchema = z.object({
 });
 export type AmslerGridOutput = z.infer<typeof AmslerGridOutputSchema>;
 
+// This flow is no longer used by the interactive component, but is kept for reference.
 export async function generateAmslerGrid(): Promise<AmslerGridOutput> {
   return amslerGridFlow();
 }

@@ -158,9 +158,15 @@ export function RednessIrritationScan() {
                 </ul>
               </AlertDescription>
             </Alert>
-            <Button onClick={handleStartCapture}>
-              <Camera className="mr-2 h-4 w-4" /> Start Scan
-            </Button>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Button onClick={handleStartCapture} size="lg">
+                    <Camera className="mr-2 h-4 w-4" /> Use Camera
+                </Button>
+                 <Button variant="outline" size="lg" onClick={() => fileInputRef.current?.click()}>
+                    <Upload className="mr-2 h-4 w-4" /> Upload Photo
+                </Button>
+                <input type="file" ref={fileInputRef} accept="image/*" className="hidden" onChange={handleFileChange} />
+            </div>
           </div>
         );
 

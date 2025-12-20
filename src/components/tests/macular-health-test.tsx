@@ -16,7 +16,7 @@ type DistortionMark = {
   y: number; // percentage
 };
 
-const GridGuardian = ({ gridImage, onTestComplete }: { gridImage: string, onTestComplete: (marks: DistortionMark[]) => void }) => {
+const GridGuardian = ({ onTestComplete }: { onTestComplete: (marks: DistortionMark[]) => void }) => {
     const [marks, setMarks] = useState<DistortionMark[]>([]);
     const gridRef = useRef<HTMLDivElement>(null);
 
@@ -36,11 +36,20 @@ const GridGuardian = ({ gridImage, onTestComplete }: { gridImage: string, onTest
         <div className="flex flex-col items-center space-y-4">
             <div 
                 ref={gridRef}
-                className="relative w-full aspect-square max-w-sm bg-muted rounded-lg border cursor-crosshair"
+                className="relative w-full aspect-square max-w-sm bg-white rounded-lg border-2 border-black cursor-crosshair"
                 onClick={handleGridClick}
             >
-                <Image src={gridImage} alt="Amsler Grid" layout="fill" objectFit="contain" />
+                {/* Grid lines */}
+                {[...Array(21)].map((_, i) => (
+                    <div key={`v-${i}`} className="absolute h-full w-[1px] bg-black/80" style={{ left: `${i * 5}%` }} />
+                ))}
+                 {[...Array(21)].map((_, i) => (
+                    <div key={`h-${i}`} className="absolute w-full h-[1px] bg-black/80" style={{ top: `${i * 5}%` }} />
+                ))}
+                {/* Center dot */}
+                <div className="absolute top-1/2 left-1/2 w-2 h-2 -translate-x-1/2 -translate-y-1/2 bg-black rounded-full" />
 
+                {/* User marks */}
                 {marks.map((mark, i) => (
                     <div
                         key={i}
@@ -78,46 +87,9 @@ const GridGuardian = ({ gridImage, onTestComplete }: { gridImage: string, onTest
 
 export function MacularHealthTest() {
   const [step, setStep] = useState<Step>('instructions');
-  const [gridImage, setGridImage] = useState<string | null>(null);
   const [leftEyeMarks, setLeftEyeMarks] = useState<DistortionMark[]>([]);
   const [rightEyeMarks, setRightEyeMarks] = useState<DistortionMark[]>([]);
   const { toast } = useToast();
-
-  useEffect(() => {
-    const loadGrid = async () => {
-      setStep('loading');
-      try {
-        const result = await generateAmslerGrid();
-        setGridImage(result.gridImageUri);
-        setStep('test-left');
-      } catch (error) {
-        console.error("Failed to generate Amsler grid:", error);
-        toast({
-          title: "Error loading test",
-          description: "Could not load the Amsler grid. Please try again.",
-          variant: "destructive",
-        });
-        setStep('instructions');
-      }
-    };
-
-    if (step === 'instructions') {
-        // Reset state when going back to instructions
-        setGridImage(null);
-        setLeftEyeMarks([]);
-        setRightEyeMarks([]);
-    } else if (step === 'test-left' && !gridImage) {
-        loadGrid();
-    }
-  }, [step, gridImage, toast]);
-
-  const startTest = () => {
-    if (!gridImage) {
-      setStep('test-left'); // This will trigger the useEffect to load the grid
-    } else {
-      setStep('test-left');
-    }
-  };
 
   const handleLeftTestComplete = (marks: DistortionMark[]) => {
     setLeftEyeMarks(marks);
@@ -131,6 +103,8 @@ export function MacularHealthTest() {
 
   const restartTest = () => {
     setStep('instructions');
+    setLeftEyeMarks([]);
+    setRightEyeMarks([]);
   };
   
   const getResultForEye = (marks: DistortionMark[]) => {
@@ -138,10 +112,15 @@ export function MacularHealthTest() {
   };
   
   const renderMarkedGrid = (marks: DistortionMark[]) => {
-    if (!gridImage) return null;
     return (
-        <div className="relative w-full aspect-square bg-white rounded-md border">
-            <Image src={gridImage} alt="Amsler Grid" layout="fill" objectFit="contain" />
+        <div className="relative w-full aspect-square bg-white rounded-md border-2 border-black">
+             {[...Array(21)].map((_, i) => (
+                    <div key={`v-${i}`} className="absolute h-full w-[1px] bg-black/80" style={{ left: `${i * 5}%` }} />
+                ))}
+                 {[...Array(21)].map((_, i) => (
+                    <div key={`h-${i}`} className="absolute w-full h-[1px] bg-black/80" style={{ top: `${i * 5}%` }} />
+                ))}
+            <div className="absolute top-1/2 left-1/2 w-2 h-2 -translate-x-1/2 -translate-y-1/2 bg-black rounded-full" />
             {marks.map((mark, i) => (
                 <div
                     key={i}
@@ -158,13 +137,12 @@ export function MacularHealthTest() {
   };
 
   const renderTestForEye = (eye: Eye) => {
-    if (!gridImage) return <p>Loading grid...</p>;
     const onTestComplete = eye === 'left' ? handleLeftTestComplete : handleRightTestComplete;
     return (
         <div className="flex flex-col items-center space-y-6">
             <h3 className="text-xl font-semibold">Testing {eye === 'left' ? 'Left' : 'Right'} Eye</h3>
             <p className="text-muted-foreground">Cover your {eye === 'left' ? 'right' : 'left'} eye and focus only on the center dot.</p>
-            <GridGuardian gridImage={gridImage} onTestComplete={onTestComplete} />
+            <GridGuardian onTestComplete={onTestComplete} />
         </div>
     )
   }
@@ -176,18 +154,9 @@ export function MacularHealthTest() {
         <p className="text-muted-foreground mt-2 mb-4 max-w-md mx-auto">
           This test helps screen for issues in your central vision, such as those caused by macular degeneration. If you wear reading glasses, please put them on. Sit about 12-15 inches away from the screen.
         </p>
-        <Button onClick={startTest}>Start Test</Button>
+        <Button onClick={() => setStep('test-left')}>Start Test</Button>
       </div>
     );
-  }
-  
-  if (step === 'loading') {
-      return (
-          <div className="flex flex-col items-center justify-center h-64 space-y-4">
-              <Loader2 className="h-12 w-12 animate-spin text-primary" />
-              <p className="text-muted-foreground">Generating Amsler Grid...</p>
-          </div>
-      )
   }
 
   if (step === 'results') {
