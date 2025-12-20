@@ -9,7 +9,6 @@ import { CircuitCard } from "./circuits/circuit-card";
 
 export default function GymPage() {
   const exerciseCategories = [...new Set(MOCK_EXERCISES.map(ex => ex.category))];
-  const testCategories = [...new Set(MOCK_TESTS.filter(t => t.category === "Kids' Game Zone").map(t => t.category))];
 
   return (
     <div className="space-y-8">
@@ -66,11 +65,10 @@ export default function GymPage() {
         </div>
       ))}
       
-       {testCategories.map(category => (
-        <div key={category}>
-          <h2 className="text-2xl font-semibold mb-4">{category}</h2>
+       <div>
+          <h2 className="text-2xl font-semibold mb-4">Kids' Game Zone</h2>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {MOCK_TESTS.filter(t => t.category === category).map((test) => (
+            {MOCK_TESTS.filter(t => t.category === "Kids' Game Zone").map((test) => (
               <Link key={test.id} href={`/tests/kids-zone`} className="group">
                  <Card className="h-full transition-all group-hover:border-primary group-hover:shadow-lg">
                   <CardHeader>
@@ -95,7 +93,6 @@ export default function GymPage() {
             ))}
           </div>
         </div>
-      ))}
     </div>
   );
 }

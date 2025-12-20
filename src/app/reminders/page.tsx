@@ -10,7 +10,7 @@ import type { Reminder } from "@/lib/types";
 import { AddReminderDialog } from "@/components/add-reminder-dialog";
 import { useUser, useFirestore, useCollection, useMemoFirebase } from "@/firebase";
 import { collection, doc, addDoc, updateDoc } from "firebase/firestore";
-import { setDocumentNonBlocking, addDocumentNonBlocking, updateDocumentNonBlocking } from "@/firebase/non-blocking-updates";
+import { addDocumentNonBlocking, updateDocumentNonBlocking } from "@/firebase/non-blocking-updates";
 import { Loader2 } from "lucide-react";
 
 export default function RemindersPage() {

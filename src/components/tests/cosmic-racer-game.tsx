@@ -1,12 +1,12 @@
 
+
 "use client";
 
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { ArrowLeft, Star, Trophy, Rocket } from 'lucide-react';
-import Link from 'next/link';
 
 const TOTAL_LEVELS = 3;
 const LAPS_PER_LEVEL = 5;
@@ -46,7 +46,7 @@ const StarField = () => {
 };
 
 
-export function CosmicRacerGame() {
+export function CosmicRacerGame({ onBack }: { onBack: () => void }) {
   const [gamePhase, setGamePhase] = useState<'intro' | 'playing' | 'complete'>('intro');
   const [score, setScore] = useState(0);
   const [level, setLevel] = useState(1);
@@ -122,8 +122,8 @@ export function CosmicRacerGame() {
                         <Button onClick={resetGame} className="w-full bg-blue-600 hover:bg-blue-700">
                             🚀 Race Again
                         </Button>
-                        <Button variant="secondary" className="w-full" asChild>
-                            <Link href="/tests"> <ArrowLeft className="mr-2 h-4 w-4" />Back to Tests</Link>
+                        <Button variant="secondary" className="w-full" onClick={onBack}>
+                           <ArrowLeft className="mr-2 h-4 w-4" />Back to Games
                         </Button>
                     </div>
                 </CardContent>
@@ -154,9 +154,14 @@ export function CosmicRacerGame() {
                             <li>Complete all 3 levels to become a Cosmic Champion!</li>
                         </ul>
                     </div>
-                    <Button onClick={startGame} size="lg" className="w-full bg-blue-600 hover:bg-blue-700">
-                        Launch Mission
-                    </Button>
+                    <div className="flex gap-4">
+                        <Button variant="outline" onClick={onBack} className="w-full">
+                            <ArrowLeft className="mr-2 h-4 w-4" /> Back
+                        </Button>
+                        <Button onClick={startGame} size="lg" className="w-full bg-blue-600 hover:bg-blue-700">
+                            Launch Mission
+                        </Button>
+                    </div>
                 </CardContent>
             </Card>
         </div>

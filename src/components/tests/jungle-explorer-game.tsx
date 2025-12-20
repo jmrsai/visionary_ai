@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
@@ -8,7 +9,6 @@ import { ArrowLeft, Play, RefreshCw, Star, Trophy } from 'lucide-react';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
-import Link from 'next/link';
 
 type Step = 'intro' | 'playing' | 'complete';
 const GAME_DURATION_S = 30;
@@ -22,15 +22,15 @@ interface Animal {
 }
 
 const characters = [
-  { id: 'monkey-character', isNear: false, far: true },
-  { id: 'parrot-character', isNear: true, far: false },
-  { id: 'frog-character', isNear: true, far: false },
-  { id: 'monkey-character', isNear: false, far: true }, // Add duplicates for variety
-  { id: 'parrot-character', isNear: true, far: false },
-  { id: 'frog-character', isNear: true, far: false },
+  { id: 'monkey-character', description: 'Monkey', isNear: false, far: true },
+  { id: 'parrot-character', description: 'Parrot', isNear: true, far: false },
+  { id: 'frog-character', description: 'Frog', isNear: true, far: false },
+  { id: 'monkey-character', description: 'Monkey', isNear: false, far: true }, // Add duplicates for variety
+  { id: 'parrot-character', description: 'Parrot', isNear: true, far: false },
+  { id: 'frog-character', description: 'Frog', isNear: true, far: false },
 ];
 
-export function JungleExplorerGame() {
+export function JungleExplorerGame({ onBack }: { onBack: () => void }) {
   const [step, setStep] = useState<Step>('intro');
   const [timeLeft, setTimeLeft] = useState(GAME_DURATION_S);
   const [score, setScore] = useState(0);
@@ -154,8 +154,8 @@ export function JungleExplorerGame() {
                     <Button onClick={resetGame} className="w-full">
                         <RefreshCw className="mr-2 h-4 w-4" /> Play Again
                     </Button>
-                    <Button variant="secondary" className="w-full" asChild>
-                        <Link href="/gym"> <ArrowLeft className="mr-2 h-4 w-4" />Back to Gym</Link>
+                    <Button variant="secondary" className="w-full" onClick={onBack}>
+                        <ArrowLeft className="mr-2 h-4 w-4" />Back to Games
                     </Button>
                 </div>
             </CardContent>
@@ -184,9 +184,14 @@ export function JungleExplorerGame() {
                         <li>Find as many as you can before time runs out!</li>
                     </ul>
                 </div>
-                <Button onClick={startGame} size="lg" className="w-full">
-                    <Play className="mr-2 h-5 w-5" /> Start Adventure
-                </Button>
+                <div className="flex gap-4">
+                    <Button variant="outline" onClick={onBack} className="w-full">
+                        <ArrowLeft className="mr-2 h-5 w-5" /> Back
+                    </Button>
+                    <Button onClick={startGame} size="lg" className="w-full">
+                        <Play className="mr-2 h-5 w-5" /> Start Adventure
+                    </Button>
+                </div>
             </CardContent>
         </Card>
     );
