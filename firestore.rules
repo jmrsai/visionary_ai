@@ -1,143 +1,51 @@
-/**
- * Core Philosophy: This ruleset enforces a strict user-ownership model. All personal user data is
- * considered private and is only accessible by the authenticated user who owns it. Publicly
- * accessible data, such as general eye exercises, is stored in a separate, top-level collection.
- *
- * Data Structure: All user-specific data (profiles, test results, routines, reminders) is nested
- * within a user-specific document tree, starting at `/users/{userId}`. This path-based ownership
- * is the primary mechanism for securing data. A separate top-level collection, `/eyeExercises`,
- * stores global, read-only content.
- *
- * Key Security Decisions:
- * - User Enumeration is Disallowed: Listing the top-level `/users` collection is forbidden to
- *   protect user privacy and prevent data scraping.
- * - Strict Ownership: A user can only access data within their own `/users/{userId}` document tree.
- * - Read-Only Global Content: The `/eyeExercises` collection is publicly readable by anyone but
- *   cannot be modified by client applications. This data is expected to be managed by developers
- *   or backend processes.
- * - Default Secure: Any path not explicitly defined in these rules is inaccessible.
- *
- * Denormalization for Authorization: To ensure fast and secure authorization checks, user-specific
- * subcollections (e.g., visionTestResults, workoutRoutines) contain a denormalized `userId` field.
- * This avoids slow and costly `get()` calls to parent documents and allows rules to validate
- * ownership and relational integrity directly from the document's data.
- *
- * Structural Segregation: Private user data and public content are stored in separate collections.
- * User data resides in subcollections under `/users/{userId}`, while public data like `/eyeExercises`
- * is at the top level. This separation provides stronger security and better query performance for
- * public list operations.
- */
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // -------------------------------------------------------------------------
     // Helper Functions
-    // -------------------------------------------------------------------------
-
-    /**
-     * Checks if a user is authenticated.
-     */
     function isSignedIn() {
       return request.auth != null;
     }
 
-    /**
-     * Checks if the currently authenticated user's UID matches the given userId.
-     */
     function isOwner(userId) {
       return isSignedIn() && request.auth.uid == userId;
     }
-
-    /**
-     * Checks for ownership on an existing document. Used for update and delete.
-     */
-    function isExistingOwner(userId) {
-      return isOwner(userId) && resource != null;
+    
+    function isDoctor() {
+        return exists(/databases/$(database)/documents/roles_doctor/$(request.auth.uid));
+    }
+    
+    function isDoctorForConsultation(consultationId) {
+        return isDoctor() && get(/databases/$(database)/documents/users/$(resource.data.userId)/consultations/$(consultationId)).data.doctorId == request.auth.uid;
     }
 
-    // -------------------------------------------------------------------------
-    // Collection Rules
-    // -------------------------------------------------------------------------
-
-    /**
-     * @description Manages user profiles. A user can create their own profile, and
-     *              subsequently read, update, and delete it.
-     * @path /users/{userId}
-     * @allow (create) An authenticated user creating their own profile document.
-     * @deny  (list) Any user attempting to list all documents in the `/users` collection.
-     * @principle Restricts access to a user's own data tree and prevents user enumeration.
-     */
+    // User Profiles
     match /users/{userId} {
-      allow get: if isOwner(userId);
-      allow list: if false;
-      allow create: if isOwner(userId) && request.resource.data.id == userId;
-      allow update: if isExistingOwner(userId) && request.resource.data.id == resource.data.id;
-      allow delete: if isExistingOwner(userId);
-    }
-
-    /**
-     * @description Stores vision test results. Users can create, read, update, and
-     *              delete their own test results.
-     * @path /users/{userId}/visionTestResults/{resultId}
-     * @allow (create) A user with auth.uid='user123' creating a result under `/users/user123/...`.
-     * @deny  (get) A user with auth.uid='user456' trying to read a result from `/users/user123/...`.
-     * @principle Enforces document ownership and validates relational integrity via the denormalized `userId` field.
-     */
-    match /users/{userId}/visionTestResults/{resultId} {
-      allow get: if isOwner(userId);
-      allow list: if isOwner(userId);
-      allow create: if isOwner(userId) && request.resource.data.userId == userId;
-      allow update: if isExistingOwner(userId) && request.resource.data.userId == resource.data.userId;
-      allow delete: if isExistingOwner(userId);
-    }
-
-    /**
-     * @description Stores user-created workout routines. Users can create, read,
-     *              update, and delete their own routines.
-     * @path /users/{userId}/workoutRoutines/{routineId}
-     * @allow (create) A user with auth.uid='user123' creating a routine under `/users/user123/...`.
-     * @deny  (update) A user trying to change the `userId` field on an existing routine.
-     * @principle Enforces document ownership and validates relational integrity via the denormalized `userId` field.
-     */
-    match /users/{userId}/workoutRoutines/{routineId} {
-      allow get: if isOwner(userId);
-      allow list: if isOwner(userId);
-      allow create: if isOwner(userId) && request.resource.data.userId == userId;
-      allow update: if isExistingOwner(userId) && request.resource.data.userId == resource.data.userId;
-      allow delete: if isExistingOwner(userId);
-    }
-
-    /**
-     * @description Stores user-set reminders. Users can create, read, update, and
-     *              delete their own reminders.
-     * @path /users/{userId}/reminders/{reminderId}
-     * @allow (list) A user with auth.uid='user123' listing reminders from `/users/user123/reminders`.
-     * @deny  (delete) A user with auth.uid='user456' trying to delete a reminder from `/users/user123/...`.
-     * @principle Enforces document ownership and validates relational integrity via the denormalized `userId` field.
-     */
-    match /users/{userId}/reminders/{reminderId} {
-      allow get: if isOwner(userId);
-      allow list: if isOwner(userId);
-      allow create: if isOwner(userId) && request.resource.data.userId == userId;
-      allow update: if isExistingOwner(userId) && request.resource.data.userId == resource.data.userId;
-      allow delete: if isExistingOwner(userId);
-    }
-
-    /**
-     * @description Stores global eye exercises. This data is public and can be read by
-     *              anyone, but cannot be modified by clients.
-     * @path /eyeExercises/{exerciseId}
-     * @allow (get, list) Any user, signed in or not, reading the list of exercises.
-     * @deny  (create, update, delete) Any client trying to write to this collection.
-     * @principle Provides public read access for global content while prohibiting client-side modifications.
-     */
-    match /eyeExercises/{exerciseId} {
+      // Anyone can read a user's public profile
       allow get: if true;
-      allow list: if true;
-      allow create: if false;
-      allow update: if false;
-      allow delete: if false;
+      // Only the owner can create, update, or delete their profile
+      allow write: if isOwner(userId);
+    }
+    
+    // Reminders Subcollection
+    match /users/{userId}/reminders/{reminderId} {
+        // Only the owner can read or write their own reminders
+        allow read, write: if isOwner(userId);
+    }
+
+    // Consultations Subcollection
+    match /users/{userId}/consultations/{consultationId} {
+        // Patient can access their own consultations
+        // Doctor assigned to the consultation can also access it
+        allow read, write: if isOwner(userId) || isDoctorForConsultation(consultationId);
+    }
+
+    // Doctor Roles
+    match /roles_doctor/{userId} {
+        // Only admins should be able to write to this collection (not enforced here, should be done via backend)
+        allow read: if isSignedIn();
+        allow write: if false; // Disallow client-side writes for security
     }
   }
 }

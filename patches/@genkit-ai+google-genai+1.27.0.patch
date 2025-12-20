@@ -1,0 +1,35 @@
+diff --git a/node_modules/@genkit-ai/google-genai/lib/index.js b/node_modules/@genkit-ai/google-genai/lib/index.js
+index d2b5358..32f050b 100644
+--- a/node_modules/@genkit-ai/google-genai/lib/index.js
++++ b/node_modules/@genkit-ai/google-genai/lib/index.js
+@@ -16,7 +16,7 @@
+  * limitations under the License.
+  */
+ Object.defineProperty(exports, "__esModule", { value: true });
+-exports.googleAI = exports.geminiPro = exports.gemini15Pro = exports.gemini15Flash = exports.gemini10Pro = exports.geminiProVision = exports.aqa = exports.embedding001 = exports.textEmbedding004 = void 0;
++exports.googleAI = exports.geminiPro = exports.gemini15Pro = exports.gemini15Flash = exports.gemini10Pro = exports.geminiProVision = exports.aqa = exports.embedding001 = exports.textEmbedding004 = exports.retriever = exports.textEmbeddingGecko003 = exports.textEmbeddingGecko002 = exports.textEmbeddingGecko001 = void 0;
+ const index_1 = require("@genkit-ai/ai/index");
+ const index_2 = require("@genkit-ai/ai/index");
+ const index_3 = require("@genkit-ai/ai/index");
+@@ -25,7 +25,7 @@
+ const media_1 = require("./media");
+ const retriever_1 = require("./retriever");
+ Object.defineProperty(exports, "retriever", { enumerable: true, get: function () { return retriever_1.retriever; } });
+-const async_1 = require("@genkit-ai/ai/lib/async");
++const async_1 = require("@genkit-ai/core/lib/async");
+ const z = require("zod");
+ const __1 = require("..");
+ const index_4 = require("@genkit-ai/ai/index");
+diff --git a/node_modules/@genkit-ai/google-genai/lib/index.mjs b/node_modules/@genkit-ai/google-genai/lib/index.mjs
+index 2816960..6e594df 100644
+--- a/node_modules/@genkit-ai/google-genai/lib/index.mjs
++++ b/node_modules/@genkit-ai/google-genai/lib/index.mjs
+@@ -10,7 +10,7 @@
+ import { defineModel } from '@genkit-ai/ai/index';
+ import { Content, defineTool } from '@genkit-ai/ai/index';
+ import { __awaiter } from 'tslib';
+-import { asyncRunTool } from '@genkit-ai/ai/lib/async';
++import { asyncRunTool } from '@genkit-ai/core/lib/async';
+ import * as z from 'zod';
+ import { __ } from '..';
+ import { defineRetriever } from '@genkit-ai/ai/index';
