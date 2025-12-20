@@ -6,7 +6,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { FloatingChatbot } from "@/components/floating-chatbot";
 import { SidebarProvider, Sidebar, SidebarInset } from "@/components/ui/sidebar";
 import { SidebarNav } from "@/components/sidebar-nav";
-import { FirebaseClientProvider, FirebaseErrorListener } from "@/firebase";
+import { FirebaseClientProvider } from "@/firebase";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -64,7 +64,6 @@ export default function RootLayout({
             disableTransitionOnChange
         >
           <FirebaseClientProvider>
-            <FirebaseErrorListener />
             <SidebarProvider>
               <Sidebar>
                   <SidebarNav />
