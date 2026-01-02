@@ -1,14 +1,15 @@
+
 'use server';
 
 /**
  * @fileOverview A Genkit tool for performing offline text analysis.
  */
 
-import { defineTool } from 'genkit';
+import { ai } from '@/ai/genkit';
 import { z } from 'zod';
 import { analyzeTextOffline } from '../offline-ai-agent';
 
-export const offlineTextAnalysisTool = defineTool(
+export const offlineTextAnalysisTool = ai.defineTool(
   {
     name: 'offlineTextAnalysis',
     description: 'Performs simple offline text analysis.',
