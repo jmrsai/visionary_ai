@@ -19,6 +19,7 @@ import { CosmicRacerGame } from "@/components/tests/cosmic-racer-game";
 import { CoverTest } from "@/components/tests/cover-test";
 import { PlacidoDiskTest } from "@/components/tests/placido-disk-test";
 import { OcularHealthScan } from "@/components/tests/ocular-health-scan";
+import { FarnsworthD15Test } from "@/components/tests/farnsworth-d15-test";
 
 export async function generateStaticParams() {
   return MOCK_TESTS.map((test) => ({
@@ -28,7 +29,8 @@ export async function generateStaticParams() {
 
 const TestComponent = ({ testId }: { testId: string }) => {
     switch (testId) {
-      case "visual-acuity": return <VisualAcuityTest />;
+      case "visual-acuity": return <VisualAcuityTest isNearTest={false} />;
+      case "near-vision-acuity": return <VisualAcuityTest isNearTest={true} />;
       case "macular-health": return <MacularHealthTest />;
       case "color-vision": return <ColorVisionTest />;
       case "astigmatism": return <AstigmatismTest />;
@@ -44,6 +46,7 @@ const TestComponent = ({ testId }: { testId: string }) => {
       case "cover-test": return <CoverTest />;
       case "placido-disk": return <PlacidoDiskTest />;
       case "ocular-health-scan": return <OcularHealthScan />;
+      case "farnsworth-d15": return <FarnsworthD15Test />;
       default: return <p>Test not found.</p>;
     }
 }

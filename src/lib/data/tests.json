@@ -2,9 +2,16 @@
 [
     {
         "id": "visual-acuity",
-        "title": "Visual Acuity Test",
+        "title": "Visual Acuity (Distance)",
         "description": "Test the clarity of your vision using a digital Snellen chart.",
         "icon": "Eye",
+        "category": "Core Diagnostics"
+    },
+     {
+        "id": "near-vision-acuity",
+        "title": "Near Vision Acuity",
+        "description": "Test your near vision clarity, important for reading and other close-up tasks.",
+        "icon": "BookOpen",
         "category": "Core Diagnostics"
     },
     {
@@ -13,6 +20,13 @@
         "description": "Screen for color blindness with an algorithmically generated Ishihara test.",
         "icon": "Palette",
         "category": "Core Diagnostics"
+    },
+    {
+        "id": "farnsworth-d15",
+        "title": "Farnsworth D-15",
+        "description": "An advanced color vision test where you arrange colored caps in order.",
+        "icon": "Layers",
+        "category": "Advanced Screening"
     },
     {
         "id": "astigmatism",

@@ -40,6 +40,7 @@ const iconMapping: { [key: string]: React.ElementType } = {
     CircleDot,
     EyeOff,
     Disc,
+    Layers,
 };
 
 export const MOCK_TESTS: Test[] = tests.map(test => ({

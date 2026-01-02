@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useMemo } from 'react';
@@ -18,6 +19,16 @@ const acuityLevels = [
   { size: 'text-2xl', score: '20/25' },
   { size: 'text-xl', score: '20/20' },
 ];
+
+const nearAcuityLevels = [
+  { size: 'text-4xl', score: '20/70' },
+  { size: 'text-3xl', score: '20/60' },
+  { size: 'text-2xl', score: '20/50' },
+  { size: 'text-xl', score: '20/40' },
+  { size: 'text-lg', score: '20/30' },
+  { size: 'text-base', score: '20/25' },
+  { size: 'text-sm', score: '20/20' },
+]
 
 const chartTypes = {
   letters: {
@@ -57,11 +68,13 @@ const getRotationClass = (direction: Direction) => {
   }
 };
 
-export function VisualAcuityTest() {
+export function VisualAcuityTest({ isNearTest }: { isNearTest: boolean }) {
   const [step, setStep] = useState<'instructions' | 'selection' | 'test' | 'results'>('instructions');
   const [testType, setTestType] = useState<TestType>('letters');
   const [currentLevel, setCurrentLevel] = useState(0);
   const [finalScore, setFinalScore] = useState<string | null>(null);
+
+  const levels = isNearTest ? nearAcuityLevels : acuityLevels;
 
   const currentStimulus = useMemo(() => {
     const typeInfo = chartTypes[testType];
@@ -94,14 +107,14 @@ export function VisualAcuityTest() {
     }
     
     if (isCorrect) {
-      if (currentLevel < acuityLevels.length - 1) {
+      if (currentLevel < levels.length - 1) {
         setCurrentLevel(currentLevel + 1);
       } else {
-        setFinalScore(acuityLevels[acuityLevels.length - 1].score);
+        setFinalScore(levels[levels.length - 1].score);
         setStep('results');
       }
     } else {
-      const score = currentLevel > 0 ? acuityLevels[currentLevel - 1].score : 'Below 20/200';
+      const score = currentLevel > 0 ? levels[currentLevel - 1].score : `Below ${levels[0].score}`;
       setFinalScore(score);
       setStep('results');
     }
@@ -113,7 +126,7 @@ export function VisualAcuityTest() {
   };
 
   const renderTestStimulus = () => {
-    const level = acuityLevels[currentLevel];
+    const level = levels[currentLevel];
     const IconComponent = testType === 'pictures' ? chartTypes.pictures.icons[currentStimulus.char!] : null;
 
     if (IconComponent) {
@@ -176,12 +189,17 @@ export function VisualAcuityTest() {
     }
   };
 
+  const instructionsText = isNearTest 
+    ? "For accurate results, hold your device at a comfortable reading distance (about 14-16 inches or 35-40 cm). If you use reading glasses, please wear them. Cover one eye, then proceed."
+    : "For accurate results, please stand 10 feet (about 3 meters) away from your screen. Cover one eye, then proceed.";
+
+
   if (step === 'instructions') {
     return (
       <div className="text-center">
         <h3 className="text-xl font-semibold">Instructions</h3>
         <p className="text-muted-foreground mt-2 mb-4 max-w-md mx-auto">
-          For accurate results, please stand 10 feet (about 3 meters) away from your screen. Cover one eye, then proceed.
+          {instructionsText}
         </p>
         <Button onClick={() => setStep('selection')}>
           <Eye className="mr-2 h-4 w-4" /> I'm Ready
@@ -223,7 +241,7 @@ export function VisualAcuityTest() {
         <Card className="mx-auto max-w-md text-center">
             <CardHeader>
                 <CardTitle>Test Complete</CardTitle>
-                <CardDescription>Your estimated visual acuity is:</CardDescription>
+                <CardDescription>Your estimated {isNearTest ? 'near' : 'distance'} visual acuity is:</CardDescription>
             </CardHeader>
             <CardContent>
                 <p className="text-5xl font-bold my-4">{finalScore}</p>
@@ -236,14 +254,14 @@ export function VisualAcuityTest() {
     );
   }
 
-  const level = acuityLevels[currentLevel];
+  const level = levels[currentLevel];
 
   return (
     <div className="flex flex-col items-center space-y-8">
       <div className="h-48 flex items-center justify-center w-full bg-white rounded-md p-4">
         {renderTestStimulus()}
       </div>
-      <p className="text-muted-foreground">Line {currentLevel + 1} of {acuityLevels.length} (Score: {level.score})</p>
+      <p className="text-muted-foreground">Line {currentLevel + 1} of {levels.length} (Score: {level.score})</p>
       
       <div className="w-full max-w-md">
         {renderAnswerOptions()}
