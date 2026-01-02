@@ -1,5 +1,5 @@
 import {genkit} from 'genkit';
-import {googleAI} from '@genkit-ai/google-genai';
+import {googleAI} from '@genkit-ai/googleai';
 import { offlineTextAnalysisTool } from './tools/offline-text-analysis-tool';
 import { enableFirebaseTelemetry } from '@genkit-ai/firebase';
 
