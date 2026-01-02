@@ -24,7 +24,7 @@
     {
         "id": "contrast-sensitivity",
         "title": "Contrast Sensitivity Test",
-        "description": "Measure your ability to distinguish between different shades.",
+        "description": "Measure your ability to distinguish between different shades, which can be affected by conditions like cataracts.",
         "icon": "Contrast",
         "category": "Core Diagnostics"
     },
@@ -38,8 +38,29 @@
     {
         "id": "visual-field",
         "title": "Peripheral Vision Game",
-        "description": "Train your peripheral awareness with the 'Side Sight' game.",
+        "description": "Train your peripheral awareness. This can help screen for vision loss associated with glaucoma.",
         "icon": "View",
+        "category": "Advanced Screening"
+    },
+     {
+        "id": "cover-test",
+        "title": "Cover Test for Strabismus",
+        "description": "A guided self-test to screen for eye misalignment (strabismus).",
+        "icon": "EyeOff",
+        "category": "Advanced Screening"
+    },
+    {
+        "id": "placido-disk",
+        "title": "Corneal Topography Simulation",
+        "description": "Use a Placido's Disk simulation to screen for corneal irregularities like keratoconus.",
+        "icon": "Disc",
+        "category": "Advanced Screening"
+    },
+     {
+        "id": "ocular-health-scan",
+        "title": "Ocular Health Scan",
+        "description": "AI-powered analysis of an eye photo for cataracts, pterygium, and more.",
+        "icon": "ScanEye",
         "category": "Advanced Screening"
     },
     {

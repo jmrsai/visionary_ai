@@ -13,6 +13,18 @@
       "imageHint": "doctor portrait"
     },
     {
+      "id": "placido-disk-normal",
+      "description": "A normal reflection of a Placido's disk on a healthy cornea.",
+      "imageUrl": "https://i.ibb.co/3YYH0v1/placido-normal.png",
+      "imageHint": "concentric circles"
+    },
+    {
+      "id": "placido-disk-keratoconus",
+      "description": "A distorted reflection of a Placido's disk on a cornea with keratoconus.",
+      "imageUrl": "https://i.ibb.co/L63v6Fk/placido-distorted.png",
+      "imageHint": "distorted circles"
+    },
+    {
       "id": "jungle-background",
       "description": "Jungle background for a game",
       "imageUrl": "https://images.unsplash.com/photo-1563273948-52721a368383?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxjYXJ0b29uJTIwanVuZ2xlfGVufDB8fHx8MTc1OTEwNjE1MHww&ixlib=rb-4.1.0&q=80&w=1080",

@@ -16,6 +16,9 @@ import { ReadingSpeedTest } from "@/components/tests/reading-speed-test";
 import { AccommodationFlexibilityTest } from "@/components/tests/accommodation-flexibility-test";
 import { JungleExplorerGame } from "@/components/tests/jungle-explorer-game";
 import { CosmicRacerGame } from "@/components/tests/cosmic-racer-game";
+import { CoverTest } from "@/components/tests/cover-test";
+import { PlacidoDiskTest } from "@/components/tests/placido-disk-test";
+import { OcularHealthScan } from "@/components/tests/ocular-health-scan";
 
 export async function generateStaticParams() {
   return MOCK_TESTS.map((test) => ({
@@ -36,8 +39,11 @@ const TestComponent = ({ testId }: { testId: string }) => {
       case "stereopsis": return <StereopsisTest />;
       case "reading-speed": return <ReadingSpeedTest />;
       case "accommodation-flexibility": return <AccommodationFlexibilityTest />;
-      case "jungle-explorer": return <JungleExplorerGame />;
+      case "jungle-explorer": return <JungleExplorerGame onBack={() => {}} />;
       case "cosmic-racer": return <CosmicRacerGame />;
+      case "cover-test": return <CoverTest />;
+      case "placido-disk": return <PlacidoDiskTest />;
+      case "ocular-health-scan": return <OcularHealthScan />;
       default: return <p>Test not found.</p>;
     }
 }
