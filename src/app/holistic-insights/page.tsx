@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { holisticHealthInsights } from '@/ai/flows/holistic-health-insights';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
@@ -56,6 +57,7 @@ export default function HolisticInsightsPage() {
           <BrainCircuit className="h-6 w-6" />
         </div>
         <div>
+          <Link href="/profile" className="text-sm text-muted-foreground hover:text-primary mb-1">&larr; Back to Profile</Link>
           <h1 className="text-3xl font-bold">AI Holistic Health Insights</h1>
           <p className="text-muted-foreground">
             Correlate lifestyle data with symptoms to find actionable health patterns.

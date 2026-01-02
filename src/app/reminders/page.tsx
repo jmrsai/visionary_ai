@@ -2,6 +2,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Bell, Dumbbell, PlusCircle, Pill, Droplet } from "lucide-react";
@@ -55,6 +56,7 @@ export default function RemindersPage() {
       <div className="space-y-8">
         <div className="flex items-center justify-between">
             <div>
+                 <Link href="/profile" className="text-sm text-muted-foreground hover:text-primary mb-1">&larr; Back to Profile</Link>
                 <h1 className="text-3xl font-bold">Reminders</h1>
                 <p className="text-muted-foreground">
                     Manage your exercise, medication, and appointment reminders.

@@ -2,46 +2,17 @@
 
 import type { User } from "firebase/auth";
 import {
-  Bar,
-  BarChart,
-  ResponsiveContainer,
-  XAxis,
-  YAxis,
-  Tooltip,
-} from "recharts";
-import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  ChartConfig,
-  ChartContainer,
-  ChartTooltipContent,
-} from "@/components/ui/chart";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { Lightbulb, ChevronRight, CheckCircle } from "lucide-react";
-import { AdherenceChart } from "@/components/adherence-chart";
+import { Lightbulb, ChevronRight, CheckCircle, Bell } from "lucide-react";
 import { ProgressCircle } from "@/components/ui/progress-circle";
-
-const exerciseHistory = [
-  { day: "Mon", minutes: 15 },
-  { day: "Tue", minutes: 20 },
-  { day: "Wed", minutes: 10 },
-  { day: "Thu", minutes: 25 },
-  { day: "Fri", minutes: 15 },
-  { day: "Sat", minutes: 30 },
-  { day: "Sun", minutes: 5 },
-];
-const exerciseChartConfig = {
-  minutes: {
-    label: "Minutes",
-    color: "hsl(var(--accent))",
-  },
-} satisfies ChartConfig;
+import { AdherenceChart } from "../reminders/adherence-chart";
 
 export function UserProfile({ user }: { user: User }) {
   const adherenceScore = 92; // Mock score
@@ -55,7 +26,7 @@ export function UserProfile({ user }: { user: User }) {
         </p>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-2">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         <Card>
           <CardHeader>
             <CardTitle>AI Health Insights</CardTitle>
@@ -74,12 +45,39 @@ export function UserProfile({ user }: { user: User }) {
                 recommendations.
               </p>
               <Button asChild>
-                <Link href="/profile/insights">
+                <Link href="/holistic-insights">
                   Generate My Insights{" "}
                   <ChevronRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
             </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Bell className="h-5 w-5 text-primary" />
+              Reminders
+            </CardTitle>
+            <CardDescription>
+              Manage your medication and exercise reminders.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+             <div className="flex flex-col items-center justify-center text-center p-6 bg-muted rounded-lg">
+                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 mb-4">
+                    <Bell className="h-8 w-8 text-primary" />
+                </div>
+                <p className="text-muted-foreground mb-4">
+                    Stay on track with your eye care routine by setting up reminders.
+                </p>
+                 <Button asChild>
+                    <Link href="/reminders">
+                        Manage Reminders <ChevronRight className="ml-2 h-4 w-4" />
+                    </Link>
+                </Button>
+             </div>
           </CardContent>
         </Card>
 
@@ -109,11 +107,11 @@ export function UserProfile({ user }: { user: User }) {
           </CardContent>
         </Card>
 
-        <Card className="lg:col-span-2">
+        <Card className="lg:col-span-3">
           <CardHeader>
-            <CardTitle>Weekly Activity</CardTitle>
+            <CardTitle>Weekly Adherence Chart</CardTitle>
             <CardDescription>
-              Total minutes of eye exercises and adherence this week.
+              A visual summary of your medication adherence this week.
             </CardDescription>
           </CardHeader>
           <CardContent>

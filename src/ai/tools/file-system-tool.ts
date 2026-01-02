@@ -9,6 +9,10 @@ export const fileSystemTool = tool(
     path: z.string().describe('The path to the file to read'),
   }),
   async ({path}) => {
-    return await readFile(path);
+    try {
+      return await readFile(path);
+    } catch (error: any) {
+      return `Error reading file: ${error.message}`;
+    }
   }
 );
