@@ -17,7 +17,8 @@ service cloud.firestore {
     }
     
     function isDoctorForConsultation(consultationId) {
-        return isDoctor() && get(/databases/$(database)/documents/users/$(resource.data.userId)/consultations/$(consultationId)).data.doctorId == request.auth.uid;
+        let consultation = get(/databases/$(database)/documents/users/$(resource.data.userId)/consultations/$(consultationId)).data;
+        return isDoctor() && consultation.doctorId == request.auth.uid;
     }
 
     // User Profiles
@@ -36,16 +37,17 @@ service cloud.firestore {
 
     // Consultations Subcollection
     match /users/{userId}/consultations/{consultationId} {
-        // Patient can access their own consultations
-        // Doctor assigned to the consultation can also access it
+        // A patient can access their own consultations.
+        // The doctor assigned to the consultation can also access it.
         allow read, write: if isOwner(userId) || isDoctorForConsultation(consultationId);
     }
 
     // Doctor Roles
     match /roles_doctor/{userId} {
-        // Only admins should be able to write to this collection (not enforced here, should be done via backend)
+        // Any signed-in user can check if another user is a doctor.
         allow read: if isSignedIn();
-        allow write: if false; // Disallow client-side writes for security
+        // Only backend processes should write to this collection. Disallow client-side writes.
+        allow write: if false; 
     }
   }
 }
