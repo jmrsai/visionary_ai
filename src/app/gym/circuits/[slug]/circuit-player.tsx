@@ -24,7 +24,7 @@ const getInstruction = (exerciseId: string, timeElapsed: number, duration: numbe
             }
             return "Now, close your eyes again for another 2 seconds.";
         case "saccades":
-            const step = Math.floor(timeElapsed / 5) % 4; // Change target every 5 seconds
+            const step = Math.floor(timeElapsed / 15) % 4; // Change target every 15 seconds
             switch(step) {
                 case 0: return "Quickly look at the top-left corner of your screen.";
                 case 1: return "Now, quickly look at the bottom-right corner.";

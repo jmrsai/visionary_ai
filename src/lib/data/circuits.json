@@ -5,13 +5,12 @@
         "title": "5-Min Stress Buster",
         "description": "A quick routine to relieve eye strain after prolonged screen time.",
         "icon": "ListTodo",
-        "totalDuration": "5 minutes",
+        "totalDuration": "4 minutes",
         "exercises": [
             { "id": "focus-shift", "title": "Focus Shift", "duration": 60 },
             { "id": "saccades", "title": "Saccades", "duration": 60 },
-            { "id": "blinking-exercise", "title": "Blinking Exercise", "duration": 30 },
-            { "id": "focus-shift", "title": "Focus Shift (Round 2)", "duration": 60 },
-            { "id": "blinking-exercise", "title": "Blinking Exercise (Final)", "duration": 30 }
+            { "id": "blinking-exercise", "title": "Blinking Exercise", "duration": 60 },
+            { "id": "focus-shift", "title": "Focus Shift (Round 2)", "duration": 60 }
         ]
     }
 ]
