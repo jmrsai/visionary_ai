@@ -64,6 +64,7 @@ export function BlinkingOwlTherapy() {
   };
 
   if (therapyPhase === 'complete') {
+    const starsEarned = Math.floor(blinksCompleted / 5);
     return (
       <div className="bg-gradient-to-br from-purple-900 via-indigo-900 to-slate-900 p-4 sm:p-8 rounded-2xl text-white max-w-2xl mx-auto">
         <Card className="bg-white/10 border-purple-400/30 text-center">
@@ -90,7 +91,7 @@ export function BlinkingOwlTherapy() {
                     <div className="text-center">
                         <div className="flex items-center justify-center gap-1">
                             <Star className="w-6 h-6 text-yellow-400" />
-                            <p className="text-2xl font-bold">3</p>
+                            <p className="text-2xl font-bold">{starsEarned}</p>
                         </div>
                         <p className="text-xs text-purple-300">Stars Earned</p>
                     </div>

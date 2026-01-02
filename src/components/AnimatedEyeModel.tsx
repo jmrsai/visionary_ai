@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useRef, useEffect, useState } from 'react';
@@ -72,6 +71,8 @@ export default function AnimatedEyeModel({
         scale: [1, 1.05, 1],
         transition: { duration: 2, repeat: Infinity, ease: "easeInOut" }
       });
+    } else {
+        controls.start({ scale: 1 });
     }
   }, [condition, controls]);
 
@@ -103,7 +104,8 @@ export default function AnimatedEyeModel({
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
         style={{
-          transform: `perspective(1000px) rotateX(${rotation.x}deg) rotateY(${rotation.y}deg)`
+          transform: `perspective(1000px) rotateX(${rotation.x}deg) rotateY(${rotation.y}deg)`,
+          transition: 'transform 0.1s ease-out'
         }}
       >
         {/* Eye SVG */}

@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState, useMemo, useEffect } from 'react';
@@ -147,12 +146,12 @@ export default function TeleMedicine() {
         </div>
       </div>
 
-      <Alert className="bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800">
-          <Shield className="h-5 w-5 text-green-600 dark:text-green-400 mt-0.5" />
-          <AlertTitle className="text-green-900 dark:text-green-100">
+      <Alert className="bg-primary/10 border-primary/20">
+          <Shield className="h-5 w-5 text-primary mt-0.5" />
+          <AlertTitle className="text-primary">
             HIPAA-Compliant Platform
           </AlertTitle>
-          <AlertDescription className="text-green-800 dark:text-green-200">
+          <AlertDescription className="text-primary/80">
             All consultations are encrypted end-to-end and comply with healthcare privacy regulations. 
             No recordings are stored without explicit consent.
           </AlertDescription>
