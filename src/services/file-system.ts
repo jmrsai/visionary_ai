@@ -1,6 +1,9 @@
-
-import { readFile as readFileFs } from 'fs/promises';
+import { promises as fs } from 'fs';
 
 export async function readFile(path: string): Promise<string> {
-  return readFileFs(path, 'utf-8');
+  return fs.readFile(path, 'utf-8');
+}
+
+export async function listFiles(path: string): Promise<string[]> {
+    return fs.readdir(path);
 }

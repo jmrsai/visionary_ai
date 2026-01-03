@@ -70,7 +70,6 @@ export default function RootLayout({
               </Sidebar>
               <SidebarInset>
                   <div className="relative flex min-h-screen w-full flex-col bg-background pb-16 md:pb-0">
-                    <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-background via-background to-blue-500/10 dark:to-blue-900/20 -z-10" />
                     <Header />
                     <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
                       {children}

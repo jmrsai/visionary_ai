@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState }from "react";
@@ -12,8 +13,9 @@ import { useUser, useFirestore, useCollection, useMemoFirebase } from "@/firebas
 import { collection, doc } from "firebase/firestore";
 import { addDocumentNonBlocking, updateDocumentNonBlocking } from "@/firebase/non-blocking-updates";
 import { Loader2 } from "lucide-react";
+import { AdherenceChart } from "@/components/adherence-chart";
 
-export default function RemindersPage() {
+export default function MedicationPage() {
     const { user } = useUser();
     const firestore = useFirestore();
 
@@ -28,7 +30,7 @@ export default function RemindersPage() {
 
     const toggleReminder = (id: string, currentStatus: boolean) => {
         if (!remindersCollectionRef) return;
-        const reminderRef = doc(remindersCollectionRef, id);
+        const reminderRef = doc(remindersCollectionRef, id!);
         updateDocumentNonBlocking(reminderRef, { enabled: !currentStatus });
     }
     
@@ -55,8 +57,7 @@ export default function RemindersPage() {
       <div className="space-y-8">
         <div className="flex items-center justify-between">
             <div>
-                 <Link href="/profile" className="text-sm text-muted-foreground hover:text-primary mb-1">&larr; Back to Profile</Link>
-                <h1 className="text-3xl font-bold">Reminders</h1>
+                <h1 className="text-3xl font-bold">Medication & Reminders</h1>
                 <p className="text-muted-foreground">
                     Manage your exercise, medication, and appointment reminders.
                 </p>
@@ -105,6 +106,15 @@ export default function RemindersPage() {
                 </div>
                 )}
             </div>
+            </CardContent>
+        </Card>
+        <Card>
+            <CardHeader>
+                <CardTitle>Weekly Adherence Chart</CardTitle>
+                <CardDescription>A visual summary of your medication adherence this week.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <AdherenceChart />
             </CardContent>
         </Card>
       </div>

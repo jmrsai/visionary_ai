@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Lightbulb, ChevronRight, CheckCircle, Bell } from "lucide-react";
 import { ProgressCircle } from "@/components/ui/progress-circle";
-import { AdherenceChart } from "@/app/reminders/adherence-chart";
+import { AdherenceChart } from "@/components/adherence-chart";
 
 export function UserProfile({ user }: { user: User }) {
   const adherenceScore = 92; // Mock score
@@ -51,33 +51,6 @@ export function UserProfile({ user }: { user: User }) {
                 </Link>
               </Button>
             </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Bell className="h-5 w-5 text-primary" />
-              Reminders
-            </CardTitle>
-            <CardDescription>
-              Manage your medication and exercise reminders.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-             <div className="flex flex-col items-center justify-center text-center p-6 bg-muted rounded-lg">
-                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 mb-4">
-                    <Bell className="h-8 w-8 text-primary" />
-                </div>
-                <p className="text-muted-foreground mb-4">
-                    Stay on track with your eye care routine by setting up reminders.
-                </p>
-                 <Button asChild>
-                    <Link href="/reminders">
-                        Manage Reminders <ChevronRight className="ml-2 h-4 w-4" />
-                    </Link>
-                </Button>
-             </div>
           </CardContent>
         </Card>
 
