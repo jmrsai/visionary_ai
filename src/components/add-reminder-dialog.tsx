@@ -1,6 +1,7 @@
+
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -26,7 +27,7 @@ import { ToggleGroup, ToggleGroupItem } from "./ui/toggle-group";
 import { Textarea } from "@/components/ui/textarea";
 import { medicationOcr } from "@/ai/flows/medication-ocr";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, ScanLine } from "lucide-react";
+import { Loader2, ScanLine, X } from "lucide-react";
 
 interface AddReminderDialogProps {
   open: boolean;
@@ -44,7 +45,7 @@ export function AddReminderDialog({
   onAddReminder,
 }: AddReminderDialogProps) {
   const [title, setTitle] = useState("");
-  const [time, setTime] = useState("");
+  const [times, setTimes] = useState<string[]>([""]);
   const [type, setType] = useState<Reminder["type"]>("Pill");
   const [dosage, setDosage] = useState("");
   const [frequency, setFrequency] = useState("Daily");
@@ -58,10 +59,34 @@ export function AddReminderDialog({
   const { toast } = useToast();
 
   const isMedication = ["Eye Drops", "Pill", "Capsule", "Liquid"].includes(type);
+  
+  useEffect(() => {
+    let numTimes = 1;
+    if (frequency === "Twice a day") numTimes = 2;
+    else if (frequency === "Three times a day") numTimes = 3;
+    else if (frequency === "Four times a day") numTimes = 4;
+    
+    if (frequency === "As Needed") {
+        setTimes([]);
+    } else {
+        setTimes(prev => {
+            const newTimes = [...prev];
+            while (newTimes.length < numTimes) newTimes.push("");
+            return newTimes.slice(0, numTimes);
+        });
+    }
 
+  }, [frequency]);
+
+  const handleTimeChange = (index: number, value: string) => {
+    const newTimes = [...times];
+    newTimes[index] = value;
+    setTimes(newTimes);
+  };
+  
   const resetForm = () => {
     setTitle("");
-    setTime("");
+    setTimes([""]);
     setType("Pill");
     setDosage("");
     setFrequency("Daily");
@@ -78,8 +103,8 @@ export function AddReminderDialog({
         finalFrequency = specificDays.join(', ');
     }
       
-    if (title && type && (time || frequency === "As Needed")) {
-      const newReminder: Omit<Reminder, "id" | "enabled" | "userId"> = { title, time, type, frequency: finalFrequency };
+    if (title && type && (times.length > 0 || frequency === "As Needed")) {
+      const newReminder: Omit<Reminder, "id" | "enabled" | "userId"> = { title, time: times.join(', '), type, frequency: finalFrequency };
       if (isMedication) {
         newReminder.dosage = dosage;
         newReminder.reason = reason;
@@ -116,7 +141,13 @@ export function AddReminderDialog({
             const freqLower = result.frequency.toLowerCase();
             if (freqLower.includes("daily") || freqLower.includes("once a day")) {
                 setFrequency("Daily");
-            } // Can add more mappings here
+            } else if (freqLower.includes("twice") || freqLower.includes("2 times")) {
+                setFrequency("Twice a day");
+            } else if (freqLower.includes("three") || freqLower.includes("3 times")) {
+                setFrequency("Three times a day");
+            } else if (freqLower.includes("four") || freqLower.includes("4 times")) {
+                setFrequency("Four times a day");
+            }
             
              toast({
                 title: "Scan Complete",
@@ -134,7 +165,6 @@ export function AddReminderDialog({
         })
     } finally {
         setIsScanning(false);
-        // Clear file input so the same file can be selected again
         if(fileInputRef.current) fileInputRef.current.value = "";
     }
   };
@@ -287,7 +317,10 @@ export function AddReminderDialog({
                         <SelectValue placeholder="Select frequency" />
                     </SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="Daily">Daily</SelectItem>
+                        <SelectItem value="Daily">Once a day</SelectItem>
+                        <SelectItem value="Twice a day">Twice a day</SelectItem>
+                        <SelectItem value="Three times a day">Three times a day</SelectItem>
+                        <SelectItem value="Four times a day">Four times a day</SelectItem>
                         <SelectItem value="Specific Days">Specific Days of the Week</SelectItem>
                         <SelectItem value="As Needed">As Needed</SelectItem>
                     </SelectContent>
@@ -315,17 +348,17 @@ export function AddReminderDialog({
                 </div>
             )}
             
-           {frequency !== 'As Needed' && (
-              <div className="space-y-2">
-                <Label htmlFor="time">Time</Label>
-                <Input
-                  id="time"
-                  type="time"
-                  value={time}
-                  onChange={(e) => setTime(e.target.value)}
-                />
-              </div>
-            )}
+            {times.map((time, index) => (
+                <div key={index} className="space-y-2">
+                    <Label htmlFor={`time-${index}`}>Time {times.length > 1 ? index + 1 : ''}</Label>
+                    <Input
+                        id={`time-${index}`}
+                        type="time"
+                        value={time}
+                        onChange={(e) => handleTimeChange(index, e.target.value)}
+                    />
+                </div>
+            ))}
         </div>
         <DialogFooter>
           <DialogClose asChild>
