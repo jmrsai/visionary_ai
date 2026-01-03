@@ -10,10 +10,10 @@
  */
 
 import {ai} from '@/ai/genkit';
-import {symptomCheckerTool} from '@/ai/tools/symptom-checker-tool';
 import {getMedicationRemindersTool} from '@/ai/tools/medication-tool';
 import {searchExercisesTool} from '@/ai/tools/exercise-search-tool';
 import {imageAnalysisTool} from '@/ai/tools/image-analysis-tool';
+import { searchYouTubeForRemedy } from '@/ai/tools/youtube-search-tool';
 import {z} from 'zod';
 import wav from 'wav';
 import { MOCK_VISION_SCORE_HISTORY } from '@/lib/data';
@@ -55,8 +55,11 @@ export async function chat(input: ChatInput): Promise<ChatOutput> {
 const prompt = ai.definePrompt({
   name: 'chatPrompt',
   input: {schema: z.object({ message: z.string(), history: z.any().optional(), visionScoreHistory: z.string(), imageDataUri: z.string().optional() })},
-  output: {schema: ChatOutputSchema},
-  tools: [symptomCheckerTool, getMedicationRemindersTool, searchExercisesTool, imageAnalysisTool],
+  output: {schema: z.object({
+      response: z.string().describe("The AI's text response to the user's message."),
+      chartData: ChartDataSchema.optional().describe('Structured data for rendering a chart in the UI, if the user requested one.'),
+  })},
+  tools: [imageAnalysisTool, getMedicationRemindersTool, searchExercisesTool, searchYouTubeForRemedy],
   prompt: `You are a friendly and helpful AI assistant for the Visionary app, specializing in eye health. Your role is to act as a Personal Eye Health Assistant.
 
   **First Rule: Safety is paramount.**
@@ -78,9 +81,9 @@ const prompt = ai.definePrompt({
       - Use the user's message as context for the analysis. For example, if they say "What's wrong with my eye?" along with an image, pass that question to the tool.
   2.  **Conversational Symptom Triage & Proactive Exercise Recommendation:**
       - Listen to the user's message.
-      - If they describe symptoms, use the 'symptomChecker' tool to analyze the symptoms.
-      - **Agentic Step:** After getting the symptom analysis, use the primary symptom (e.g., 'dry eyes', 'eye strain') as a query for the 'searchExercises' tool to find relevant exercises in the app.
-      - Present the symptom results AND the exercise recommendations to the user in a clear, helpful way. Link directly to the exercise pages.
+      - If they describe symptoms (e.g., 'dry eyes', 'eye strain', 'blurry vision'), you MUST use the 'searchYouTubeForRemedy' tool to find a relevant home care video for each primary symptom.
+      - **Agentic Step:** After finding a remedy video, use the primary symptom (e.g., 'dry eyes', 'eye strain') as a query for the 'searchExercises' tool to find relevant exercises in the app.
+      - Present the home care advice AND the exercise recommendations to the user in a clear, helpful way. Link directly to the exercise pages.
       - **When presenting home care advice, you MUST format each piece of advice as a clear instruction followed by its YouTube link on a new line. For example: "For your dry eyes, you can try applying a warm compress. You can watch a video on how to do that here: [YouTube Link]"**
   3.  **Medication Assistant:**
       - If the user asks about their medications (e.g., "When is my next dose?", "What medications am I taking?"), use the 'getMedicationReminders' tool to fetch their medication schedule.
@@ -182,7 +185,7 @@ const chatFlow = ai.defineFlow(
       });
 
     if (!audioMedia?.url) {
-        return { ...output };
+        return { ...output, response: output.response };
     }
 
     const audioBuffer = Buffer.from(
@@ -193,6 +196,7 @@ const chatFlow = ai.defineFlow(
 
     return {
         ...output,
+        response: output.response,
         media: 'data:audio/wav;base64,' + wavBase64
     };
   }

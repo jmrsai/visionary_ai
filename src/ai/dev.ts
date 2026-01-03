@@ -8,16 +8,12 @@ import '@/ai/flows/personalized-eye-workouts.ts';
 import '@/ai/ai-form-feedback.ts';
 import '@/ai/flows/chatbot.ts';
 import '@/ai/flows/holistic-health-insights.ts';
-import '@/ai/flows/redness-irritation-scan.ts';
-import '@/ai/tools/symptom-checker-tool.ts';
-import '@/ai/tools/medication-tool.ts';
 import '@/ai/tools/youtube-search-tool.ts';
+import '@/ai/tools/medication-tool.ts';
 import '@/ai/flows/reading-comprehension-test-generator.ts';
 import '@/ai/flows/amsler-grid-generator.ts';
 import '@/ai/flows/stereopsis-test-generator.ts';
 import '@/ai/tools/exercise-search-tool.ts';
 import '@/ai/tools/image-analysis-tool.ts';
-import '@/ai/flows/ocular-health-scan.ts';
 import '@/ai/flows/medication-ocr.ts';
 import '@/ai/flows/education-content-generator.ts';
-
