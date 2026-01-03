@@ -39,28 +39,40 @@ const SortableCap = ({ cap }: { cap: D15Cap }) => {
 
 const ResultChart = ({ userOrder, correctOrder }: { userOrder: D15Cap[], correctOrder: D15Cap[] }) => {
     const points = userOrder.map((cap, i) => {
-        const correctIndex = correctOrder.findIndex(c => c.id === cap.id);
-        return `${(i + 1) * 20},${(correctIndex + 1) * 10}`;
-    }).join(' ');
+        if (i === 0) return null; // Skip pilot cap for drawing lines
+        const prevCap = userOrder[i-1];
+        return `${(prevCap.id) * 20 + 20},${(i) * 10} ${(cap.id) * 20 + 20},${(i+1) * 10}`;
+    }).filter(Boolean).join(' ');
+
 
     return (
         <svg viewBox="0 0 340 180" className="w-full">
             <g transform="translate(10,10)">
                 {/* Axis labels */}
                 {correctOrder.map((cap, i) => (
-                    <text key={`x-${i}`} x={(i+1)*20} y="175" textAnchor="middle" fontSize="10">{cap.id}</text>
-                ))}
-                {correctOrder.map((cap, i) => (
-                    <text key={`y-${i}`} x="-5" y={(i+1)*10} textAnchor="end" dominantBaseline="middle" fontSize="10">{cap.id}</text>
+                    <text key={`x-${i}`} x={(i+1)*20} y="175" textAnchor="middle" fontSize="10">{cap.id === 0 ? 'P' : cap.id}</text>
                 ))}
                 
-                {/* Crossover lines */}
-                <polyline points={points} fill="none" stroke="black" strokeWidth="2"/>
+                {/* Lines connecting the user's order */}
+                {userOrder.slice(0, -1).map((cap, i) => {
+                    const nextCap = userOrder[i+1];
+                    const startX = (cap.id === 0 ? 1 : cap.id) * 20 - 10;
+                    const endX = (nextCap.id === 0 ? 1 : nextCap.id) * 20 - 10;
 
-                {/* Points */}
+                    return (
+                        <line 
+                            key={i}
+                            x1={startX} y1={80}
+                            x2={endX} y2={80}
+                            stroke="black"
+                            strokeWidth="1"
+                        />
+                    )
+                })}
+
+                {/* Points representing the caps in order */}
                 {userOrder.map((cap, i) => {
-                    const correctIndex = correctOrder.findIndex(c => c.id === cap.id);
-                    return <circle key={i} cx={(i + 1) * 20} cy={(correctIndex + 1) * 10} r="3" fill="black" />
+                    return <circle key={i} cx={(cap.id === 0 ? 1 : cap.id) * 20 - 10} cy="80" r="5" fill={cap.color} stroke="black" strokeWidth="1" />
                 })}
             </g>
         </svg>
@@ -105,11 +117,10 @@ export function FarnsworthD15Test() {
     
     const errors = userOrder.reduce((acc, cap, index) => {
         if (index === 0) return acc; // Skip pilot cap
-        const correctPrevId = correctOrder[index - 1].id;
-        const userPrevId = userOrder[index - 1].id;
-        if (correctOrder[index].id !== cap.id && correctPrevId !== userPrevId) {
-             // A very simplified error count, real analysis is more complex
-             if(Math.abs(cap.id - userOrder[index-1].id) > 2) acc++;
+        const correctPrevId = correctOrder.findIndex(c => c.id === userOrder[index-1].id);
+        const correctCurrentId = correctOrder.findIndex(c => c.id === cap.id);
+        if (Math.abs(correctCurrentId - correctPrevId) > 1) {
+             acc++;
         }
         return acc;
     }, 0);

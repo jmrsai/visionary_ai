@@ -2,32 +2,29 @@ import { Activity, BookOpen, Brain, Dumbbell, Eye, Glasses, HeartPulse, Target, 
 import type { Test, Exercise, Circuit, HrrPlate, D15Cap, CheckupReport, Reminder, Consultation, AdherenceLog } from "./types";
 import { StereopsisIcon } from "@/components/icons";
 
-import hrrPlates from './data/hrr-plates.json';
-import d15Caps from './data/d15-caps.json';
-import tests from './data/tests.json';
-import exercises from './data/exercises.json';
-import circuits from './data/circuits.json';
-import checkupHistory from './data/checkup-history.json';
+import hrrPlatesData from './data/hrr-plates.json';
+import d15CapsData from './data/d15-caps.json';
+import testsData from './data/tests.json';
+import exercisesData from './data/exercises.json';
+import circuitsData from './data/circuits.json';
+import checkupHistoryData from './data/checkup-history.json';
+import visionScoreHistoryData from './data/vision-score-history.json';
+import remindersData from './data/reminders.json';
+import consultationsData from './data/consultations.json';
 
 
 // This file contains mock data that might be replaced by a database in a full application.
 
-export const MOCK_CHECKUP_HISTORY: CheckupReport[] = checkupHistory;
+export const MOCK_CHECKUP_HISTORY: CheckupReport[] = checkupHistoryData;
 
-export const MOCK_VISION_SCORE_HISTORY = [
-  { "date": "Jan", "score": 80 },
-  { "date": "Feb", "score": 82 },
-  { "date": "Mar", "score": 85 },
-  { "date": "Apr", "score": 84 },
-  { "date": "May", "score": 88 },
-  { "date": "Jun", "score": 90 },
-  { "date": "Jul", "score": 92 }
-];
+export const MOCK_VISION_SCORE_HISTORY: {date: string; score: number}[] = visionScoreHistoryData;
 
+export const MOCK_HRR_PLATES: HrrPlate[] = hrrPlatesData;
+export const MOCK_D15_CAPS: D15Cap[] = d15CapsData;
+export const MOCK_CIRCUITS: Circuit[] = circuitsData;
+export const MOCK_REMINDERS: Reminder[] = remindersData;
+export const MOCK_CONSULTATIONS: Consultation[] = consultationsData;
 
-export const MOCK_HRR_PLATES: HrrPlate[] = hrrPlates;
-export const MOCK_D15_CAPS: D15Cap[] = d15Caps;
-export const MOCK_CIRCUITS: Circuit[] = circuits;
 
 const iconMapping: { [key: string]: React.ElementType } = {
     Eye,
@@ -57,12 +54,12 @@ const iconMapping: { [key: string]: React.ElementType } = {
     Layers,
 };
 
-export const MOCK_TESTS: Test[] = tests.map(test => ({
+export const MOCK_TESTS: Test[] = testsData.map(test => ({
     ...test,
     icon: iconMapping[test.icon as string] || Eye,
 }));
 
-export const MOCK_EXERCISES: Exercise[] = exercises.map(exercise => ({
+export const MOCK_EXERCISES: Exercise[] = exercisesData.map(exercise => ({
     ...exercise,
     icon: iconMapping[exercise.icon as string] || Dumbbell,
 }));

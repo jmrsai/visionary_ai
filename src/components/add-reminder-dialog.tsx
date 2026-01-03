@@ -23,7 +23,7 @@ import { Label } from "@/components/ui/label";
 import type { Reminder } from "@/lib/types";
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 import { ToggleGroup, ToggleGroupItem } from "./ui/toggle-group";
-import { Textarea } from "@/components/ui/textarea"; // Assuming Textarea component exists in ./ui/textarea
+import { Textarea } from "@/components/ui/textarea";
 
 interface AddReminderDialogProps {
   open: boolean;
@@ -48,7 +48,7 @@ export function AddReminderDialog({
   const [specificDays, setSpecificDays] = useState<string[]>([]);
   const [reason, setReason] = useState("");
   const [appearance, setAppearance] = useState({ shape: 'pill', color: '#f87171' });
-  const [note, setNote] = useState(""); // New state for note
+  const [note, setNote] = useState("");
 
   const isMedication = ["Eye Drops", "Pill", "Capsule", "Liquid"].includes(type);
 
@@ -64,7 +64,7 @@ export function AddReminderDialog({
         newReminder.dosage = dosage;
         newReminder.reason = reason;
         newReminder.appearance = appearance;
-        newReminder.note = note; // Add note to newReminder
+        newReminder.note = note;
       }
       onAddReminder(newReminder);
       
@@ -77,7 +77,7 @@ export function AddReminderDialog({
       setSpecificDays([]);
       setReason("");
       setAppearance({ shape: 'pill', color: '#f87171' });
-      setNote(""); // Reset note state
+      setNote("");
       onOpenChange(false);
     }
   };
@@ -137,7 +137,6 @@ export function AddReminderDialog({
                   placeholder="e.g., For Glaucoma, Dry Eyes"
                 />
               </div>
-              {/* New note field */}
               <div className="space-y-2">
                 <Label htmlFor="note">Notes</Label>
                 <Textarea
