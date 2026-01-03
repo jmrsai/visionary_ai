@@ -7,6 +7,5 @@ export const NAV_ITEMS: NavItem[] = [
   { href: '/tests', label: 'Tests', icon: ClipboardList },
   { href: '/medication', label: 'Medication', icon: Pill },
   { href: '/education', label: 'Education', icon: GraduationCap },
-  { href: '/telemedicine', label: 'Telemedicine', icon: Video },
   { href: '/profile', label: 'Profile', icon: User },
 ];

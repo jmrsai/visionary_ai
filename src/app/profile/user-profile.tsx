@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { Lightbulb, ChevronRight, CheckCircle, Bell } from "lucide-react";
+import { Lightbulb, ChevronRight, CheckCircle, Bell, Video } from "lucide-react";
 import { ProgressCircle } from "@/components/ui/progress-circle";
 import { AdherenceChart } from "@/components/adherence-chart";
 
@@ -79,6 +79,32 @@ export function UserProfile({ user }: { user: User }) {
             </Button>
           </CardContent>
         </Card>
+        
+        <Card>
+          <CardHeader>
+            <CardTitle>Telemedicine</CardTitle>
+            <CardDescription>
+              Connect with eye care professionals through secure video calls.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-col items-center justify-center text-center p-6 bg-muted rounded-lg">
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 mb-4">
+                <Video className="h-8 w-8 text-primary" />
+              </div>
+              <p className="text-muted-foreground mb-4">
+                View upcoming appointments or start an instant consultation.
+              </p>
+              <Button asChild>
+                <Link href="/telemedicine">
+                  Go to Dashboard
+                  <ChevronRight className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
 
         <Card className="lg:col-span-3">
           <CardHeader>

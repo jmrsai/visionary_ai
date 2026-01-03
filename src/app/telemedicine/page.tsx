@@ -123,6 +123,50 @@ export default function TeleMedicine() {
     );
   }
 
+  const renderContent = () => {
+    if (isUserLoading) {
+      return (
+        <Card>
+            <CardHeader><Skeleton className="h-6 w-1/3" /></CardHeader>
+            <CardContent><LoadingSkeleton /></CardContent>
+        </Card>
+      );
+    }
+
+    if (!user) {
+      return (
+         <Card className="mt-8">
+            <CardHeader>
+                <CardTitle>Please Log In</CardTitle>
+                <CardDescription>You need to be logged in to view your telemedicine appointments.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <LoginForm />
+            </CardContent>
+        </Card>
+      );
+    }
+
+    return (
+        <Tabs defaultValue="upcoming" className="w-full">
+            <TabsList className="grid w-full grid-cols-3">
+                <TabsTrigger value="upcoming">Upcoming ({upcomingConsultations.length})</TabsTrigger>
+                <TabsTrigger value="in_progress">In Progress ({inProgressConsultations.length})</TabsTrigger>
+                <TabsTrigger value="completed">Completed ({completedConsultations.length})</TabsTrigger>
+            </TabsList>
+            <TabsContent value="upcoming">
+                {isLoadingConsultations ? <LoadingSkeleton /> : <ConsultationList consultations={upcomingConsultations} onJoin={startConsultation} isDoctor={isDoctor} />}
+            </TabsContent>
+            <TabsContent value="in_progress">
+                 {isLoadingConsultations ? <LoadingSkeleton /> : <ConsultationList consultations={inProgressConsultations} onJoin={startConsultation} isDoctor={isDoctor} />}
+            </TabsContent>
+            <TabsContent value="completed">
+                 {isLoadingConsultations ? <LoadingSkeleton /> : <ConsultationList consultations={completedConsultations} onJoin={startConsultation} isDoctor={isDoctor} />}
+            </TabsContent>
+        </Tabs>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -157,39 +201,7 @@ export default function TeleMedicine() {
           </AlertDescription>
       </Alert>
       
-      {isUserLoading ? (
-        <Card>
-            <CardHeader><Skeleton className="h-6 w-1/3" /></CardHeader>
-            <CardContent><LoadingSkeleton /></CardContent>
-        </Card>
-      ) : !user ? (
-        <Card className="mt-8">
-            <CardHeader>
-                <CardTitle>Please Log In</CardTitle>
-                <CardDescription>You need to be logged in to view your telemedicine appointments.</CardDescription>
-            </CardHeader>
-            <CardContent>
-                <LoginForm />
-            </CardContent>
-        </Card>
-      ) : (
-        <Tabs defaultValue="upcoming" className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="upcoming">Upcoming ({upcomingConsultations.length})</TabsTrigger>
-                <TabsTrigger value="in_progress">In Progress ({inProgressConsultations.length})</TabsTrigger>
-                <TabsTrigger value="completed">Completed ({completedConsultations.length})</TabsTrigger>
-            </TabsList>
-            <TabsContent value="upcoming">
-                {isLoadingConsultations ? <LoadingSkeleton /> : <ConsultationList consultations={upcomingConsultations} onJoin={startConsultation} isDoctor={isDoctor} />}
-            </TabsContent>
-            <TabsContent value="in_progress">
-                 {isLoadingConsultations ? <LoadingSkeleton /> : <ConsultationList consultations={inProgressConsultations} onJoin={startConsultation} isDoctor={isDoctor} />}
-            </TabsContent>
-            <TabsContent value="completed">
-                 {isLoadingConsultations ? <LoadingSkeleton /> : <ConsultationList consultations={completedConsultations} onJoin={startConsultation} isDoctor={isDoctor} />}
-            </TabsContent>
-        </Tabs>
-      )}
+      {renderContent()}
     </div>
   );
 }
