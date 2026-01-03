@@ -1,11 +1,11 @@
 
 "use client";
 
-import { useState }from "react";
+import { useState, useEffect }from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Bell, Dumbbell, PlusCircle, Pill, Droplet } from "lucide-react";
+import { Bell, Dumbbell, PlusCircle, Pill, Droplet, BellRing } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import type { Reminder } from "@/lib/types";
 import { AddReminderDialog } from "@/components/add-reminder-dialog";
@@ -14,10 +14,82 @@ import { collection, doc } from "firebase/firestore";
 import { addDocumentNonBlocking, updateDocumentNonBlocking } from "@/firebase/non-blocking-updates";
 import { Loader2 } from "lucide-react";
 import { AdherenceChart } from "@/components/adherence-chart";
+import { useToast } from "@/hooks/use-toast";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+
+// Function to schedule a notification
+const scheduleNotification = (reminder: Reminder) => {
+    const now = new Date();
+    const [hour, minute] = reminder.time.split(':').map(Number);
+    
+    let notificationTime = new Date();
+    notificationTime.setHours(hour, minute, 0, 0);
+
+    // If the time is in the past for today, schedule it for tomorrow
+    if (notificationTime < now) {
+        notificationTime.setDate(notificationTime.getDate() + 1);
+    }
+    
+    const delay = notificationTime.getTime() - now.getTime();
+
+    if (delay > 0) {
+        const timeoutId = setTimeout(() => {
+            new Notification(`Time for your reminder: ${reminder.title}`, {
+                body: `It's ${reminder.time}. Don't forget your ${reminder.type}!`,
+                icon: '/icons/icon-192x192.png',
+                sound: '/sounds/notification.mp3', // Note: sound support can be inconsistent
+                vibrate: [200, 100, 200], // Vibrate pattern
+            });
+        }, delay);
+        
+        // Store timeout ID to be able to clear it later
+        (window as any).scheduledNotifications = (window as any).scheduledNotifications || {};
+        (window as any).scheduledNotifications[reminder.id!] = timeoutId;
+    }
+};
+
+// Function to cancel a scheduled notification
+const cancelNotification = (reminderId: string) => {
+    if ((window as any).scheduledNotifications && (window as any).scheduledNotifications[reminderId]) {
+        clearTimeout((window as any).scheduledNotifications[reminderId]);
+        delete (window as any).scheduledNotifications[reminderId];
+    }
+};
 
 export default function MedicationPage() {
     const { user } = useUser();
     const firestore = useFirestore();
+    const { toast } = useToast();
+
+    const [notificationPermission, setNotificationPermission] = useState('default');
+
+     useEffect(() => {
+        if ("Notification" in window) {
+            setNotificationPermission(Notification.permission);
+        }
+    }, []);
+
+    const requestNotificationPermission = () => {
+        Notification.requestPermission().then((permission) => {
+            setNotificationPermission(permission);
+            if (permission === 'granted') {
+                toast({
+                    title: "Notifications Enabled!",
+                    description: "You will now receive reminders.",
+                });
+                 // Re-schedule notifications for all enabled reminders
+                if (reminders) {
+                    reminders.filter(r => r.enabled).forEach(scheduleNotification);
+                }
+            } else {
+                 toast({
+                    title: "Notifications Denied",
+                    description: "You will not receive reminders. You can enable them in your browser settings.",
+                    variant: "destructive",
+                });
+            }
+        });
+    };
 
     const remindersCollectionRef = useMemoFirebase(() => {
         if (!user || !firestore) return null;
@@ -29,15 +101,38 @@ export default function MedicationPage() {
     const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
 
     const toggleReminder = (id: string, currentStatus: boolean) => {
-        if (!remindersCollectionRef) return;
+        if (!remindersCollectionRef || !reminders) return;
         const reminderRef = doc(remindersCollectionRef, id!);
         updateDocumentNonBlocking(reminderRef, { enabled: !currentStatus });
+
+         if (!currentStatus) { // If it's being enabled
+            const reminder = reminders.find(r => r.id === id);
+            if (reminder) scheduleNotification(reminder);
+        } else { // If it's being disabled
+            cancelNotification(id);
+        }
     }
     
     const addReminder = (newReminder: Omit<Reminder, "id" | "enabled" | "userId">) => {
         if (!remindersCollectionRef || !user) return;
-        addDocumentNonBlocking(remindersCollectionRef, { ...newReminder, userId: user.uid, enabled: true });
+        addDocumentNonBlocking(remindersCollectionRef, { ...newReminder, userId: user.uid, enabled: true }).then(docRef => {
+            if (docRef) {
+                scheduleNotification({ ...newReminder, id: docRef.id, enabled: true });
+            }
+        });
     };
+    
+     useEffect(() => {
+        // Clear all existing timeouts first
+        if ((window as any).scheduledNotifications) {
+            Object.values((window as any).scheduledNotifications).forEach(timeoutId => clearTimeout(timeoutId as number));
+            (window as any).scheduledNotifications = {};
+        }
+        // When reminders are loaded, schedule notifications for enabled ones
+        if (reminders && notificationPermission === 'granted') {
+            reminders.filter(r => r.enabled).forEach(scheduleNotification);
+        }
+    }, [reminders, notificationPermission]);
 
     const getIcon = (type: Reminder['type']) => {
         switch (type) {
@@ -67,6 +162,18 @@ export default function MedicationPage() {
                 Add Reminder
             </Button>
         </div>
+        
+         {notificationPermission !== 'granted' && (
+            <Alert>
+                <BellRing className="h-4 w-4" />
+                <AlertTitle>Enable Notifications</AlertTitle>
+                <AlertDescription>
+                    To receive alerts for your reminders, please enable notifications.
+                    <Button onClick={requestNotificationPermission} size="sm" className="ml-4">Enable</Button>
+                </AlertDescription>
+            </Alert>
+        )}
+
 
         <Card>
             <CardHeader>
@@ -96,6 +203,7 @@ export default function MedicationPage() {
                                 checked={reminder.enabled}
                                 onCheckedChange={() => toggleReminder(reminder.id!, reminder.enabled)}
                                 aria-label={`Toggle reminder for ${reminder.title}`}
+                                disabled={notificationPermission !== 'granted'}
                             />
                         </div>
                     ))
