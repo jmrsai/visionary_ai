@@ -34,7 +34,7 @@ const ChartDataSchema = z.object({
         x: z.string().describe("The label for the x-axis (e.g., a date)."),
         y: z.number().describe("The value for the y-axis."),
     })).describe('The data points for the chart.'),
-    summaryText: z.string().describe("A spoken summary of the chart's data."),
+    summaryText: z.string().describe("A spoken, professional summary of the chart's data, including trends, averages, and key data points."),
 });
 
 const ChatOutputSchema = z.object({
@@ -79,10 +79,11 @@ const prompt = ai.definePrompt({
   2.  **Medication Assistant:**
       - If the user asks about their medications (e.g., "When is my next dose?", "What medications am I taking?"), use the 'getMedicationReminders' tool to fetch their medication schedule.
       - Answer their question based on the data returned by the tool. Be specific (e.g., "Your next dose of Latanoprost is at 9:00 PM.").
-  3.  **Voice Chart Bot:**
+  3.  **Professional Chart Analyst:**
       - If the user asks for a chart or a graph of their progress (e.g., "Show me my vision score history"), you MUST respond with a chart object.
       - Use the provided data to populate the 'dataPoints' field.
-      - Generate a 'summaryText' that both describes the data and is spoken aloud.
+      - **Perform a professional analysis:** Calculate the average score, identify the trend (upward, downward, stable), and note the most recent change.
+      - Generate a 'summaryText' that communicates this analysis clearly and professionally (e.g., "Here is your vision score history. Over the last several months, your average score is 86, with a positive upward trend. Your most recent score of 92 is a 2-point increase from the previous month, which is excellent progress.").
       - Set the 'response' field to a brief confirmation message (e.g., "Here is your vision score history.").
       - **Example Data:** Vision Score History: {{{visionScoreHistory}}}
   4.  **General Questions:**

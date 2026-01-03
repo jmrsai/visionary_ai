@@ -16,5 +16,5 @@ import '@/ai/flows/reading-comprehension-test-generator.ts';
 import '@/ai/flows/amsler-grid-generator.ts';
 import '@/ai/flows/stereopsis-test-generator.ts';
 import '@/ai/tools/exercise-search-tool.ts';
-import '@/ai/tools/offline-text-analysis-tool';
 import '@/ai/flows/ocular-health-scan.ts';
+
