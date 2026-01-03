@@ -28,7 +28,7 @@ import { Textarea } from "@/components/ui/textarea"; // Assuming Textarea compon
 interface AddReminderDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onAddReminder: (reminder: Omit<Reminder, "id" | "enabled">) => void;
+  onAddReminder: (reminder: Omit<Reminder, "id" | "enabled" | "userId">) => void;
 }
 
 const pillShapes = ["pill", "capsule", "circle"];
@@ -59,7 +59,7 @@ export function AddReminderDialog({
     }
       
     if (title && type && (time || frequency === "As Needed")) {
-      const newReminder: Omit<Reminder, "id" | "enabled"> = { title, time, type, frequency: finalFrequency };
+      const newReminder: Omit<Reminder, "id" | "enabled" | "userId"> = { title, time, type, frequency: finalFrequency };
       if (isMedication) {
         newReminder.dosage = dosage;
         newReminder.reason = reason;

@@ -38,6 +38,13 @@ service cloud.firestore {
     }
 
     /**
+     * Returns true if the user has the 'doctor' custom claim.
+     */
+    function isDoctor() {
+        return isSignedIn() && get(/databases/$(database)/documents/roles_doctor/$(request.auth.uid)).data.role == 'doctor';
+    }
+
+    /**
      * Validates that the 'id' field of a new user document matches the document's path ID.
      * This enforces relational integrity at creation time.
      */
@@ -69,14 +76,6 @@ service cloud.firestore {
       return request.resource.data.userId == resource.data.userId;
     }
 
-    /**
-     * @description Controls access to user profile documents.
-     * @path /users/{userId}
-     * @allow (create) An authenticated user creating their own profile document, e.g., POST /users/user_abc with auth.uid = 'user_abc'.
-     * @deny (list) Any user, authenticated or not, attempting to list all documents in the `/users` collection.
-     * @deny (get) A user trying to read another user's profile, e.g., GET /users/user_xyz with auth.uid = 'user_abc'.
-     * @principle Restricts access to a user's own data tree and enforces self-creation of the root user document.
-     */
     match /users/{userId} {
       allow get: if isOwner(userId);
       allow list: if false;
@@ -84,15 +83,11 @@ service cloud.firestore {
       allow update: if isExistingOwner(userId) && isIdImmutable();
       allow delete: if isExistingOwner(userId);
     }
+    
+    match /roles_doctor/{userId} {
+      allow get: if isDoctor();
+    }
 
-    /**
-     * @description Controls access to a user's private vision test results.
-     * @path /users/{userId}/visionTestResults/{visionTestResultId}
-     * @allow (create) The owner creating a new test result under their own path, e.g., POST /users/user_abc/visionTestResults with auth.uid = 'user_abc'.
-     * @allow (list) The owner listing all of their own test results, e.g., GET /users/user_abc/visionTestResults with auth.uid = 'user_abc'.
-     * @deny (get) A user trying to read a specific test result belonging to another user.
-     * @principle Enforces document ownership for all operations and validates relational integrity via the `userId` field.
-     */
     match /users/{userId}/visionTestResults/{visionTestResultId} {
       allow get: if isOwner(userId);
       allow list: if isOwner(userId);
@@ -100,15 +95,7 @@ service cloud.firestore {
       allow update: if isExistingOwner(userId) && isUserIdImmutable();
       allow delete: if isExistingOwner(userId);
     }
-
-    /**
-     * @description Controls access to a user's private eye exercise logs.
-     * @path /users/{userId}/eyeExerciseLogs/{eyeExerciseLogId}
-     * @allow (create) The owner creating a new exercise log under their own path, e.g., POST /users/user_abc/eyeExerciseLogs with auth.uid = 'user_abc'.
-     * @allow (list) The owner listing all of their own exercise logs, e.g., GET /users/user_abc/eyeExerciseLogs with auth.uid = 'user_abc'.
-     * @deny (delete) A user trying to delete an exercise log belonging to another user.
-     * @principle Enforces document ownership for all operations and validates relational integrity via the `userId` field.
-     */
+    
     match /users/{userId}/eyeExerciseLogs/{eyeExerciseLogId} {
       allow get: if isOwner(userId);
       allow list: if isOwner(userId);
@@ -117,20 +104,17 @@ service cloud.firestore {
       allow delete: if isExistingOwner(userId);
     }
 
-    /**
-     * @description Controls access to a user's private medication reminders.
-     * @path /users/{userId}/medicationReminders/{medicationReminderId}
-     * @allow (create) The owner creating a new reminder under their own path, e.g., POST /users/user_abc/medicationReminders with auth.uid = 'user_abc'.
-     * @allow (list) The owner listing all of their own reminders, e.g., GET /users/user_abc/medicationReminders with auth.uid = 'user_abc'.
-     * @deny (update) A user trying to update a reminder belonging to another user.
-     * @principle Enforces document ownership for all operations and validates relational integrity via the `userId` field.
-     */
-    match /users/{userId}/medicationReminders/{medicationReminderId} {
-      allow get: if isOwner(userId);
-      allow list: if isOwner(userId);
-      allow create: if isOwner(userId) && hasValidUserIdOnCreate(userId);
-      allow update: if isExistingOwner(userId) && isUserIdImmutable();
-      allow delete: if isExistingOwner(userId);
+    match /users/{userId}/medicationReminders/{reminderId} {
+        allow get, list, create, update, delete: if isOwner(userId);
+    }
+    
+    match /users/{userId}/consultations/{consultationId} {
+        allow get, list, create, update: if isOwner(userId);
+    }
+
+    // Collection group for doctors to view all consultations assigned to them.
+    match /{path=**}/consultations/{consultationId} {
+        allow get, list: if isDoctor() && resource.data.doctorId == request.auth.uid;
     }
   }
 }

@@ -32,9 +32,9 @@ export default function RemindersPage() {
         updateDocumentNonBlocking(reminderRef, { enabled: !currentStatus });
     }
     
-    const addReminder = (newReminder: Omit<Reminder, "id" | "enabled">) => {
-        if (!remindersCollectionRef) return;
-        addDocumentNonBlocking(remindersCollectionRef, { ...newReminder, enabled: true });
+    const addReminder = (newReminder: Omit<Reminder, "id" | "enabled" | "userId">) => {
+        if (!remindersCollectionRef || !user) return;
+        addDocumentNonBlocking(remindersCollectionRef, { ...newReminder, userId: user.uid, enabled: true });
     };
 
     const getIcon = (type: Reminder['type']) => {

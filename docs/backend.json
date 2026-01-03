@@ -115,51 +115,61 @@
         "duration"
       ]
     },
-    "MedicationReminder": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "MedicationReminder",
+    "Reminder": {
+      "title": "Reminder",
       "type": "object",
-      "description": "Stores medication reminders for users.",
+      "description": "Stores user-defined reminders for medications, exercises, or appointments.",
       "properties": {
         "id": {
           "type": "string",
-          "description": "Unique identifier for the medication reminder.",
-          "format": "uuid"
+          "description": "Unique identifier for the reminder."
         },
         "userId": {
           "type": "string",
-          "description": "Reference to User. (Relationship: User 1:N MedicationReminder)"
+          "description": "Reference to User."
         },
-        "medicationName": {
+        "title": {
           "type": "string",
-          "description": "Name of the medication."
+          "description": "Name of the reminder (e.g., 'Latanoprost', 'Blinking Exercise')."
         },
-        "reminderTime": {
+        "time": {
           "type": "string",
-          "description": "Time when the medication reminder should be triggered.",
-          "format": "date-time"
+          "format": "time",
+          "description": "Time for the reminder."
         },
-        "dosage": {
+        "type": {
           "type": "string",
-          "description": "Dosage of the medication."
+          "enum": ["exercise", "Eye Drops", "Pill", "Capsule", "Liquid", "appointment"],
+          "description": "The category of the reminder."
         },
-        "notes": {
-          "type": "string",
-          "description": "Additional notes for the medication reminder."
-        },
-        "isActive": {
+        "enabled": {
           "type": "boolean",
-          "description": "Indicates whether the medication reminder is active or not."
-        }
+          "description": "Whether the reminder is active."
+        },
+        "dosage": { "type": "string" },
+        "frequency": { "type": "string" },
+        "reason": { "type": "string" },
+        "note": { "type": "string" }
       },
-      "required": [
-        "id",
-        "userId",
-        "medicationName",
-        "reminderTime",
-        "dosage",
-        "isActive"
-      ]
+      "required": ["id", "userId", "title", "time", "type", "enabled"]
+    },
+    "Consultation": {
+      "title": "Consultation",
+      "type": "object",
+      "description": "Represents a telemedicine consultation between a user and a doctor.",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "doctorId": { "type": "string" },
+        "patientName": { "type": "string" },
+        "scheduledTime": { "type": "string", "format": "date-time" },
+        "duration": { "type": "number" },
+        "type": { "type": "string", "enum": ["routine", "follow_up", "urgent", "second_opinion"] },
+        "status": { "type": "string", "enum": ["scheduled", "in_progress", "completed", "cancelled"] },
+        "meetingLink": { "type": "string", "format": "uri" },
+        "notes": { "type": "string" }
+      },
+      "required": ["id", "userId", "doctorId", "patientName", "scheduledTime", "duration", "type", "status", "meetingLink"]
     }
   },
   "auth": {
@@ -169,84 +179,25 @@
     ]
   },
   "firestore": {
-    "structure": [
-      {
-        "path": "/users/{userId}",
-        "definition": {
-          "entityName": "User",
-          "schema": {
-            "$ref": "#/backend/entities/User"
-          },
-          "description": "Stores user profiles. Path-based ownership ensures only the user can access their own profile data.",
-          "params": [
-            {
-              "name": "userId",
-              "description": "The unique identifier of the user."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/users/{userId}/visionTestResults/{visionTestResultId}",
-        "definition": {
-          "entityName": "VisionTestResult",
-          "schema": {
-            "$ref": "#/backend/entities/VisionTestResult"
-          },
-          "description": "Stores vision test results for a specific user. Path-based ownership ensures only the user can access their own test results.",
-          "params": [
-            {
-              "name": "userId",
-              "description": "The unique identifier of the user."
-            },
-            {
-              "name": "visionTestResultId",
-              "description": "The unique identifier of the vision test result."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/users/{userId}/eyeExerciseLogs/{eyeExerciseLogId}",
-        "definition": {
-          "entityName": "EyeExerciseLog",
-          "schema": {
-            "$ref": "#/backend/entities/EyeExerciseLog"
-          },
-          "description": "Stores eye exercise logs for a specific user. Path-based ownership ensures only the user can access their own exercise logs.",
-          "params": [
-            {
-              "name": "userId",
-              "description": "The unique identifier of the user."
-            },
-            {
-              "name": "eyeExerciseLogId",
-              "description": "The unique identifier of the eye exercise log."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/users/{userId}/medicationReminders/{medicationReminderId}",
-        "definition": {
-          "entityName": "MedicationReminder",
-          "schema": {
-            "$ref": "#/backend/entities/MedicationReminder"
-          },
-          "description": "Stores medication reminders for a specific user. Path-based ownership ensures only the user can access their own medication reminders.",
-          "params": [
-            {
-              "name": "userId",
-              "description": "The unique identifier of the user."
-            },
-            {
-              "name": "medicationReminderId",
-              "description": "The unique identifier of the medication reminder."
-            }
-          ]
-        }
-      }
-    ],
-    "reasoning": "The Firestore structure is designed to ensure Authorization Independence, support the required QAPs, and provide a clear, debuggable security model. Authorization Independence is achieved by using path-based ownership for user-specific data, avoiding the need for `get()` calls in security rules. All `list` operations will be secured by path-based rules, ensuring QAPs. Structural Segregation is maintained by storing data with different access requirements in separate collections, simplifying the security posture. Using hierarchical paths for user-owned data ensures secure and efficient ownership-based security rules."
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/User" },
+      "description": "Stores user profiles."
+    },
+    "/users/{userId}/visionTestResults/{visionTestResultId}": {
+      "schema": { "$ref": "#/entities/VisionTestResult" },
+      "description": "Stores vision test results for a user."
+    },
+    "/users/{userId}/eyeExerciseLogs/{eyeExerciseLogId}": {
+      "schema": { "$ref": "#/entities/EyeExerciseLog" },
+      "description": "Stores eye exercise logs for a user."
+    },
+    "/users/{userId}/medicationReminders/{reminderId}": {
+      "schema": { "$ref": "#/entities/Reminder" },
+      "description": "Stores medication reminders for a specific user."
+    },
+    "/users/{userId}/consultations/{consultationId}": {
+        "schema": { "$ref": "#/entities/Consultation" },
+        "description": "Stores telemedicine consultations for a user."
+    }
   }
 }

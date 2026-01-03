@@ -1,4 +1,3 @@
-
 import type { LucideIcon } from 'lucide-react';
 import { Timestamp } from "firebase/firestore";
 
@@ -110,6 +109,7 @@ export interface Consultation {
 
 export type Reminder = {
     id?: string; // Optional because it will be set by Firestore
+    userId?: string;
     title: string;
     time: string;
     type: 'exercise' | 'Eye Drops' | 'Pill' | 'Capsule' | 'Liquid' | 'appointment';
