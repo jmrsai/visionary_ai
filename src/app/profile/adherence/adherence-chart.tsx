@@ -36,8 +36,8 @@ export function AdherenceChart() {
             <XAxis dataKey="day" tickLine={false} axisLine={false} tickMargin={8} />
             <YAxis tickLine={false} axisLine={false} tickMargin={8} />
             <Tooltip content={<ChartTooltipContent indicator="dot" />} />
-            <Bar dataKey="taken" fill="var(--color-taken)" stackId="a" radius={[8, 8, 0, 0]} />
-            <Bar dataKey="missed" fill="var(--color-missed)" stackId="a" radius={[8, 8, 0, 0]} />
+            <Bar dataKey="taken" fill="var(--color-taken)" stackId="a" radius={[4, 4, 0, 0]} />
+            <Bar dataKey="missed" fill="var(--color-missed)" stackId="a" radius={[4, 4, 0, 0]} />
         </BarChart>
       </ResponsiveContainer>
     </ChartContainer>

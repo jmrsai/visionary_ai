@@ -19,6 +19,7 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 
 // Function to schedule a notification
 const scheduleNotification = (reminder: Reminder) => {
+    if (typeof window === 'undefined' || !('Notification' in window)) return;
     const now = new Date();
     const [hour, minute] = reminder.time.split(':').map(Number);
     
@@ -37,8 +38,6 @@ const scheduleNotification = (reminder: Reminder) => {
             new Notification(`Time for your reminder: ${reminder.title}`, {
                 body: `It's ${reminder.time}. Don't forget your ${reminder.type}!`,
                 icon: '/icons/icon-192x192.png',
-                sound: '/sounds/notification.mp3', // Note: sound support can be inconsistent
-                vibrate: [200, 100, 200], // Vibrate pattern
             });
         }, delay);
         
@@ -50,6 +49,7 @@ const scheduleNotification = (reminder: Reminder) => {
 
 // Function to cancel a scheduled notification
 const cancelNotification = (reminderId: string) => {
+    if (typeof window === 'undefined') return;
     if ((window as any).scheduledNotifications && (window as any).scheduledNotifications[reminderId]) {
         clearTimeout((window as any).scheduledNotifications[reminderId]);
         delete (window as any).scheduledNotifications[reminderId];
@@ -70,25 +70,27 @@ export default function MedicationPage() {
     }, []);
 
     const requestNotificationPermission = () => {
-        Notification.requestPermission().then((permission) => {
-            setNotificationPermission(permission);
-            if (permission === 'granted') {
-                toast({
-                    title: "Notifications Enabled!",
-                    description: "You will now receive reminders.",
-                });
-                 // Re-schedule notifications for all enabled reminders
-                if (reminders) {
-                    reminders.filter(r => r.enabled).forEach(scheduleNotification);
+        if ("Notification" in window) {
+            Notification.requestPermission().then((permission) => {
+                setNotificationPermission(permission);
+                if (permission === 'granted') {
+                    toast({
+                        title: "Notifications Enabled!",
+                        description: "You will now receive reminders.",
+                    });
+                    // Re-schedule notifications for all enabled reminders
+                    if (reminders) {
+                        reminders.filter(r => r.enabled).forEach(scheduleNotification);
+                    }
+                } else {
+                     toast({
+                        title: "Notifications Denied",
+                        description: "You will not receive reminders. You can enable them in your browser settings.",
+                        variant: "destructive",
+                    });
                 }
-            } else {
-                 toast({
-                    title: "Notifications Denied",
-                    description: "You will not receive reminders. You can enable them in your browser settings.",
-                    variant: "destructive",
-                });
-            }
-        });
+            });
+        }
     };
 
     const remindersCollectionRef = useMemoFirebase(() => {
@@ -123,6 +125,8 @@ export default function MedicationPage() {
     };
     
      useEffect(() => {
+        if (typeof window === 'undefined') return;
+
         // Clear all existing timeouts first
         if ((window as any).scheduledNotifications) {
             Object.values((window as any).scheduledNotifications).forEach(timeoutId => clearTimeout(timeoutId as number));

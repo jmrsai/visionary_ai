@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Lightbulb, ChevronRight, CheckCircle, Bell, Video } from "lucide-react";
 import { ProgressCircle } from "@/components/ui/progress-circle";
-import { AdherenceChart } from "@/components/adherence-chart";
+import { AdherenceChart } from "./adherence/adherence-chart";
 
 export function UserProfile({ user }: { user: User }) {
   const adherenceScore = 92; // Mock score
