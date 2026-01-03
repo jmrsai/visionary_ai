@@ -1,21 +1,12 @@
 
 "use client";
 
+import { useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { AdherenceLog } from "@/lib/types";
-import { CheckCircle, XCircle, Clock } from "lucide-react";
-
-const MOCK_ADHERENCE_HISTORY = [
-    { "id": "1", "medication": "Latanoprost", "type": "Eye Drops", "status": "taken", "time": "09:00", "date": "Today" },
-    { "id": "2", "medication": "Vitamin C", "type": "Capsule", "status": "taken", "time": "09:05", "date": "Today" },
-    { "id": "3", "medication": "Latanoprost", "type": "Eye Drops", "status": "upcoming", "time": "21:00", "date": "Today" },
-    { "id": "4", "medication": "Latanoprost", "type": "Eye Drops", "status": "skipped", "time": "21:00", "date": "Yesterday" },
-    { "id": "5", "medication": "Vitamin C", "type": "Capsule", "status": "taken", "time": "09:02", "date": "Yesterday" },
-    { "id": "6", "medication": "Latanoprost", "type": "Eye Drops", "status": "taken", "time": "08:58", "date": "Yesterday" },
-    { "id": "7", "medication": "Latanoprost", "type": "Eye Drops", "status": "taken_late", "time": "10:30", "date": "2 days ago" },
-    { "id": "8", "medication": "Vitamin C", "type": "Capsule", "status": "taken", "time": "09:01", "date": "2 days ago" }
-];
-
+import { CheckCircle, XCircle, Clock, Loader2 } from "lucide-react";
+import { useCollection, useUser, useFirestore, useMemoFirebase } from "@/firebase";
+import { collection, query, orderBy } from "firebase/firestore";
 
 const statusIcons = {
   taken: <CheckCircle className="h-5 w-5 text-green-500" />,
@@ -26,7 +17,10 @@ const statusIcons = {
 
 const groupHistoryByDate = (history: AdherenceLog[]) => {
   return history.reduce((acc, log) => {
-    const date = log.date;
+    // This is a simplified date grouping. A real app would use date-fns for robust grouping.
+    const date = new Date(log.timestamp).toLocaleDateString(undefined, {
+        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+    });
     if (!acc[date]) {
       acc[date] = [];
     }
@@ -36,15 +30,22 @@ const groupHistoryByDate = (history: AdherenceLog[]) => {
 };
 
 export function AdherenceHistory() {
-  const groupedHistory = groupHistoryByDate(MOCK_ADHERENCE_HISTORY);
-  const dates = Object.keys(groupedHistory).sort((a, b) => {
-      // Simple date sort for "Today", "Yesterday", etc.
-      if (a === 'Today') return -1;
-      if (b === 'Today') return 1;
-      if (a === 'Yesterday') return -1;
-      if (b === 'Yesterday') return 1;
-      return a.localeCompare(b);
-  });
+  const { user } = useUser();
+  const firestore = useFirestore();
+
+  const adherenceCollectionRef = useMemoFirebase(() => {
+    if (!user || !firestore) return null;
+    return query(collection(firestore, `users/${user.uid}/adherenceLogs`), orderBy("timestamp", "desc"));
+  }, [user, firestore]);
+
+  const { data: history, isLoading } = useCollection<AdherenceLog>(adherenceCollectionRef);
+  
+  const groupedHistory = useMemo(() => {
+      if (!history) return {};
+      return groupHistoryByDate(history);
+  }, [history]);
+  
+  const dates = Object.keys(groupedHistory);
 
   return (
     <Card>
@@ -52,8 +53,13 @@ export function AdherenceHistory() {
         <CardTitle>Full History</CardTitle>
       </CardHeader>
       <CardContent>
+        {isLoading ? (
+             <div className="flex justify-center items-center h-40">
+                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            </div>
+        ) : (
         <div className="space-y-6">
-          {dates.map((date) => (
+          {dates.length > 0 ? dates.map((date) => (
             <div key={date}>
               <h3 className="text-lg font-semibold mb-2 sticky top-16 bg-background py-2 z-10">
                 {date}
@@ -67,7 +73,7 @@ export function AdherenceHistory() {
                     <div className="flex-1">
                       <p className="font-medium">{log.medication}</p>
                       <p className="text-sm text-muted-foreground">
-                        {log.status === 'upcoming' ? 'Scheduled for ' : 'Logged at '} {log.time}
+                        {log.status === 'upcoming' ? 'Scheduled for ' : 'Logged at '} {new Date(log.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       </p>
                     </div>
                     <div className="text-sm font-medium capitalize">
@@ -77,8 +83,14 @@ export function AdherenceHistory() {
                 ))}
               </div>
             </div>
-          ))}
+          )) : (
+            <div className="text-center py-12 text-muted-foreground">
+                <Clock className="mx-auto h-12 w-12" />
+                <p className="mt-4">You have no adherence history yet.</p>
+            </div>
+          )}
         </div>
+        )}
       </CardContent>
     </Card>
   );

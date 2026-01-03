@@ -1,4 +1,5 @@
-import { db } from "@/lib/firebase";
+
+import { useFirestore } from "@/firebase";
 import { User as FirebaseAuthUser } from "firebase/auth";
 import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
 import type { User } from "@/lib/types";
@@ -6,7 +7,8 @@ import { errorEmitter } from "@/firebase/error-emitter";
 import { FirestorePermissionError } from "@/firebase/errors";
 
 export const getOrCreateUser = async (firebaseUser: FirebaseAuthUser): Promise<User> => {
-  const userRef = doc(db, "users", firebaseUser.uid);
+  const firestore = useFirestore();
+  const userRef = doc(firestore, "users", firebaseUser.uid);
   
   try {
     const userDoc = await getDoc(userRef);

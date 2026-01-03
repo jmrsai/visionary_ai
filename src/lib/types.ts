@@ -1,3 +1,4 @@
+
 import type { LucideIcon } from 'lucide-react';
 import { Timestamp } from "firebase/firestore";
 
@@ -105,9 +106,9 @@ export interface Consultation {
 }
 
 
-// --- App-specific Helper Types (Mock Data etc.) ---
+// --- App-specific Helper Types ---
 
-export type Reminder = {
+export interface Reminder {
     id?: string; // Optional because it will be set by Firestore
     userId?: string;
     title: string;
@@ -121,16 +122,15 @@ export type Reminder = {
         shape: string;
         color: string;
     },
-    note?: string; // New property
-};
+    note?: string;
+}
 
-export type AdherenceLog = {
+export interface AdherenceLog {
     id: string;
     medication: string;
     type: 'Eye Drops' | 'Pill' | 'Capsule' | 'Liquid';
     status: 'taken' | 'skipped' | 'upcoming' | 'taken_late';
-    time: string;
-    date: string;
+    timestamp: string; // ISO string
 };
 
 export type ActivityLog = {

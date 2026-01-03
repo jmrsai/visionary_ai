@@ -1,3 +1,4 @@
+
 "use client";
 
 import {
@@ -14,7 +15,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { MOCK_CHECKUP_HISTORY, MOCK_TESTS } from "@/lib/data";
+import { MOCK_TESTS } from "@/lib/data";
 import type { CheckupReport, TestResult } from "@/lib/types";
 import { Check, AlertTriangle, RefreshCw, Share2, Download, MessageSquare } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -98,25 +99,9 @@ export function CheckupResultCard({
 
         <Accordion type="single" collapsible className="w-full">
           <AccordionItem value="history">
-            <AccordionTrigger>View Past Check-ups</AccordionTrigger>
+            <AccordionTrigger>View Past Check-ups (Mock Data)</AccordionTrigger>
             <AccordionContent className="space-y-4">
-              {MOCK_CHECKUP_HISTORY.map((histReport) => (
-                <Card key={histReport.id} className="bg-muted/50">
-                  <CardHeader className="p-4">
-                    <CardTitle className="text-base">
-                      {format(new Date(histReport.date), "MMMM d, yyyy")}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-1 p-4 pt-0 text-sm">
-                    {histReport.results.map((res) => (
-                      <div key={res.testId} className="flex justify-between">
-                        <span className="text-muted-foreground">{MOCK_TESTS.find(t => t.id === res.testId)?.title}:</span>
-                        <span>{res.value}</span>
-                      </div>
-                    ))}
-                  </CardContent>
-                </Card>
-              ))}
+              <p className="text-sm text-muted-foreground">This section shows mock data for demonstration. In a full app, your real history would appear here.</p>
             </AccordionContent>
           </AccordionItem>
         </Accordion>

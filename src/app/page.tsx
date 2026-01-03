@@ -1,5 +1,4 @@
 
-
 import {
   Activity,
   ChevronRight,
@@ -46,12 +45,12 @@ export default function Home() {
         <Card className="animate-fade-in-up" style={{ animationDelay: '400ms' }}>
           <CardHeader className="pb-2">
             <CardTitle>Vision Score</CardTitle>
-            <CardDescription>Your weekly progress.</CardDescription>
+            <CardDescription>Your progress over time. (Data is currently mocked)</CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col items-center justify-center gap-4">
             <div className="text-center">
               <div className="text-6xl font-bold text-accent">92<span className="text-3xl text-muted-foreground">/100</span></div>
-              <p className="text-xs text-muted-foreground mt-1">+2 since last week</p>
+              <p className="text-xs text-muted-foreground mt-1">+2 since last month</p>
             </div>
             <div className="h-[100px] w-full">
               <VisionScoreChart />
@@ -84,7 +83,7 @@ export default function Home() {
           <CardHeader>
             <CardTitle>Recent Activity</CardTitle>
             <CardDescription>
-              An overview of your latest exercises and tests.
+              An overview of your latest exercises and tests. (Data is currently mocked)
             </CardDescription>
           </CardHeader>
           <CardContent>

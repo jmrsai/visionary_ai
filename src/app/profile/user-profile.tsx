@@ -1,3 +1,4 @@
+
 "use client";
 
 import type { User } from "firebase/auth";
@@ -15,7 +16,7 @@ import { ProgressCircle } from "@/components/ui/progress-circle";
 import { AdherenceChart } from "./adherence/adherence-chart";
 
 export function UserProfile({ user }: { user: User }) {
-  const adherenceScore = 92; // Mock score
+  const adherenceScore = 92; // NOTE: This is a mock score. A real app would calculate this from adherence data.
 
   return (
     <div className="space-y-8">
@@ -31,8 +32,7 @@ export function UserProfile({ user }: { user: User }) {
           <CardHeader>
             <CardTitle>AI Health Insights</CardTitle>
             <CardDescription>
-              Discover AI-powered insights connecting your habits to your eye
-              health.
+              Connect your habits to your eye health with AI-powered insights.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -86,7 +86,7 @@ export function UserProfile({ user }: { user: User }) {
             <CardDescription>
               Connect with eye care professionals through secure video calls.
             </CardDescription>
-          </CardHeader>
+          </Header>
           <CardContent>
             <div className="flex flex-col items-center justify-center text-center p-6 bg-muted rounded-lg">
               <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 mb-4">
@@ -110,7 +110,7 @@ export function UserProfile({ user }: { user: User }) {
           <CardHeader>
             <CardTitle>Weekly Adherence Chart</CardTitle>
             <CardDescription>
-              A visual summary of your medication adherence this week.
+              A visual summary of your medication adherence this week. (Data is currently mocked).
             </CardDescription>
           </CardHeader>
           <CardContent>
