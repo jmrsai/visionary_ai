@@ -1,86 +1,252 @@
 {
   "entities": {
-    "UserProfile": {
-      "title": "User Profile",
+    "User": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "User",
       "type": "object",
-      "description": "Stores public information about a user.",
+      "description": "Represents a user of the Visionary app.",
       "properties": {
-        "displayName": { "type": "string", "description": "The user's public display name." },
-        "photoURL": { "type": "string", "format": "uri", "description": "URL of the user's profile picture." },
-        "createdAt": { "type": "string", "format": "date-time", "description": "The timestamp when the user profile was created." }
-      },
-      "required": ["displayName", "createdAt"]
-    },
-    "Reminder": {
-      "title": "Reminder",
-      "type": "object",
-      "description": "A reminder for medication, exercises, or appointments.",
-      "properties": {
-        "title": { "type": "string" },
-        "time": { "type": "string", "format": "time" },
-        "type": { "type": "string", "enum": ["exercise", "Eye Drops", "Pill", "Capsule", "Liquid", "appointment"] },
-        "enabled": { "type": "boolean" },
-        "dosage": { "type": "string" },
-        "frequency": { "type": "string" },
-        "reason": { "type": "string" },
-        "appearance": {
-          "type": "object",
-          "properties": {
-            "shape": { "type": "string" },
-            "color": { "type": "string" }
-          }
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the user.",
+          "format": "uuid"
         },
-        "note": { "type": "string" }
-      },
-      "required": ["title", "type", "enabled"]
-    },
-    "Consultation": {
-      "title": "Consultation",
-      "type": "object",
-      "description": "Represents a telemedicine consultation.",
-      "properties": {
-        "userId": { "type": "string", "description": "The UID of the patient." },
-        "doctorId": { "type": "string", "description": "The UID of the doctor." },
-        "patientName": { "type": "string" },
-        "scheduledTime": { "type": "string", "format": "date-time" },
-        "duration": { "type": "number", "description": "Duration in minutes." },
-        "type": { "type": "string", "enum": ["routine", "follow_up", "urgent", "second_opinion"] },
-        "status": { "type": "string", "enum": ["scheduled", "in_progress", "completed", "cancelled"] },
-        "meetingLink": { "type": "string", "format": "uri" },
-        "notes": { "type": "string" }
-      },
-      "required": ["userId", "doctorId", "patientName", "scheduledTime", "duration", "type", "status", "meetingLink"]
-    },
-    "Doctor": {
-        "title": "Doctor",
-        "type": "object",
-        "description": "A profile for a doctor.",
-        "properties": {
-            "name": { "type": "string" },
-            "specialty": { "type": "string" }
+        "email": {
+          "type": "string",
+          "description": "Email address of the user.",
+          "format": "email"
         },
-        "required": ["name", "specialty"]
+        "name": {
+          "type": "string",
+          "description": "User's full name."
+        },
+        "dateJoined": {
+          "type": "string",
+          "description": "Date and time when the user joined the app.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "email",
+        "name",
+        "dateJoined"
+      ]
+    },
+    "VisionTestResult": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "VisionTestResult",
+      "type": "object",
+      "description": "Stores the results of a vision test taken by a user.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the vision test result.",
+          "format": "uuid"
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N VisionTestResult)"
+        },
+        "testType": {
+          "type": "string",
+          "description": "Type of vision test taken (e.g., Visual Acuity, Color Vision)."
+        },
+        "testDate": {
+          "type": "string",
+          "description": "Date and time when the vision test was taken.",
+          "format": "date-time"
+        },
+        "score": {
+          "type": "number",
+          "description": "Score obtained on the vision test."
+        },
+        "notes": {
+          "type": "string",
+          "description": "Additional notes or observations about the test."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "testType",
+        "testDate",
+        "score"
+      ]
+    },
+    "EyeExerciseLog": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "EyeExerciseLog",
+      "type": "object",
+      "description": "Stores the logs of eye exercises performed by a user.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the eye exercise log.",
+          "format": "uuid"
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N EyeExerciseLog)"
+        },
+        "exerciseType": {
+          "type": "string",
+          "description": "Type of eye exercise performed (e.g., Palming, Focus Shifts)."
+        },
+        "exerciseDate": {
+          "type": "string",
+          "description": "Date and time when the eye exercise was performed.",
+          "format": "date-time"
+        },
+        "duration": {
+          "type": "number",
+          "description": "Duration of the eye exercise in minutes."
+        },
+        "repetitions": {
+          "type": "number",
+          "description": "Number of repetitions completed during the eye exercise."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "exerciseType",
+        "exerciseDate",
+        "duration"
+      ]
+    },
+    "MedicationReminder": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "MedicationReminder",
+      "type": "object",
+      "description": "Stores medication reminders for users.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the medication reminder.",
+          "format": "uuid"
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N MedicationReminder)"
+        },
+        "medicationName": {
+          "type": "string",
+          "description": "Name of the medication."
+        },
+        "reminderTime": {
+          "type": "string",
+          "description": "Time when the medication reminder should be triggered.",
+          "format": "date-time"
+        },
+        "dosage": {
+          "type": "string",
+          "description": "Dosage of the medication."
+        },
+        "notes": {
+          "type": "string",
+          "description": "Additional notes for the medication reminder."
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "Indicates whether the medication reminder is active or not."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "medicationName",
+        "reminderTime",
+        "dosage",
+        "isActive"
+      ]
     }
   },
   "auth": {
-    "providers": ["password", "anonymous"]
+    "providers": [
+      "password",
+      "anonymous"
+    ]
   },
   "firestore": {
-    "/users/{userId}": {
-      "schema": { "$ref": "#/entities/UserProfile" },
-      "description": "Stores public user profile information."
-    },
-    "/users/{userId}/reminders/{reminderId}": {
-      "schema": { "$ref": "#/entities/Reminder" },
-      "description": "Stores user-specific reminders."
-    },
-    "/users/{userId}/consultations/{consultationId}": {
-        "schema": { "$ref": "#/entities/Consultation" },
-        "description": "Subcollection for a patient's consultations."
-    },
-    "/roles_doctor/{userId}": {
-      "schema": { "type": "object", "properties": { "isDoctor": { "type": "boolean" } } },
-      "description": "A document indicating if a user has a doctor role. Used for role-based access control."
-    }
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "User",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "Stores user profiles. Path-based ownership ensures only the user can access their own profile data.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/visionTestResults/{visionTestResultId}",
+        "definition": {
+          "entityName": "VisionTestResult",
+          "schema": {
+            "$ref": "#/backend/entities/VisionTestResult"
+          },
+          "description": "Stores vision test results for a specific user. Path-based ownership ensures only the user can access their own test results.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            },
+            {
+              "name": "visionTestResultId",
+              "description": "The unique identifier of the vision test result."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/eyeExerciseLogs/{eyeExerciseLogId}",
+        "definition": {
+          "entityName": "EyeExerciseLog",
+          "schema": {
+            "$ref": "#/backend/entities/EyeExerciseLog"
+          },
+          "description": "Stores eye exercise logs for a specific user. Path-based ownership ensures only the user can access their own exercise logs.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            },
+            {
+              "name": "eyeExerciseLogId",
+              "description": "The unique identifier of the eye exercise log."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/medicationReminders/{medicationReminderId}",
+        "definition": {
+          "entityName": "MedicationReminder",
+          "schema": {
+            "$ref": "#/backend/entities/MedicationReminder"
+          },
+          "description": "Stores medication reminders for a specific user. Path-based ownership ensures only the user can access their own medication reminders.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            },
+            {
+              "name": "medicationReminderId",
+              "description": "The unique identifier of the medication reminder."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore structure is designed to ensure Authorization Independence, support the required QAPs, and provide a clear, debuggable security model. Authorization Independence is achieved by using path-based ownership for user-specific data, avoiding the need for `get()` calls in security rules. All `list` operations will be secured by path-based rules, ensuring QAPs. Structural Segregation is maintained by storing data with different access requirements in separate collections, simplifying the security posture. Using hierarchical paths for user-owned data ensures secure and efficient ownership-based security rules."
   }
 }

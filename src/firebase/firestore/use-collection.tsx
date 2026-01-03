@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -90,7 +89,7 @@ export function useCollection<T = any>(
         const path: string =
           memoizedTargetRefOrQuery.type === 'collection'
             ? (memoizedTargetRefOrQuery as CollectionReference).path
-            : (memoizedTargetRefOrQuery as unknown as InternalQuery)._query.path.toString()
+            : (memoizedTargetRefOrQuery as unknown as InternalQuery)._query.path.canonicalString()
 
         const contextualError = new FirestorePermissionError({
           operation: 'list',
@@ -108,10 +107,8 @@ export function useCollection<T = any>(
 
     return () => unsubscribe();
   }, [memoizedTargetRefOrQuery]); // Re-run if the target query/reference changes.
-  if (process.env.NODE_ENV === 'development') {
-    if(memoizedTargetRefOrQuery && !memoizedTargetRefOrQuery.__memo) {
-      console.warn('The query or reference passed to useCollection was not memoized with useMemoFirebase. This can lead to performance issues and infinite loops.', memoizedTargetRefOrQuery);
-    }
+  if(memoizedTargetRefOrQuery && !memoizedTargetRefOrQuery.__memo) {
+    throw new Error(memoizedTargetRefOrQuery + ' was not properly memoized using useMemoFirebase');
   }
   return { data, isLoading, error };
 }

@@ -1,4 +1,3 @@
-
 'use client';
     
 import { useState, useEffect } from 'react';
@@ -40,7 +39,7 @@ export interface UseDocResult<T> {
  * @returns {UseDocResult<T>} Object with data, isLoading, error.
  */
 export function useDoc<T = any>(
-  memoizedDocRef: (DocumentReference<DocumentData> & {__memo?: boolean}) | null | undefined,
+  memoizedDocRef: DocumentReference<DocumentData> | null | undefined,
 ): UseDocResult<T> {
   type StateDataType = WithId<T> | null;
 
@@ -89,12 +88,6 @@ export function useDoc<T = any>(
 
     return () => unsubscribe();
   }, [memoizedDocRef]); // Re-run if the memoizedDocRef changes.
-
-  if (process.env.NODE_ENV === 'development') {
-    if(memoizedDocRef && !memoizedDocRef.__memo) {
-      console.warn('The document reference passed to useDoc was not memoized with useMemoFirebase. This can lead to performance issues and infinite loops.', memoizedDocRef);
-    }
-  }
 
   return { data, isLoading, error };
 }
