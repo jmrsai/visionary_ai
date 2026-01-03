@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState }from "react";
@@ -20,7 +19,7 @@ export default function RemindersPage() {
 
     const remindersCollectionRef = useMemoFirebase(() => {
         if (!user || !firestore) return null;
-        return collection(firestore, `users/${user.uid}/reminders`);
+        return collection(firestore, `users/${user.uid}/medicationReminders`);
     }, [user, firestore]);
 
     const { data: reminders, isLoading } = useCollection<Reminder>(remindersCollectionRef);

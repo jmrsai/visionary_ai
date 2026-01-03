@@ -5,7 +5,12 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useAuth } from "@/firebase";
-import { initiateEmailSignUp, initiateEmailSignIn } from "@/firebase/non-blocking-login";
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  UserCredential,
+} from "firebase/auth";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -21,7 +26,6 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
 import { getOrCreateUser } from "@/services/firebase";
 
 const formSchema = z.object({
@@ -48,44 +52,45 @@ export function LoginForm() {
     },
   });
 
+  const handleAuthSuccess = async (userCredential: UserCredential) => {
+    await getOrCreateUser(userCredential.user);
+    if (formType === 'signup') {
+        toast({
+          title: "Account created!",
+          description: "Welcome to Visionary.",
+        });
+    }
+    // No redirect needed, useUser hook will handle it.
+    // We don't setIsLoading(false) here because we want to wait for the redirect.
+  };
+
+  const handleAuthError = (e: any) => {
+    // Map Firebase auth errors to user-friendly messages
+    let message = "An unexpected error occurred. Please try again.";
+    switch (e.code) {
+        case "auth/user-not-found":
+        case "auth/wrong-password":
+        case "auth/invalid-credential":
+            message = "Invalid email or password.";
+            break;
+        case "auth/email-already-in-use":
+            message = "An account with this email already exists.";
+            break;
+        case "auth/weak-password":
+            message = "The password is too weak. Please use at least 6 characters.";
+            break;
+        case "auth/invalid-email":
+             message = "Please enter a valid email address.";
+             break;
+    }
+    setError(message);
+    setIsLoading(false);
+  };
+
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     setIsLoading(true);
     setError(null);
     
-    const handleAuthSuccess = (userCredential: any) => {
-        getOrCreateUser(userCredential.user);
-        if (formType === 'signup') {
-            toast({
-              title: "Account created!",
-              description: "Welcome to Visionary.",
-            });
-        }
-        // No redirect needed, useUser hook will handle it.
-        // We don't setIsLoading(false) here because we want to wait for the redirect.
-    };
-
-    const handleAuthError = (e: any) => {
-        // Map Firebase auth errors to user-friendly messages
-        let message = "An unexpected error occurred. Please try again.";
-        switch (e.code) {
-            case "auth/user-not-found":
-            case "auth/wrong-password":
-                message = "Invalid email or password.";
-                break;
-            case "auth/email-already-in-use":
-                message = "An account with this email already exists.";
-                break;
-            case "auth/weak-password":
-                message = "The password is too weak. Please use at least 6 characters.";
-                break;
-            case "auth/invalid-email":
-                 message = "Please enter a valid email address.";
-                 break;
-        }
-        setError(message);
-        setIsLoading(false);
-    };
-
     if (formType === "signup") {
       createUserWithEmailAndPassword(auth, values.email, values.password)
         .then(handleAuthSuccess)
