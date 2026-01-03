@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState }from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,7 +10,7 @@ import { Switch } from "@/components/ui/switch";
 import type { Reminder } from "@/lib/types";
 import { AddReminderDialog } from "@/components/add-reminder-dialog";
 import { useUser, useFirestore, useCollection, useMemoFirebase } from "@/firebase";
-import { collection, doc, addDoc, updateDoc } from "firebase/firestore";
+import { collection, doc } from "firebase/firestore";
 import { addDocumentNonBlocking, updateDocumentNonBlocking } from "@/firebase/non-blocking-updates";
 import { Loader2 } from "lucide-react";
 

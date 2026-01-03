@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
@@ -5,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Loader2, Send, MessageCircle, Mic, X } from "lucide-react";
+import { Loader2, Send, MessageCircle, Mic, X, Paperclip, Image as ImageIcon } from "lucide-react";
 import { chat, type ChartData } from "@/ai/flows/chatbot";
 import { useToast } from "@/hooks/use-toast";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
@@ -17,6 +18,8 @@ import { ChartConfig, ChartContainer, ChartTooltipContent } from "@/components/u
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger, SheetFooter, SheetClose } from "@/components/ui/sheet";
 import { useIsMobile } from "@/hooks/use-mobile";
 import Markdown from 'react-markdown';
+import Image from 'next/image';
+
 
 type Message = {
   id?: string;
@@ -24,6 +27,7 @@ type Message = {
   isUser: boolean;
   media?: string;
   chartData?: ChartData;
+  imageDataUri?: string;
   timestamp?: Date;
 };
 
@@ -89,19 +93,29 @@ function ChatInterface() {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isListening, setIsListening] = useState(false);
+  const [selectedFileUri, setSelectedFileUri] = useState<string | null>(null);
+
   const { toast } = useToast();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [lastPlayedMessageId, setLastPlayedMessageId] = useState<string | null>(null);
 
   const handleSend = async () => {
-    if (input.trim() === "") return;
+    if (input.trim() === "" && !selectedFileUri) return;
 
-    const userMessage: Message = { id: uuidv4(), text: input, isUser: true, timestamp: new Date() };
+    const userMessage: Message = { 
+        id: uuidv4(), 
+        text: input, 
+        isUser: true, 
+        imageDataUri: selectedFileUri || undefined,
+        timestamp: new Date() 
+    };
     const newMessages = [...messages, userMessage];
     setMessages(newMessages);
 
     setInput("");
+    setSelectedFileUri(null);
     setIsLoading(true);
 
     try {
@@ -110,7 +124,7 @@ function ChatInterface() {
           content: [{ text: msg.text }]
       }));
         
-      const result = await chat({ message: input, history });
+      const result = await chat({ message: input, imageDataUri: selectedFileUri || undefined, history });
       const aiMessage: Message = { 
           id: uuidv4(),
           text: result.response, 
@@ -149,6 +163,17 @@ function ChatInterface() {
         setIsListening(false);
     }, 2000);
   };
+  
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setSelectedFileUri(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
 
   useEffect(() => {
@@ -168,7 +193,7 @@ function ChatInterface() {
   }, [messages, lastPlayedMessageId]);
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full bg-background/95 backdrop-blur-sm">
       <SheetHeader className="p-4 border-b">
         <SheetTitle>AI Assistant</SheetTitle>
         <SheetDescription>Ask our AI assistant about eye health, exercises, or your progress.</SheetDescription>
@@ -181,7 +206,7 @@ function ChatInterface() {
                 <div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted">
                     <MessageCircle className="h-8 w-8 text-muted-foreground"/>
                 </div>
-              <p className="text-muted-foreground">Ask things like "Show me my vision score history".</p>
+              <p className="text-muted-foreground">Ask things like "What's wrong with my eye?" and upload a photo.</p>
             </div>
           ) : (
             messages.map((message, index) => (
@@ -205,10 +230,14 @@ function ChatInterface() {
                       : "bg-muted"
                   }`}
                 >
-                  <div className="text-sm prose prose-sm dark:prose-invert max-w-none">
-                    <Markdown>{message.text}</Markdown>
-                  </div>
-                  
+                  {message.imageDataUri && (
+                     <Image src={message.imageDataUri} alt="Uploaded content" width={200} height={150} className="rounded-md" />
+                  )}
+                  {message.text && (
+                    <div className="text-sm prose prose-sm dark:prose-invert max-w-none">
+                        <Markdown>{message.text}</Markdown>
+                    </div>
+                  )}
                   {message.chartData && (
                     <ChatChart chartData={message.chartData} />
                   )}
@@ -240,6 +269,15 @@ function ChatInterface() {
         </div>
       </ScrollArea>
       <div className="p-4 border-t bg-background">
+        {selectedFileUri && (
+            <div className="mb-2 flex items-center gap-2 p-2 rounded-lg bg-muted">
+                <ImageIcon className="h-5 w-5 text-muted-foreground" />
+                <span className="text-sm text-muted-foreground truncate">Image ready to upload</span>
+                <Button variant="ghost" size="icon" className="h-6 w-6 ml-auto" onClick={() => setSelectedFileUri(null)}>
+                    <X className="h-4 w-4"/>
+                </Button>
+            </div>
+        )}
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -247,6 +285,11 @@ function ChatInterface() {
           }}
           className="flex items-center gap-2"
         >
+            <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" className="hidden" />
+            <Button type="button" variant="ghost" size="icon" onClick={() => fileInputRef.current?.click()} disabled={isLoading || isListening}>
+                <Paperclip className="h-5 w-5" />
+                <span className="sr-only">Attach File</span>
+            </Button>
            <Button type="button" variant="ghost" size="icon" onClick={handleListen} disabled={isLoading || isListening}>
             {isListening ? (
                  <Loader2 className="h-5 w-5 animate-spin text-primary"/>
@@ -262,7 +305,7 @@ function ChatInterface() {
             className="flex-1"
             disabled={isLoading || isListening}
           />
-          <Button type="submit" disabled={isLoading || isListening || input.trim() === ""}>
+          <Button type="submit" disabled={isLoading || isListening || (input.trim() === "" && !selectedFileUri)}>
             {isLoading ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
@@ -286,7 +329,7 @@ export function FloatingChatbot() {
                 <Button
                     variant="default"
                     size="icon"
-                    className="fixed bottom-6 right-6 h-16 w-16 rounded-full shadow-lg z-50"
+                    className="fixed bottom-6 right-6 h-16 w-16 rounded-full shadow-lg z-50 bg-primary hover:bg-primary/90"
                 >
                     <MessageCircle className="h-8 w-8" />
                     <span className="sr-only">Open Chat</span>
@@ -294,7 +337,7 @@ export function FloatingChatbot() {
             </SheetTrigger>
             <SheetContent 
                 side={isMobile ? "bottom" : "right"} 
-                className={`p-0 ${isMobile ? 'h-[80%] rounded-t-lg' : 'w-[400px] sm:max-w-md'}`}
+                className={`p-0 ${isMobile ? 'h-[80%] rounded-t-lg' : 'w-[400px] sm:max-w-md'} bg-transparent border-none shadow-none`}
             >
                 <ChatInterface />
             </SheetContent>
