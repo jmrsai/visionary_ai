@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import {
   Dialog,
   DialogContent,
@@ -24,6 +24,9 @@ import type { Reminder } from "@/lib/types";
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 import { ToggleGroup, ToggleGroupItem } from "./ui/toggle-group";
 import { Textarea } from "@/components/ui/textarea";
+import { medicationOcr } from "@/ai/flows/medication-ocr";
+import { useToast } from "@/hooks/use-toast";
+import { Loader2, ScanLine } from "lucide-react";
 
 interface AddReminderDialogProps {
   open: boolean;
@@ -42,15 +45,32 @@ export function AddReminderDialog({
 }: AddReminderDialogProps) {
   const [title, setTitle] = useState("");
   const [time, setTime] = useState("");
-  const [type, setType] = useState<Reminder["type"]>("exercise");
+  const [type, setType] = useState<Reminder["type"]>("Pill");
   const [dosage, setDosage] = useState("");
   const [frequency, setFrequency] = useState("Daily");
   const [specificDays, setSpecificDays] = useState<string[]>([]);
   const [reason, setReason] = useState("");
   const [appearance, setAppearance] = useState({ shape: 'pill', color: '#f87171' });
   const [note, setNote] = useState("");
+  const [isScanning, setIsScanning] = useState(false);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
 
   const isMedication = ["Eye Drops", "Pill", "Capsule", "Liquid"].includes(type);
+
+  const resetForm = () => {
+    setTitle("");
+    setTime("");
+    setType("Pill");
+    setDosage("");
+    setFrequency("Daily");
+    setSpecificDays([]);
+    setReason("");
+    setAppearance({ shape: 'pill', color: '#f87171' });
+    setNote("");
+    setIsScanning(false);
+  }
 
   const handleSubmit = () => {
     let finalFrequency = frequency;
@@ -68,17 +88,54 @@ export function AddReminderDialog({
       }
       onAddReminder(newReminder);
       
-      // Reset form
-      setTitle("");
-      setTime("");
-      setType("exercise");
-      setDosage("");
-      setFrequency("Daily");
-      setSpecificDays([]);
-      setReason("");
-      setAppearance({ shape: 'pill', color: '#f87171' });
-      setNote("");
+      resetForm();
       onOpenChange(false);
+    }
+  };
+
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setIsScanning(true);
+    toast({
+      title: "Scanning Prescription...",
+      description: "The AI is analyzing the image.",
+    });
+
+    try {
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        const imageDataUri = e.target?.result as string;
+        if (imageDataUri) {
+            const result = await medicationOcr({ imageDataUri });
+            setTitle(result.medicationName);
+            setDosage(result.dosage);
+            
+            // Simple logic to map AI frequency to form frequency
+            const freqLower = result.frequency.toLowerCase();
+            if (freqLower.includes("daily") || freqLower.includes("once a day")) {
+                setFrequency("Daily");
+            } // Can add more mappings here
+            
+             toast({
+                title: "Scan Complete",
+                description: "The form has been populated with the extracted details.",
+             });
+        }
+      };
+      reader.readAsDataURL(file);
+    } catch (error) {
+        console.error("OCR failed:", error);
+        toast({
+            title: "Scan Failed",
+            description: "Could not extract details from the image. Please fill the form manually.",
+            variant: "destructive"
+        })
+    } finally {
+        setIsScanning(false);
+        // Clear file input so the same file can be selected again
+        if(fileInputRef.current) fileInputRef.current.value = "";
     }
   };
 
@@ -88,10 +145,30 @@ export function AddReminderDialog({
         <DialogHeader>
           <DialogTitle>Add a New Reminder</DialogTitle>
           <DialogDescription>
-            Set up a new notification for your eye care routine.
+            Set up a new notification, or scan a prescription to get started.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-4 max-h-[70vh] overflow-y-auto pr-4">
+          
+          <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" className="hidden" />
+          <Button variant="outline" className="w-full" onClick={() => fileInputRef.current?.click()} disabled={isScanning}>
+            {isScanning ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin"/>
+            ) : (
+                <ScanLine className="mr-2 h-4 w-4"/>
+            )}
+            {isScanning ? "Scanning..." : "Scan Prescription with AI"}
+          </Button>
+
+          <div className="relative my-4">
+            <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-background px-2 text-muted-foreground">Or Enter Manually</span>
+            </div>
+          </div>
+        
           <div className="space-y-2">
             <Label htmlFor="type">Type</Label>
             <Select onValueChange={(value: Reminder["type"]) => setType(value)} defaultValue={type}>
@@ -205,7 +282,7 @@ export function AddReminderDialog({
            )}
             <div className="space-y-2">
                 <Label htmlFor="frequency-type">Frequency</Label>
-                <Select onValueChange={setFrequency} defaultValue={frequency}>
+                <Select onValueChange={setFrequency} value={frequency}>
                     <SelectTrigger id="frequency-type">
                         <SelectValue placeholder="Select frequency" />
                     </SelectTrigger>
@@ -252,7 +329,7 @@ export function AddReminderDialog({
         </div>
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="outline">Cancel</Button>
+            <Button variant="outline" onClick={resetForm}>Cancel</Button>
           </DialogClose>
           <Button onClick={handleSubmit}>Add Reminder</Button>
         </DialogFooter>
