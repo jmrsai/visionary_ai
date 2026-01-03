@@ -86,7 +86,7 @@ export function UserProfile({ user }: { user: User }) {
             <CardDescription>
               Connect with eye care professionals through secure video calls.
             </CardDescription>
-          </Header>
+          </CardHeader>
           <CardContent>
             <div className="flex flex-col items-center justify-center text-center p-6 bg-muted rounded-lg">
               <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 mb-4">
@@ -111,7 +111,7 @@ export function UserProfile({ user }: { user: User }) {
             <CardDescription>
               Learn about eye health, conditions, and preventative care.
             </CardDescription>
-          </Header>
+          </CardHeader>
           <CardContent>
             <div className="flex flex-col items-center justify-center text-center p-6 bg-muted rounded-lg">
               <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 mb-4">
