@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { Lightbulb, ChevronRight, CheckCircle, Bell, Video } from "lucide-react";
+import { Lightbulb, ChevronRight, CheckCircle, Bell, Video, GraduationCap } from "lucide-react";
 import { ProgressCircle } from "@/components/ui/progress-circle";
 import { AdherenceChart } from "./adherence/adherence-chart";
 
@@ -104,9 +104,34 @@ export function UserProfile({ user }: { user: User }) {
             </div>
           </CardContent>
         </Card>
+        
+        <Card>
+          <CardHeader>
+            <CardTitle>Education Center</CardTitle>
+            <CardDescription>
+              Learn about eye health, conditions, and preventative care.
+            </CardDescription>
+          </Header>
+          <CardContent>
+            <div className="flex flex-col items-center justify-center text-center p-6 bg-muted rounded-lg">
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 mb-4">
+                <GraduationCap className="h-8 w-8 text-primary" />
+              </div>
+              <p className="text-muted-foreground mb-4">
+                Explore our AI-powered library of eye health articles.
+              </p>
+              <Button asChild>
+                <Link href="/education">
+                  Explore Topics
+                  <ChevronRight className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
 
 
-        <Card className="lg:col-span-3">
+        <Card className="lg:col-span-2">
           <CardHeader>
             <CardTitle>Weekly Adherence Chart</CardTitle>
             <CardDescription>
