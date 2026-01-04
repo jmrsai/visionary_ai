@@ -14,6 +14,8 @@ import Link from "next/link";
 import { Lightbulb, ChevronRight, CheckCircle, Bell, Video, GraduationCap } from "lucide-react";
 import { ProgressCircle } from "@/components/ui/progress-circle";
 import { AdherenceChart } from "./adherence/adherence-chart";
+import { QuickGuide } from "@/components/quick-guide";
+
 
 export function UserProfile({ user }: { user: User }) {
   const adherenceScore = 92; // NOTE: This is a mock score. A real app would calculate this from adherence data.
@@ -26,6 +28,8 @@ export function UserProfile({ user }: { user: User }) {
           Track your journey to better vision health.
         </p>
       </div>
+
+      <QuickGuide />
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         <Card>
@@ -104,7 +108,7 @@ export function UserProfile({ user }: { user: User }) {
             </div>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader>
             <CardTitle>Education Center</CardTitle>
@@ -129,7 +133,6 @@ export function UserProfile({ user }: { user: User }) {
             </div>
           </CardContent>
         </Card>
-
 
         <Card className="lg:col-span-2">
           <CardHeader>
