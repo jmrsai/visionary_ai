@@ -3,7 +3,7 @@
 
 import "react-phone-input-2/lib/style.css";
 import { useState, useEffect, useRef } from "react";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useAuth, useStorage } from "@/firebase";
@@ -17,6 +17,7 @@ import {
   ConfirmationResult,
   UserCredential,
   updateProfile,
+  sendPasswordResetEmail,
 } from "firebase/auth";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import PhoneInput from "react-phone-input-2";
@@ -67,12 +68,19 @@ const otpFormSchema = z.object({
   }),
 });
 
-type FormType = "login" | "signup" | "phone" | "otp";
+const forgotPasswordSchema = z.object({
+    email: z.string().email({
+        message: "Please enter a valid email address.",
+    }),
+});
+
+type FormType = "login" | "signup" | "phone" | "otp" | "forgot-password";
 
 export function LoginForm() {
   const [formType, setFormType] = useState<FormType>("login");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [confirmationResult, setConfirmationResult] =
     useState<ConfirmationResult | null>(null);
   const [profilePic, setProfilePic] = useState<File | null>(null);
@@ -96,6 +104,11 @@ export function LoginForm() {
   const otpForm = useForm<z.infer<typeof otpFormSchema>>({
     resolver: zodResolver(otpFormSchema),
     defaultValues: { otp: "" },
+  });
+  
+  const forgotPasswordForm = useForm<z.infer<typeof forgotPasswordSchema>>({
+      resolver: zodResolver(forgotPasswordSchema),
+      defaultValues: { email: "" },
   });
 
   useEffect(() => {
@@ -208,6 +221,25 @@ export function LoginForm() {
       setIsLoading(false);
     }
   };
+  
+  const handleForgotPassword = async (values: z.infer<typeof forgotPasswordSchema>) => {
+    setIsLoading(true);
+    setError(null);
+    setSuccessMessage(null);
+    try {
+        await sendPasswordResetEmail(auth, values.email);
+        setSuccessMessage("Password reset email sent! Please check your inbox.");
+    } catch (e: any) {
+        let message = "Failed to send reset email. Please try again.";
+        if (e.code === 'auth/user-not-found') {
+            message = "No account found with this email address."
+        }
+        setError(message);
+    } finally {
+        setIsLoading(false);
+    }
+  };
+
 
   const handleOtpSubmit = async (values: z.infer<typeof otpFormSchema>) => {
     setIsLoading(true);
@@ -228,6 +260,7 @@ export function LoginForm() {
   const onEmailSubmit = (values: z.infer<typeof emailFormSchema>) => {
     setIsLoading(true);
     setError(null);
+    setSuccessMessage(null);
 
     if (formType === "signup") {
         if (!values.displayName) {
@@ -295,7 +328,14 @@ export function LoginForm() {
         name="password"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Password</FormLabel>
+            <div className="flex justify-between items-center">
+                 <FormLabel>Password</FormLabel>
+                 {formType === 'login' && (
+                     <Button type="button" variant="link" className="h-auto p-0 text-xs" onClick={() => setFormType('forgot-password')}>
+                         Forgot Password?
+                     </Button>
+                 )}
+            </div>
             <FormControl>
               <Input type="password" placeholder="••••••••" {...field} />
             </FormControl>
@@ -308,6 +348,31 @@ export function LoginForm() {
         {formType === "login" ? "Sign In" : "Sign Up"}
       </Button>
     </>
+  );
+  
+  const renderForgotPasswordForm = () => (
+    <Form {...forgotPasswordForm}>
+        <form onSubmit={forgotPasswordForm.handleSubmit(handleForgotPassword)} className="space-y-6">
+            <FormField
+                control={forgotPasswordForm.control}
+                name="email"
+                render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Email</FormLabel>
+                        <FormControl>
+                        <Input type="email" placeholder="you@example.com" {...field} />
+                        </FormControl>
+                        <FormDescription>We'll send a password reset link to this email.</FormDescription>
+                        <FormMessage />
+                    </FormItem>
+                )}
+            />
+            <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Send Reset Link
+            </Button>
+        </form>
+    </Form>
   );
 
   const renderPhoneForm = () => (
@@ -445,33 +510,32 @@ export function LoginForm() {
       </form>
     </Form>
   );
+  
+  const getTitleAndDescription = () => {
+      switch (formType) {
+          case 'login': return { title: 'Welcome Back', description: 'Sign in to access your profile and progress.'};
+          case 'signup': return { title: 'Create an Account', description: 'Join Visionary to start your journey to better eye health.'};
+          case 'phone': return { title: 'Sign In with Phone', description: 'Enter your phone number to receive a verification code.'};
+          case 'otp': return { title: 'Enter Verification Code', description: 'We sent a code to your phone. Enter it below.'};
+          case 'forgot-password': return { title: 'Reset Password', description: "Enter your email to receive a password reset link."};
+          default: return { title: '', description: '' };
+      }
+  }
+  
+  const { title, description } = getTitleAndDescription();
 
   return (
     <Card className="max-w-md mx-auto">
       <CardHeader>
-        <CardTitle>
-          {formType === "login" || formType === "signup"
-            ? formType === "login"
-              ? "Welcome Back"
-              : "Create an Account"
-            : formType === "phone"
-            ? "Sign In with Phone"
-            : "Enter Verification Code"}
-        </CardTitle>
-        <CardDescription>
-          {formType === "login" &&
-            "Sign in to access your profile and progress."}
-          {formType === "signup" &&
-            "Join Visionary to start your journey to better eye health."}
-          {formType === "phone" &&
-            "Enter your phone number to receive a verification code."}
-          {formType === "otp" &&
-            "We sent a code to your phone. Enter it below."}
-        </CardDescription>
+        <CardTitle>{title}</CardTitle>
+        <CardDescription>{description}</CardDescription>
       </CardHeader>
       <CardContent>
         {error && (
           <p className="text-sm font-medium text-destructive mb-4">{error}</p>
+        )}
+        {successMessage && (
+          <p className="text-sm font-medium text-green-600 mb-4">{successMessage}</p>
         )}
 
         {formType === "login" && renderInitialLogin()}
@@ -498,16 +562,21 @@ export function LoginForm() {
         )}
         {formType === "phone" && renderPhoneForm()}
         {formType === "otp" && renderOtpForm()}
+        {formType === 'forgot-password' && renderForgotPasswordForm()}
 
-        {(formType === "phone" || formType === "otp") && (
+        {(formType === "phone" || formType === "otp" || formType === 'forgot-password') && (
           <div className="mt-6 text-center text-sm">
             <Button
               variant="link"
               type="button"
               className="px-1"
-              onClick={() => setFormType("login")}
+              onClick={() => {
+                  setFormType("login");
+                  setError(null);
+                  setSuccessMessage(null);
+              }}
             >
-              &larr; Back to all login options
+              &larr; Back to Sign In
             </Button>
           </div>
         )}
@@ -516,3 +585,5 @@ export function LoginForm() {
     </Card>
   );
 }
+
+    
