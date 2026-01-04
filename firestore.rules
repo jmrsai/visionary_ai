@@ -107,7 +107,10 @@ service cloud.firestore {
     
     match /users/{userId}/consultations/{consultationId} {
       // Patients can manage their own consultations
-      allow get, list, create, update: if isOwner(userId) && isValidConsultation(request.resource.data, userId);
+      allow get, list: if isOwner(userId);
+      allow create: if isOwner(userId) && isValidConsultation(request.resource.data, userId);
+      allow update: if isOwner(userId) && isValidConsultation(request.resource.data, userId);
+      allow delete: if isOwner(userId);
     }
 
     // Collection group match for doctors to view all consultations assigned to them.
