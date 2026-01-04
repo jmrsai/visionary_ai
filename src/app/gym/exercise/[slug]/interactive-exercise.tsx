@@ -7,6 +7,8 @@ import { Progress } from "@/components/ui/progress";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
 import { aiFormFeedback } from "@/ai/ai-form-feedback";
+import { useUser } from "@/firebase";
+import { awardPointsForActivity } from "@/lib/rewards";
 
 const EXERCISE_DURATION_S = 30; // 30 seconds
 const FEEDBACK_INTERVAL_MS = 3000; // 3 seconds
@@ -59,6 +61,17 @@ export function InteractiveExercise({ id, title }: { id: string, title: string }
   const timerRef = useRef<NodeJS.Timeout>();
   const feedbackTimerRef = useRef<NodeJS.Timeout>();
   const { toast } = useToast();
+  const { user } = useUser();
+
+  const onExerciseComplete = useCallback(() => {
+    if (user) {
+        awardPointsForActivity(user.uid, 'completed_exercise', title);
+        toast({
+            title: "Exercise Complete!",
+            description: `You've earned points for completing the ${title} exercise.`,
+        })
+    }
+  }, [user, title, toast]);
 
   useEffect(() => {
     const getCameraPermission = async () => {
@@ -136,6 +149,7 @@ export function InteractiveExercise({ id, title }: { id: string, title: string }
           clearInterval(timerRef.current);
           if (feedbackTimerRef.current) clearInterval(feedbackTimerRef.current);
           setExerciseState("finished");
+          onExerciseComplete();
           return 100;
         }
         return newProgress;
@@ -146,7 +160,7 @@ export function InteractiveExercise({ id, title }: { id: string, title: string }
         getAIFeedback(); // Get initial feedback
         feedbackTimerRef.current = setInterval(getAIFeedback, FEEDBACK_INTERVAL_MS);
     }
-  }, [getAIFeedback, id, hasCameraPermission]);
+  }, [getAIFeedback, id, hasCameraPermission, onExerciseComplete]);
 
   const handleStart = () => {
     setExerciseState("running");

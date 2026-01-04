@@ -1,7 +1,7 @@
 
 "use client";
 
-import type { User } from "firebase/auth";
+import type { User } from "@/lib/types";
 import {
   Card,
   CardContent,
@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { Lightbulb, ChevronRight, CheckCircle, Bell, Video, GraduationCap } from "lucide-react";
+import { Lightbulb, ChevronRight, CheckCircle, Bell, Video, GraduationCap, Star } from "lucide-react";
 import { ProgressCircle } from "@/components/ui/progress-circle";
 import { AdherenceChart } from "./adherence/adherence-chart";
 import { QuickGuide } from "@/components/quick-guide";
@@ -22,12 +22,22 @@ export function UserProfile({ user }: { user: User }) {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold">Welcome, {user.displayName || user.email}!</h1>
-        <p className="text-muted-foreground">
-          Track your journey to better vision health.
-        </p>
+      <div className="flex justify-between items-start">
+        <div>
+            <h1 className="text-3xl font-bold">Welcome, {user.displayName || user.email}!</h1>
+            <p className="text-muted-foreground">
+              Track your journey to better vision health.
+            </p>
+        </div>
+        <Card className="p-2 px-4 bg-amber-300/20 border-amber-400">
+            <div className="flex items-center gap-2">
+                <Star className="h-5 w-5 text-amber-500" />
+                <span className="text-lg font-bold text-amber-700 dark:text-amber-300">{user.points || 0}</span>
+                <span className="text-sm text-muted-foreground">Points</span>
+            </div>
+        </Card>
       </div>
+
 
       <QuickGuide />
 

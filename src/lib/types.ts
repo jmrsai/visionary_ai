@@ -18,6 +18,7 @@ export interface User {
   displayName: string;
   photoURL?: string;
   createdAt: Timestamp;
+  points?: number;
   preferences?: {
     darkMode?: boolean;
     notifications?: boolean;
@@ -131,6 +132,14 @@ export interface AdherenceLog {
     medication: string;
     type: 'Eye Drops' | 'Pill' | 'Capsule' | 'Liquid';
     status: 'taken' | 'skipped' | 'upcoming' | 'taken_late';
+    timestamp: string; // ISO string
+};
+
+export type ActivityLog = {
+    id: string;
+    activityType: 'completed_test' | 'completed_exercise';
+    activityName: string;
+    pointsEarned: number;
     timestamp: string; // ISO string
 };
 

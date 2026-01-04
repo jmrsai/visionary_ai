@@ -22,6 +22,7 @@ export const getOrCreateUser = async (firebaseUser: FirebaseAuthUser): Promise<U
         displayName: firebaseUser.displayName || "Anonymous User",
         photoURL: firebaseUser.photoURL || undefined,
         createdAt: serverTimestamp() as any, // Cast to any to satisfy type temporarily
+        points: 0,
       };
       
       // Non-blocking write with contextual error handling

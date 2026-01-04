@@ -14,6 +14,10 @@ import { AccommodationFlexibilityTest } from "@/components/tests/accommodation-f
 import type { TestResult, CheckupReport } from "@/lib/types";
 import { v4 as uuidv4 } from 'uuid';
 import { CheckupResultCard } from "./result-card";
+import { useUser } from "@/firebase";
+import { awardPointsForActivity } from "@/lib/rewards";
+import { addDocumentNonBlocking } from "@/firebase/non-blocking-updates";
+import { collection, getFirestore } from "firebase/firestore";
 
 const checkupTestIds = [
   "visual-acuity",
@@ -32,7 +36,7 @@ const TestComponent = ({ testId, onComplete }: { testId: string, onComplete: (re
   
   const getTestComponent = () => {
     switch (testId) {
-      case "visual-acuity": return <VisualAcuityTest />;
+      case "visual-acuity": return <VisualAcuityTest isNearTest={false} />;
       case "macular-health": return <MacularHealthTest />;
       case "color-vision": return <ColorVisionTest />;
       case "visual-field": return <VisualFieldTest />;
@@ -70,6 +74,8 @@ export function TestRunner() {
   const [currentTestIndex, setCurrentTestIndex] = useState(0);
   const [results, setResults] = useState<TestResult[]>([]);
   const [finalReport, setFinalReport] = useState<CheckupReport | null>(null);
+  const { user } = useUser();
+  const firestore = getFirestore();
 
   const startCheckup = () => {
     setStep("running");
@@ -92,6 +98,12 @@ export function TestRunner() {
       };
       setFinalReport(report);
       setStep("finished");
+
+      if (user && firestore) {
+        awardPointsForActivity(user.uid, 'completed_test', 'Comprehensive Check-up');
+        const resultsCollectionRef = collection(firestore, `users/${user.uid}/visionTestResults`);
+        addDocumentNonBlocking(resultsCollectionRef, report);
+      }
     }
   };
 

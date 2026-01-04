@@ -2,10 +2,11 @@
 
 import React, { DependencyList, createContext, useContext, ReactNode, useMemo, useState, useEffect } from 'react';
 import { FirebaseApp } from 'firebase/app';
-import { Firestore } from 'firebase/firestore';
-import { Auth, User, onAuthStateChanged } from 'firebase/auth';
+import { Firestore, doc, onSnapshot } from 'firebase/firestore';
+import { Auth, User as FirebaseAuthUser, onAuthStateChanged } from 'firebase/auth';
 import { FirebaseStorage } from 'firebase/storage';
 import { FirebaseErrorListener } from '@/components/FirebaseErrorListener'
+import type { User } from '@/lib/types';
 
 interface FirebaseProviderProps {
   children: ReactNode;
@@ -74,25 +75,45 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
 
   // Effect to subscribe to Firebase auth state changes
   useEffect(() => {
-    if (!auth) { // If no Auth service instance, cannot determine user state
-      setUserAuthState({ user: null, isUserLoading: false, userError: new Error("Auth service not provided.") });
+    if (!auth || !firestore) { // If no Auth service instance, cannot determine user state
+      setUserAuthState({ user: null, isUserLoading: false, userError: new Error("Auth or Firestore service not provided.") });
       return;
     }
 
     setUserAuthState({ user: null, isUserLoading: true, userError: null }); // Reset on auth instance change
 
-    const unsubscribe = onAuthStateChanged(
+    const unsubscribeAuth = onAuthStateChanged(
       auth,
-      (firebaseUser) => { // Auth state determined
-        setUserAuthState({ user: firebaseUser, isUserLoading: false, userError: null });
+      (firebaseUser: FirebaseAuthUser | null) => {
+        if (firebaseUser) {
+            // User is signed in, now listen for user document changes
+            const userDocRef = doc(firestore, "users", firebaseUser.uid);
+            const unsubscribeDoc = onSnapshot(userDocRef, (doc) => {
+                if (doc.exists()) {
+                    setUserAuthState({ user: doc.data() as User, isUserLoading: false, userError: null });
+                } else {
+                    // This can happen briefly during user creation
+                    setUserAuthState({ user: null, isUserLoading: false, userError: null });
+                }
+            }, (error) => {
+                 console.error("FirebaseProvider: User document snapshot error:", error);
+                 setUserAuthState({ user: null, isUserLoading: false, userError: error });
+            });
+            
+            // Return a function that unsubscribes from both listeners
+            return () => unsubscribeDoc();
+        } else {
+            // User is signed out
+            setUserAuthState({ user: null, isUserLoading: false, userError: null });
+        }
       },
       (error) => { // Auth listener error
         console.error("FirebaseProvider: onAuthStateChanged error:", error);
         setUserAuthState({ user: null, isUserLoading: false, userError: error });
       }
     );
-    return () => unsubscribe(); // Cleanup
-  }, [auth]); // Depends on the auth instance
+    return () => unsubscribeAuth(); // Cleanup auth listener
+  }, [auth, firestore]);
 
   // Memoize the context value
   const contextValue = useMemo((): FirebaseContextState => {

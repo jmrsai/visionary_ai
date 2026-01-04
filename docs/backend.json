@@ -24,13 +24,58 @@
           "type": "string",
           "description": "Date and time when the user joined the app.",
           "format": "date-time"
+        },
+        "points": {
+          "type": "number",
+          "description": "Total points accumulated by the user."
         }
       },
       "required": [
         "id",
         "email",
         "name",
-        "dateJoined"
+        "dateJoined",
+        "points"
+      ]
+    },
+    "ActivityLog": {
+      "title": "ActivityLog",
+      "type": "object",
+      "description": "Logs a user's activity and points earned.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the log entry."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User."
+        },
+        "activityType": {
+          "type": "string",
+          "description": "The type of activity performed (e.g., 'completed_test', 'completed_exercise')."
+        },
+        "activityName": {
+          "type": "string",
+          "description": "The name of the test or exercise."
+        },
+        "pointsEarned": {
+          "type": "number",
+          "description": "Points earned for this activity."
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When the activity was completed."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "activityType",
+        "activityName",
+        "pointsEarned",
+        "timestamp"
       ]
     },
     "VisionTestResult": {
@@ -200,6 +245,10 @@
     "/users/{userId}/consultations/{consultationId}": {
         "schema": { "$ref": "#/entities/Consultation" },
         "description": "Stores telemedicine consultations for a user."
+    },
+    "/users/{userId}/rewards/{activityLogId}": {
+      "schema": { "$ref": "#/entities/ActivityLog" },
+      "description": "Stores the activity log and points earned for a user."
     }
   }
 }
