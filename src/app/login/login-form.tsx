@@ -100,12 +100,15 @@ export function LoginForm() {
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const recaptchaContainerRef = useRef<HTMLDivElement>(null);
+  const recaptchaVerifierRef = useRef<RecaptchaVerifier | null>(null);
+  const widgetIdRef = useRef<number | null>(null);
+
 
   useEffect(() => {
     // Cleanup on component unmount
     return () => {
-        if (window.recaptchaVerifier) {
-            window.recaptchaVerifier.clear();
+        if (recaptchaVerifierRef.current) {
+            recaptchaVerifierRef.current.clear();
         }
     }
   }, []);
@@ -206,8 +209,8 @@ export function LoginForm() {
     setError(null);
 
     // Clear any previous instance
-    if (window.recaptchaVerifier) {
-      window.recaptchaVerifier.clear();
+    if (recaptchaVerifierRef.current) {
+        recaptchaVerifierRef.current.clear();
     }
 
     const appVerifier = new RecaptchaVerifier(auth, recaptchaContainerRef.current, {
@@ -217,15 +220,16 @@ export function LoginForm() {
         },
         'expired-callback': () => {
             setError("reCAPTCHA expired. Please try again.");
-            if (window.recaptchaVerifier) {
-                window.recaptchaVerifier.clear();
+            if (widgetIdRef.current !== null && window.grecaptcha) {
+                window.grecaptcha.reset(widgetIdRef.current);
             }
         }
     });
-    window.recaptchaVerifier = appVerifier;
+    recaptchaVerifierRef.current = appVerifier;
 
     // Render the reCAPTCHA and then sign in
     appVerifier.render().then((widgetId) => {
+        widgetIdRef.current = widgetId;
         const phoneNumber = `+${values.phoneNumber}`;
         signInWithPhoneNumber(auth, phoneNumber, appVerifier)
             .then((confirmationResult) => {
@@ -244,7 +248,9 @@ export function LoginForm() {
                 setError(message);
                 setIsLoading(false);
                 // Reset reCAPTCHA on error
-                window.grecaptcha?.reset(widgetId);
+                if (widgetIdRef.current !== null && window.grecaptcha) {
+                    window.grecaptcha.reset(widgetIdRef.current);
+                }
             });
     }).catch(error => {
         console.error("reCAPTCHA render error:", error);
@@ -647,3 +653,4 @@ export function LoginForm() {
     </Card>
   );
 }
+
