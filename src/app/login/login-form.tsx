@@ -90,13 +90,16 @@ export function LoginForm() {
 
   useEffect(() => {
     if (auth && !("recaptchaVerifier" in window)) {
-      (window as any).recaptchaVerifier = new RecaptchaVerifier(
-        auth,
-        "recaptcha-container",
-        {
-          size: "invisible",
-        }
-      );
+      // Add a small delay to ensure the container is rendered
+      setTimeout(() => {
+        (window as any).recaptchaVerifier = new RecaptchaVerifier(
+          auth,
+          "recaptcha-container",
+          {
+            size: "invisible",
+          }
+        );
+      }, 100);
     }
   }, [auth]);
 
@@ -158,14 +161,16 @@ export function LoginForm() {
     setIsLoading(true);
     setError(null);
     const appVerifier = (window as any).recaptchaVerifier;
+
     try {
-      const result = await signInWithPhoneNumber(
-        auth,
-        `+${values.phoneNumber}`,
-        appVerifier
-      );
-      setConfirmationResult(result);
-      setFormType("otp");
+        await appVerifier.render();
+        const result = await signInWithPhoneNumber(
+            auth,
+            `+${values.phoneNumber}`,
+            appVerifier
+        );
+        setConfirmationResult(result);
+        setFormType("otp");
     } catch (e) {
       handleAuthError(e);
     } finally {
