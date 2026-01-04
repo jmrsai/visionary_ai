@@ -2,11 +2,11 @@
 "use client";
 
 import "react-phone-input-2/lib/style.css";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { useAuth } from "@/firebase";
+import { useAuth, useStorage } from "@/firebase";
 import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
@@ -16,8 +16,11 @@ import {
   signInWithPhoneNumber,
   ConfirmationResult,
   UserCredential,
+  updateProfile,
 } from "firebase/auth";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import PhoneInput from "react-phone-input-2";
+import Image from "next/image";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -37,9 +40,10 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
-import { Loader2, Phone } from "lucide-react";
+import { Loader2, Phone, Upload, User as UserIcon, Camera } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { getOrCreateUser } from "@/services/firebase";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const emailFormSchema = z.object({
   email: z.string().email({
@@ -48,6 +52,7 @@ const emailFormSchema = z.object({
   password: z.string().min(6, {
     message: "Password must be at least 6 characters.",
   }),
+  displayName: z.string().optional(),
 });
 
 const phoneFormSchema = z.object({
@@ -70,12 +75,17 @@ export function LoginForm() {
   const [error, setError] = useState<string | null>(null);
   const [confirmationResult, setConfirmationResult] =
     useState<ConfirmationResult | null>(null);
+  const [profilePic, setProfilePic] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
   const auth = useAuth();
+  const storage = useStorage();
   const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const emailForm = useForm<z.infer<typeof emailFormSchema>>({
     resolver: zodResolver(emailFormSchema),
-    defaultValues: { email: "", password: "" },
+    defaultValues: { email: "", password: "", displayName: "" },
   });
 
   const phoneForm = useForm<z.infer<typeof phoneFormSchema>>({
@@ -90,7 +100,6 @@ export function LoginForm() {
 
   useEffect(() => {
     if (auth && !("recaptchaVerifier" in window)) {
-      // Add a small delay to ensure the container is rendered
       setTimeout(() => {
         (window as any).recaptchaVerifier = new RecaptchaVerifier(
           auth,
@@ -103,7 +112,29 @@ export function LoginForm() {
     }
   }, [auth]);
 
-  const handleAuthSuccess = async (userCredential: UserCredential) => {
+  const handleProfilePicChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setProfilePic(file);
+      setPreviewUrl(URL.createObjectURL(file));
+    }
+  };
+
+  const handleAuthSuccess = async (userCredential: UserCredential, displayName?: string) => {
+    let photoURL = userCredential.user.photoURL;
+
+    if (profilePic && storage) {
+      setIsLoading(true);
+      setError("Creating profile...");
+      const storageRef = ref(storage, `profile-pictures/${userCredential.user.uid}`);
+      await uploadBytes(storageRef, profilePic);
+      photoURL = await getDownloadURL(storageRef);
+    }
+
+    if (displayName || photoURL) {
+       await updateProfile(userCredential.user, { displayName, photoURL });
+    }
+    
     await getOrCreateUser(userCredential.user);
     if (formType === "signup") {
       toast({
@@ -153,7 +184,7 @@ export function LoginForm() {
     setError(null);
     const provider = new GoogleAuthProvider();
     signInWithPopup(auth, provider)
-      .then(handleAuthSuccess)
+      .then((cred) => handleAuthSuccess(cred))
       .catch(handleAuthError);
   };
 
@@ -199,18 +230,53 @@ export function LoginForm() {
     setError(null);
 
     if (formType === "signup") {
+        if (!values.displayName) {
+            emailForm.setError("displayName", { message: "Display name is required."});
+            setIsLoading(false);
+            return;
+        }
       createUserWithEmailAndPassword(auth, values.email, values.password)
-        .then(handleAuthSuccess)
+        .then((cred) => handleAuthSuccess(cred, values.displayName))
         .catch(handleAuthError);
     } else {
       signInWithEmailAndPassword(auth, values.email, values.password)
-        .then(handleAuthSuccess)
+        .then((cred) => handleAuthSuccess(cred))
         .catch(handleAuthError);
     }
   };
 
   const renderEmailForm = () => (
     <>
+     {formType === "signup" && (
+        <div className="space-y-4">
+             <FormItem>
+                <FormLabel>Profile Picture</FormLabel>
+                <div className="flex items-center gap-4">
+                     <Avatar className="h-16 w-16">
+                        {previewUrl && <AvatarImage src={previewUrl} />}
+                        <AvatarFallback><UserIcon className="h-8 w-8 text-muted-foreground"/></AvatarFallback>
+                    </Avatar>
+                    <Button type="button" variant="outline" onClick={() => fileInputRef.current?.click()}>
+                        <Camera className="mr-2 h-4 w-4" /> Upload
+                    </Button>
+                    <input type="file" ref={fileInputRef} onChange={handleProfilePicChange} accept="image/*" className="hidden" />
+                </div>
+            </FormItem>
+            <FormField
+                control={emailForm.control}
+                name="displayName"
+                render={({ field }) => (
+                <FormItem>
+                    <FormLabel>Display Name</FormLabel>
+                    <FormControl>
+                    <Input type="text" placeholder="Jane Doe" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                </FormItem>
+                )}
+            />
+        </div>
+      )}
       <FormField
         control={emailForm.control}
         name="email"

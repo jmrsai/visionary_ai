@@ -16,6 +16,7 @@ export interface User {
   id: string; // Document ID from Firebase Auth
   email: string;
   displayName: string;
+  photoURL?: string;
   createdAt: Timestamp;
   preferences?: {
     darkMode?: boolean;
