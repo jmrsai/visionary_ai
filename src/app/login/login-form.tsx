@@ -18,7 +18,7 @@ import {
   UserCredential,
   updateProfile,
   sendPasswordResetEmail,
-  ApplicationVerifier,
+  Auth,
 } from "firebase/auth";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import PhoneInput from "react-phone-input-2";
@@ -77,6 +77,25 @@ const forgotPasswordSchema = z.object({
 
 type FormType = "login" | "signup" | "phone" | "otp" | "forgot-password";
 
+// This function will be called by the reCAPTCHA callback
+const onRecaptchaSolved = (authInstance: Auth, phoneNumber: string, setConfirmationResult: (result: ConfirmationResult) => void, setIsLoading: (loading: boolean) => void, setFormType: (type: FormType) => void, setError: (error: string | null) => void) => {
+    setIsLoading(true);
+    setError(null);
+    signInWithPhoneNumber(authInstance, `+${phoneNumber}`, window.recaptchaVerifier!)
+        .then((confirmationResult) => {
+            setConfirmationResult(confirmationResult);
+            setFormType("otp");
+        }).catch((error) => {
+            let message = "SMS not sent. Please try again.";
+            if (error.code === 'auth/too-many-requests') {
+                message = "Too many requests. Please try again later.";
+            }
+            setError(message);
+        }).finally(() => {
+            setIsLoading(false);
+        });
+}
+
 export function LoginForm() {
   const [formType, setFormType] = useState<FormType>("login");
   const [isLoading, setIsLoading] = useState(false);
@@ -91,15 +110,21 @@ export function LoginForm() {
   const storage = useStorage();
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
-  const getRecaptchaVerifier = () => {
-    if (!window.recaptchaVerifier) {
-      window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+
+  useEffect(() => {
+    // This effect sets up the reCAPTCHA verifier but does not render it.
+    // It's tied to the "send-code-button" which will trigger the verification.
+    if (auth && formType === 'phone' && !window.recaptchaVerifier) {
+      window.recaptchaVerifier = new RecaptchaVerifier(auth, 'send-code-button', {
         'size': 'invisible',
+        'callback': () => {
+          // This callback is triggered when reCAPTCHA is solved.
+          const phoneFormValues = phoneForm.getValues();
+          onRecaptchaSolved(auth, phoneFormValues.phoneNumber, setConfirmationResult, setIsLoading, setFormType, setError);
+        }
       });
     }
-    return window.recaptchaVerifier;
-  };
+  }, [auth, formType]);
 
 
   const handleProfilePicChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -178,26 +203,13 @@ export function LoginForm() {
       .catch(handleAuthError);
   };
 
-  const handlePhoneSignIn = async (values: z.infer<typeof phoneFormSchema>) => {
+  const handlePhoneSignIn = async () => {
+    // This function now only triggers the reCAPTCHA verification process.
+    // The actual sign-in logic is in the `onRecaptchaSolved` callback.
     setIsLoading(true);
     setError(null);
-
-    try {
-        const appVerifier = getRecaptchaVerifier();
-        // This forces the reCAPTCHA to render and resolve before proceeding
-        const widgetId = await appVerifier.render();
-
-        const result = await signInWithPhoneNumber(
-            auth,
-            `+${values.phoneNumber}`,
-            appVerifier
-        );
-        setConfirmationResult(result);
-        setFormType("otp");
-    } catch (e) {
-      handleAuthError(e);
-    } finally {
-      setIsLoading(false);
+    if (window.recaptchaVerifier) {
+      window.recaptchaVerifier.verify();
     }
   };
   
@@ -405,7 +417,7 @@ export function LoginForm() {
             </FormItem>
           )}
         />
-        <Button type="submit" className="w-full" disabled={isLoading}>
+        <Button id="send-code-button" type="submit" className="w-full" disabled={isLoading}>
           {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
           Send Verification Code
         </Button>
