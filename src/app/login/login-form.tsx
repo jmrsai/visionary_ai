@@ -42,10 +42,18 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
-import { Loader2, Phone, Upload, User as UserIcon, Camera } from "lucide-react";
+import { Loader2, Phone, User as UserIcon, Camera } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { getOrCreateUser } from "@/services/firebase";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+
+declare global {
+    interface Window {
+        recaptchaVerifier?: RecaptchaVerifier;
+        confirmationResult?: ConfirmationResult;
+        grecaptcha?: any;
+    }
+}
 
 const emailFormSchema = z.object({
   email: z.string().email({
@@ -77,25 +85,6 @@ const forgotPasswordSchema = z.object({
 
 type FormType = "login" | "signup" | "phone" | "otp" | "forgot-password";
 
-// This function will be called by the reCAPTCHA callback
-const onRecaptchaSolved = (authInstance: Auth, phoneNumber: string, setConfirmationResult: (result: ConfirmationResult) => void, setIsLoading: (loading: boolean) => void, setFormType: (type: FormType) => void, setError: (error: string | null) => void) => {
-    setIsLoading(true);
-    setError(null);
-    signInWithPhoneNumber(authInstance, `+${phoneNumber}`, window.recaptchaVerifier!)
-        .then((confirmationResult) => {
-            setConfirmationResult(confirmationResult);
-            setFormType("otp");
-        }).catch((error) => {
-            let message = "SMS not sent. Please try again.";
-            if (error.code === 'auth/too-many-requests') {
-                message = "Too many requests. Please try again later.";
-            }
-            setError(message);
-        }).finally(() => {
-            setIsLoading(false);
-        });
-}
-
 export function LoginForm() {
   const [formType, setFormType] = useState<FormType>("login");
   const [isLoading, setIsLoading] = useState(false);
@@ -110,21 +99,36 @@ export function LoginForm() {
   const storage = useStorage();
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const recaptchaContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // This effect sets up the reCAPTCHA verifier but does not render it.
-    // It's tied to the "send-code-button" which will trigger the verification.
-    if (auth && formType === 'phone' && !window.recaptchaVerifier) {
-      window.recaptchaVerifier = new RecaptchaVerifier(auth, 'send-code-button', {
-        'size': 'invisible',
+    // Initialize reCAPTCHA when phone form is shown
+    if (formType === 'phone' && auth && recaptchaContainerRef.current && !window.recaptchaVerifier) {
+      window.recaptchaVerifier = new RecaptchaVerifier(auth, recaptchaContainerRef.current, {
+        'size': 'normal', // Use a visible widget
         'callback': () => {
-          // This callback is triggered when reCAPTCHA is solved.
-          const phoneFormValues = phoneForm.getValues();
-          onRecaptchaSolved(auth, phoneFormValues.phoneNumber, setConfirmationResult, setIsLoading, setFormType, setError);
+          // This callback is less important when not using invisible reCAPTCHA with a button tie-in.
+          // The main logic will be in handlePhoneSignIn.
+        },
+        'expired-callback': () => {
+          setError("reCAPTCHA expired. Please try again.");
+          window.recaptchaVerifier?.clear();
         }
       });
+      window.recaptchaVerifier.render();
+    } else if (formType !== 'phone' && window.recaptchaVerifier) {
+        // Cleanup when switching away from phone form
+        window.recaptchaVerifier.clear();
+        window.recaptchaVerifier = undefined;
     }
-  }, [auth, formType]);
+    
+    // Cleanup on component unmount
+    return () => {
+        if (window.recaptchaVerifier) {
+            window.recaptchaVerifier.clear();
+        }
+    }
+  }, [formType, auth]);
 
 
   const handleProfilePicChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -195,6 +199,7 @@ export function LoginForm() {
   };
 
   const handleGoogleSignIn = () => {
+    if (!auth) return;
     setIsLoading(true);
     setError(null);
     const provider = new GoogleAuthProvider();
@@ -202,18 +207,42 @@ export function LoginForm() {
       .then((cred) => handleAuthSuccess(cred))
       .catch(handleAuthError);
   };
-
-  const handlePhoneSignIn = async () => {
-    // This function now only triggers the reCAPTCHA verification process.
-    // The actual sign-in logic is in the `onRecaptchaSolved` callback.
+  
+    const handlePhoneSignIn = (values: z.infer<typeof phoneFormSchema>) => {
+    if (!auth || !window.recaptchaVerifier) {
+      setError("Authentication service not ready. Please wait a moment.");
+      return;
+    }
     setIsLoading(true);
     setError(null);
-    if (window.recaptchaVerifier) {
-      window.recaptchaVerifier.verify();
-    }
+
+    const appVerifier = window.recaptchaVerifier;
+    const phoneNumber = `+${values.phoneNumber}`;
+
+    signInWithPhoneNumber(auth, phoneNumber, appVerifier)
+      .then((confirmationResult) => {
+        setConfirmationResult(confirmationResult);
+        setFormType("otp");
+      })
+      .catch((error) => {
+        let message = "SMS not sent. Please try again.";
+        if (error.code === 'auth/too-many-requests') {
+            message = "Too many requests. Please try again later.";
+        } else if (error.code === 'auth/invalid-phone-number') {
+            message = "The phone number is not valid.";
+        }
+        console.error("Phone sign-in error:", error);
+        setError(message);
+        // Reset reCAPTCHA on error
+        window.grecaptcha?.reset();
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   };
-  
+
   const handleForgotPassword = async (values: z.infer<typeof forgotPasswordSchema>) => {
+    if (!auth) return;
     setIsLoading(true);
     setError(null);
     setSuccessMessage(null);
@@ -249,6 +278,7 @@ export function LoginForm() {
   };
 
   const onEmailSubmit = (values: z.infer<typeof emailFormSchema>) => {
+    if (!auth) return;
     setIsLoading(true);
     setError(null);
     setSuccessMessage(null);
@@ -408,7 +438,7 @@ export function LoginForm() {
                             country={"in"}
                             value={value}
                             onChange={onChange}
-                            inputClass="!w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                            inputClass="!w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 !pl-12"
                         />
                     )}
                 />
@@ -417,6 +447,7 @@ export function LoginForm() {
             </FormItem>
           )}
         />
+        <div ref={recaptchaContainerRef} className="flex justify-center"/>
         <Button id="send-code-button" type="submit" className="w-full" disabled={isLoading}>
           {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
           Send Verification Code
@@ -472,6 +503,7 @@ export function LoginForm() {
             variant="outline"
             className="w-full"
             type="button"
+            disabled={isLoading}
           >
             <svg className="mr-2 h-4 w-4" viewBox="0 0 48 48">
               <path
@@ -498,6 +530,7 @@ export function LoginForm() {
             variant="outline"
             className="w-full"
             type="button"
+            disabled={isLoading}
           >
             <Phone className="mr-2 h-4 w-4" />
             Sign in with Phone
@@ -599,7 +632,6 @@ export function LoginForm() {
           </div>
         )}
       </CardContent>
-      <div id="recaptcha-container"></div>
     </Card>
   );
 }
