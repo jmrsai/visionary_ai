@@ -14,16 +14,7 @@ import {
   ChartContainer,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-
-const MOCK_VISION_SCORE_HISTORY = [
-  { "date": "Jan", "score": 80 },
-  { "date": "Feb", "score": 82 },
-  { "date": "Mar", "score": 85 },
-  { "date": "Apr", "score": 84 },
-  { "date": "May", "score": 88 },
-  { "date": "Jun", "score": 90 },
-  { "date": "Jul", "score": 92 }
-];
+import { MOCK_VISION_SCORE_HISTORY } from "@/lib/data";
 
 
 const chartConfig = {

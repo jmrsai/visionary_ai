@@ -1,1 +1,23 @@
-[]
+
+[
+  {
+    "id": "reminder-1",
+    "userId": "mock-user",
+    "title": "Latanoprost Drops",
+    "time": "21:00",
+    "type": "Eye Drops",
+    "enabled": true,
+    "dosage": "1 drop in each eye",
+    "frequency": "Daily",
+    "reason": "Glaucoma"
+  },
+  {
+    "id": "reminder-2",
+    "userId": "mock-user",
+    "title": "20-20-20 Rule",
+    "time": "15:00",
+    "type": "exercise",
+    "enabled": true,
+    "frequency": "Daily"
+  }
+]
