@@ -93,15 +93,28 @@ export function LoginForm() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const recaptchaVerifierRef = useRef<ApplicationVerifier | null>(null);
 
-
-  const getRecaptchaVerifier = () => {
-    if (!recaptchaVerifierRef.current) {
-      recaptchaVerifierRef.current = new RecaptchaVerifier(auth, 'recaptcha-container', {
-        'size': 'invisible',
-      });
+  // Set up the RecaptchaVerifier once when the component mounts
+  useEffect(() => {
+    if (auth && !recaptchaVerifierRef.current) {
+        // We use a timeout to ensure the container div is in the DOM.
+        setTimeout(() => {
+            const recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+                'size': 'invisible',
+            });
+            recaptchaVerifierRef.current = recaptchaVerifier;
+        }, 100);
     }
-    return recaptchaVerifierRef.current;
-  }
+    
+    // Cleanup function to clear the verifier
+    return () => {
+        if (recaptchaVerifierRef.current) {
+            // This is a type assertion because the 'clear' method exists on the instance
+            (recaptchaVerifierRef.current as any).clear?.();
+            recaptchaVerifierRef.current = null;
+        }
+    }
+  }, [auth]);
+
 
   const handleProfilePicChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -182,10 +195,15 @@ export function LoginForm() {
   const handlePhoneSignIn = async (values: z.infer<typeof phoneFormSchema>) => {
     setIsLoading(true);
     setError(null);
-    const appVerifier = getRecaptchaVerifier();
+
+    if (!recaptchaVerifierRef.current) {
+        setError("reCAPTCHA not ready. Please wait a moment and try again.");
+        setIsLoading(false);
+        return;
+    }
 
     try {
-        await appVerifier.render();
+        const appVerifier = recaptchaVerifierRef.current;
         const result = await signInWithPhoneNumber(
             auth,
             `+${values.phoneNumber}`,
