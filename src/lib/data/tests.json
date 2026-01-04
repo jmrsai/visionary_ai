@@ -125,5 +125,19 @@
         "description": "A smooth pursuit tracking game. Follow the spaceship with your eyes as it races through the cosmos.",
         "icon": "Rocket",
         "category": "Kids' Game Zone"
+    },
+    {
+        "id": "word-builder",
+        "title": "Word Builder",
+        "description": "A fast-paced game where you unscramble letters to form words. Great for visual processing!",
+        "icon": "Puzzle",
+        "category": "Kids' Game Zone"
+    },
+    {
+        "id": "visual-snake-game",
+        "title": "Visual Snake",
+        "description": "The classic snake game, designed to improve peripheral vision and reaction time.",
+        "icon": "Gamepad2",
+        "category": "Kids' Game Zone"
     }
 ]

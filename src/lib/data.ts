@@ -1,5 +1,5 @@
 
-import { Activity, BookOpen, Brain, Dumbbell, Eye, Glasses, HeartPulse, Target, Video, View, Wind, Sparkles, CalendarCheck, ScanEye, Zap, ListTodo, Contrast, Layers, Palette, Rocket, Move, Orbit, Grid, CircleDot, EyeOff, Disc } from "lucide-react";
+import { Activity, BookOpen, Brain, Dumbbell, Eye, Glasses, HeartPulse, Target, Video, View, Wind, Sparkles, CalendarCheck, ScanEye, Zap, ListTodo, Contrast, Layers, Palette, Rocket, Move, Orbit, Grid, CircleDot, EyeOff, Disc, Puzzle, Gamepad2 } from "lucide-react";
 import type { Test, Exercise, Circuit, HrrPlate, D15Cap, Reminder, Consultation } from "./types";
 import { StereopsisIcon } from "@/components/icons";
 
@@ -51,6 +51,8 @@ const iconMapping: { [key: string]: React.ElementType } = {
     EyeOff,
     Disc,
     Layers,
+    Puzzle,
+    Gamepad2,
 };
 
 export const MOCK_TESTS: Test[] = testsData.map(test => ({

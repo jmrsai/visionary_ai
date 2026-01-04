@@ -20,6 +20,8 @@ import { CoverTest } from "@/components/tests/cover-test";
 import { PlacidoDiskTest } from "@/components/tests/placido-disk-test";
 import { OcularHealthScan } from "@/components/tests/ocular-health-scan";
 import { FarnsworthD15Test } from "@/components/tests/farnsworth-d15-test";
+import { WordBuilderGame } from "@/components/tests/word-builder-game";
+import { VisualSnakeGame } from "@/components/tests/visual-snake-game";
 
 export async function generateStaticParams() {
   return MOCK_TESTS.map((test) => ({
@@ -47,6 +49,8 @@ const TestComponent = ({ testId }: { testId: string }) => {
       case "placido-disk": return <PlacidoDiskTest />;
       case "ocular-health-scan": return <OcularHealthScan />;
       case "farnsworth-d15": return <FarnsworthD15Test />;
+      case "word-builder": return <WordBuilderGame onBack={() => {}} />;
+      case "visual-snake-game": return <VisualSnakeGame onBack={() => {}} />;
       default: return <p>Test not found.</p>;
     }
 }
