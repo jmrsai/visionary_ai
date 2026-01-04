@@ -191,11 +191,17 @@ export function LoginForm() {
       .catch(handleAuthError);
   };
   
-    const handlePhoneSignIn = (values: z.infer<typeof phoneFormSchema>) => {
-    if (!auth || !recaptchaContainerRef.current) {
+  const handlePhoneSignIn = (values: z.infer<typeof phoneFormSchema>) => {
+    if (!auth) {
       setError("Authentication service not ready. Please wait a moment.");
       return;
     }
+     // Ensure the container exists before proceeding.
+    if (!recaptchaContainerRef.current) {
+        setError("reCAPTCHA container not found. Please refresh and try again.");
+        return;
+    }
+    
     setIsLoading(true);
     setError(null);
 
@@ -216,6 +222,7 @@ export function LoginForm() {
             }
         }
     });
+    window.recaptchaVerifier = appVerifier;
 
     // Render the reCAPTCHA and then sign in
     appVerifier.render().then((widgetId) => {
