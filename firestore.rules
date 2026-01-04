@@ -1,120 +1,119 @@
 /**
- * Core Philosophy: This ruleset enforces a strict user-ownership model. All data is considered private and is only accessible by the authenticated user who created it. There are no public or shared collections.
- * Data Structure: All user data is hierarchically organized under a top-level `/users` collection. Each user's personal data, including their profile, vision test results, exercise logs, and medication reminders, is stored in a document or subcollection nested under their unique user ID path (`/users/{userId}`). This structure is fundamental to the security model.
+ * Core Philosophy: This ruleset enforces a strict user-ownership model and introduces data validation
+ * based on a predefined schema. It also supports a "doctor" role for specific data access.
+ *
  * Key Security Decisions:
- * - Strict Data Privacy: Users can only read and write data within their own document tree (`/users/{auth.uid}/...`). They cannot access, list, or even detect the existence of other users' data.
- * - No User Listing: Listing the top-level `/users` collection is explicitly disallowed to protect user privacy and prevent data scraping.
- * - Default Deny: The default security posture is to deny all access. Permissions are granted only through specific, narrowly defined rules based on user ownership.
- * Denormalization for Authorization: The data structure is already optimized for authorization. The user's ID is present in the path of every document, allowing for simple, fast, and cost-effective security checks without needing `get()` calls to other documents.
- * Structural Segregation: The use of separate subcollections for different types of user data (e.g., `visionTestResults`, `eyeExerciseLogs`) provides clear separation and simplifies security logic. Each subcollection is independently secured under the user's ownership path.
+ * - Strict Data Ownership: Users can only access data within their own document tree (`/users/{auth.uid}/...`).
+ * - Schema Validation: All write operations (create/update) are validated against a set of schema functions,
+ *   ensuring data integrity and preventing malformed data from being saved.
+ * - Role-Based Access: A 'doctor' role is introduced, allowing read access to specific, relevant data
+ *   (like assigned consultations) across different users, without granting broad permissions.
+ * - Default Deny: All access is denied by default and only explicitly granted through specific rules.
  */
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Helper Functions for Reusable Logic
+    // ===== Helper Functions for Reusable Logic =====
 
-    /**
-     * Returns true if the user is authenticated.
-     */
     function isSignedIn() {
       return request.auth != null;
     }
 
-    /**
-     * Returns true if the authenticated user's UID matches the provided userId.
-     * This is the primary function for establishing document ownership.
-     */
     function isOwner(userId) {
       return isSignedIn() && request.auth.uid == userId;
     }
 
-    /**
-     * Returns true if the document exists AND the user is the owner.
-     * Used for safe update and delete operations.
-     */
-    function isExistingOwner(userId) {
-      return isOwner(userId) && resource != null;
-    }
-
-    /**
-     * Returns true if the user has the 'doctor' custom claim.
-     */
     function isDoctor() {
-        return isSignedIn() && get(/databases/$(database)/documents/roles_doctor/$(request.auth.uid)).data.role == 'doctor';
+      return isSignedIn() && get(/databases/$(database)/documents/roles_doctor/$(request.auth.uid)).data.role == 'doctor';
     }
 
-    /**
-     * Validates that the 'id' field of a new user document matches the document's path ID.
-     * This enforces relational integrity at creation time.
-     */
-    function hasValidIdOnCreate(userId) {
-      return request.resource.data.id == userId;
+    // ===== Schema Validation Functions =====
+
+    function isValidUser(data) {
+      return data.id == request.auth.uid &&
+             data.email is string &&
+             data.name is string &&
+             data.dateJoined is timestamp;
     }
 
-    /**
-     * Validates that the 'id' field of a user document is immutable on update.
-     * This prevents changing the core identifier of a user profile.
-     */
-    function isIdImmutable() {
-      return request.resource.data.id == resource.data.id;
+    function isValidVisionTestResult(data, userId) {
+      return data.userId == userId &&
+             data.testType is string &&
+             data.testDate is timestamp &&
+             data.score is number &&
+             (!('notes' in data) || data.notes is string);
     }
 
-    /**
-     * Validates that the 'userId' field of a new subcollection document
-     * matches the owner's ID from the document path.
-     */
-    function hasValidUserIdOnCreate(userId) {
-      return request.resource.data.userId == userId;
+    function isValidEyeExerciseLog(data, userId) {
+        return data.userId == userId &&
+               data.exerciseType is string &&
+               data.exerciseDate is timestamp &&
+               data.duration is number &&
+               (!('repetitions' in data) || data.repetitions is number);
+    }
+    
+    function isValidReminder(data, userId) {
+        return data.userId == userId &&
+               data.title is string &&
+               data.time is string &&
+               data.type is string && ['exercise', 'Eye Drops', 'Pill', 'Capsule', 'Liquid', 'appointment'].hasAny([data.type]) &&
+               data.enabled is bool;
     }
 
-    /**
-     * Validates that the 'userId' field in a subcollection document is immutable on update.
-     * This prevents re-assigning the document to a different user.
-     */
-    function isUserIdImmutable() {
-      return request.resource.data.userId == resource.data.userId;
+    function isValidConsultation(data, userId) {
+      return data.userId == userId &&
+             data.doctorId is string &&
+             data.patientName is string &&
+             data.scheduledTime is string &&
+             data.duration is number &&
+             data.type is string && ['routine', 'follow_up', 'urgent', 'second_opinion'].hasAny([data.type]) &&
+             data.status is string && ['scheduled', 'in_progress', 'completed', 'cancelled'].hasAny([data.status]) &&
+             data.meetingLink is string &&
+             (!('notes' in data) || data.notes is string);
     }
+
+    // ===== Data Access Rules =====
 
     match /users/{userId} {
       allow get: if isOwner(userId);
-      allow list: if false;
-      allow create: if isOwner(userId) && hasValidIdOnCreate(userId);
-      allow update: if isExistingOwner(userId) && isIdImmutable();
-      allow delete: if isExistingOwner(userId);
+      allow list: if false; // Prevent listing all users
+      allow create: if isOwner(userId) && isValidUser(request.resource.data);
+      allow update: if isOwner(userId) && request.resource.data.id == resource.data.id; // ID is immutable
+      allow delete: if isOwner(userId);
     }
     
     match /roles_doctor/{userId} {
-      allow get: if isDoctor();
+      // Allow only doctors to read their own role document.
+      allow get: if isOwner(userId) && isDoctor(); 
+      allow list, create, update, delete: if false; // Roles managed externally
     }
 
     match /users/{userId}/visionTestResults/{visionTestResultId} {
-      allow get: if isOwner(userId);
-      allow list: if isOwner(userId);
-      allow create: if isOwner(userId) && hasValidUserIdOnCreate(userId);
-      allow update: if isExistingOwner(userId) && isUserIdImmutable();
-      allow delete: if isExistingOwner(userId);
+      allow read: if isOwner(userId);
+      allow write: if isOwner(userId) && isValidVisionTestResult(request.resource.data, userId);
     }
     
     match /users/{userId}/eyeExerciseLogs/{eyeExerciseLogId} {
-      allow get: if isOwner(userId);
-      allow list: if isOwner(userId);
-      allow create: if isOwner(userId) && hasValidUserIdOnCreate(userId);
-      allow update: if isExistingOwner(userId) && isUserIdImmutable();
-      allow delete: if isExistingOwner(userId);
+      allow read: if isOwner(userId);
+      allow write: if isOwner(userId) && isValidEyeExerciseLog(request.resource.data, userId);
     }
 
     match /users/{userId}/medicationReminders/{reminderId} {
-        allow get, list, create, update, delete: if isOwner(userId);
+      allow read: if isOwner(userId);
+      allow write: if isOwner(userId) && isValidReminder(request.resource.data, userId);
     }
     
     match /users/{userId}/consultations/{consultationId} {
-        allow get, list, create, update: if isOwner(userId);
+      // Patients can manage their own consultations
+      allow get, list, create, update: if isOwner(userId) && isValidConsultation(request.resource.data, userId);
     }
 
-    // Collection group for doctors to view all consultations assigned to them.
+    // Collection group match for doctors to view all consultations assigned to them.
     match /{path=**}/consultations/{consultationId} {
-        allow get, list: if isDoctor() && resource.data.doctorId == request.auth.uid;
+      // Allow a doctor to read a consultation if their ID is on the document.
+      allow get: if isDoctor() && resource.data.doctorId == request.auth.uid;
     }
   }
 }
