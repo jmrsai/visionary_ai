@@ -188,51 +188,38 @@ export function LoginForm() {
   };
 
   const renderEmailForm = () => (
-     <Form {...emailForm}>
-        <form onSubmit={emailForm.handleSubmit(onEmailSubmit)} className="space-y-6">
-            <FormField
-            control={emailForm.control}
-            name="email"
-            render={({ field }) => (
-                <FormItem>
-                <FormLabel>Email</FormLabel>
-                <FormControl>
-                    <Input type="email" placeholder="you@example.com" {...field} />
-                </FormControl>
-                <FormMessage />
-                </FormItem>
-            )}
-            />
-            <FormField
-            control={emailForm.control}
-            name="password"
-            render={({ field }) => (
-                <FormItem>
-                <FormLabel>Password</FormLabel>
-                <FormControl>
-                    <Input type="password" placeholder="••••••••" {...field} />
-                </FormControl>
-                <FormMessage />
-                </FormItem>
-            )}
-            />
-            <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {formType === "login" ? "Sign In" : "Sign Up"}
-            </Button>
-            <div className="mt-6 text-center text-sm">
-                {formType === "login" ? "Don't have an account?" : "Already have an account?"}
-                <Button
-                variant="link"
-                type="button"
-                className="px-1"
-                onClick={() => setFormType(formType === "login" ? "signup" : "login")}
-                >
-                {formType === "login" ? "Sign Up" : "Sign In"}
-                </Button>
-            </div>
-        </form>
-    </Form>
+    <>
+      <FormField
+        control={emailForm.control}
+        name="email"
+        render={({ field }) => (
+            <FormItem>
+            <FormLabel>Email</FormLabel>
+            <FormControl>
+                <Input type="email" placeholder="you@example.com" {...field} />
+            </FormControl>
+            <FormMessage />
+            </FormItem>
+        )}
+      />
+      <FormField
+        control={emailForm.control}
+        name="password"
+        render={({ field }) => (
+            <FormItem>
+            <FormLabel>Password</FormLabel>
+            <FormControl>
+                <Input type="password" placeholder="••••••••" {...field} />
+            </FormControl>
+            <FormMessage />
+            </FormItem>
+        )}
+      />
+      <Button type="submit" className="w-full" disabled={isLoading}>
+        {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+        {formType === "login" ? "Sign In" : "Sign Up"}
+      </Button>
+    </>
   )
   
   const renderPhoneForm = () => (
@@ -286,32 +273,45 @@ export function LoginForm() {
   )
 
   const renderInitialLogin = () => (
-    <>
-        <div className="space-y-4">
-             <Button onClick={handleGoogleSignIn} variant="outline" className="w-full">
-                <svg className="mr-2 h-4 w-4" viewBox="0 0 48 48">
-                    <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8c-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4C12.955 4 4 12.955 4 24s8.955 20 20 20s20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"></path>
-                    <path fill="#FF3D00" d="M6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4C16.318 4 9.656 8.337 6.306 14.691z"></path>
-                    <path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238C29.211 35.091 26.715 36 24 36c-5.223 0-9.641-3.203-11.127-7.562l-6.522 5.025C9.505 39.556 16.227 44 24 44z"></path>
-                    <path fill="#1976D2" d="M43.611 20.083H24v8h11.303c-.792 2.237-2.231 4.166-4.087 5.571l6.19 5.238C44.592 35.931 48 29.696 48 24c0-1.341-.138-2.65-.389-3.917z"></path>
-                </svg>
-                Sign in with Google
-            </Button>
-            <Button onClick={() => setFormType('phone')} variant="outline" className="w-full">
-                <Phone className="mr-2 h-4 w-4"/>
-                Sign in with Phone
-            </Button>
-        </div>
-        <div className="relative my-6">
-            <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t" />
+    <Form {...emailForm}>
+        <form onSubmit={emailForm.handleSubmit(onEmailSubmit)} className="space-y-6">
+            <div className="space-y-4">
+                <Button onClick={handleGoogleSignIn} variant="outline" className="w-full" type="button">
+                    <svg className="mr-2 h-4 w-4" viewBox="0 0 48 48">
+                        <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8c-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4C12.955 4 4 12.955 4 24s8.955 20 20 20s20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"></path>
+                        <path fill="#FF3D00" d="M6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4C16.318 4 9.656 8.337 6.306 14.691z"></path>
+                        <path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238C29.211 35.091 26.715 36 24 36c-5.223 0-9.641-3.203-11.127-7.562l-6.522 5.025C9.505 39.556 16.227 44 24 44z"></path>
+                        <path fill="#1976D2" d="M43.611 20.083H24v8h11.303c-.792 2.237-2.231 4.166-4.087 5.571l6.19 5.238C44.592 35.931 48 29.696 48 24c0-1.341-.138-2.65-.389-3.917z"></path>
+                    </svg>
+                    Sign in with Google
+                </Button>
+                <Button onClick={() => setFormType('phone')} variant="outline" className="w-full" type="button">
+                    <Phone className="mr-2 h-4 w-4"/>
+                    Sign in with Phone
+                </Button>
             </div>
-            <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-card px-2 text-muted-foreground">Or continue with email</span>
+            <div className="relative my-6">
+                <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-card px-2 text-muted-foreground">Or continue with email</span>
+                </div>
             </div>
-        </div>
-        {renderEmailForm()}
-    </>
+            {renderEmailForm()}
+            <div className="mt-6 text-center text-sm">
+                {formType === "login" ? "Don't have an account?" : "Already have an account?"}
+                <Button
+                variant="link"
+                type="button"
+                className="px-1"
+                onClick={() => setFormType(formType === "login" ? "signup" : "login")}
+                >
+                {formType === "login" ? "Sign Up" : "Sign In"}
+                </Button>
+            </div>
+        </form>
+    </Form>
   )
 
   return (
@@ -326,13 +326,30 @@ export function LoginForm() {
             {formType === 'signup' && 'Join Visionary to start your journey to better eye health.'}
             {formType === 'phone' && 'Enter your phone number to receive a verification code.'}
             {formType === 'otp' && 'We sent a code to your phone. Enter it below.'}
-          </CardDescription>
+          }</CardDescription>
         </CardHeader>
         <CardContent>
             {error && <p className="text-sm font-medium text-destructive mb-4">{error}</p>}
             
             {formType === 'login' && renderInitialLogin()}
-            {formType === 'signup' && renderEmailForm()}
+            {formType === 'signup' && (
+                <Form {...emailForm}>
+                    <form onSubmit={emailForm.handleSubmit(onEmailSubmit)} className="space-y-6">
+                        {renderEmailForm()}
+                        <div className="mt-6 text-center text-sm">
+                            Already have an account?
+                            <Button
+                                variant="link"
+                                type="button"
+                                className="px-1"
+                                onClick={() => setFormType("login")}
+                            >
+                                Sign In
+                            </Button>
+                        </div>
+                    </form>
+                </Form>
+            )}
             {formType === 'phone' && renderPhoneForm()}
             {formType === 'otp' && renderOtpForm()}
 
@@ -353,3 +370,5 @@ export function LoginForm() {
       </Card>
   );
 }
+
+    
