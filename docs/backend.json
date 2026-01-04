@@ -175,7 +175,9 @@
   "auth": {
     "providers": [
       "password",
-      "anonymous"
+      "anonymous",
+      "google.com",
+      "phone"
     ]
   },
   "firestore": {
