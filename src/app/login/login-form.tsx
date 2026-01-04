@@ -102,33 +102,13 @@ export function LoginForm() {
   const recaptchaContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Initialize reCAPTCHA when phone form is shown
-    if (formType === 'phone' && auth && recaptchaContainerRef.current && !window.recaptchaVerifier) {
-      window.recaptchaVerifier = new RecaptchaVerifier(auth, recaptchaContainerRef.current, {
-        'size': 'normal', // Use a visible widget
-        'callback': () => {
-          // This callback is less important when not using invisible reCAPTCHA with a button tie-in.
-          // The main logic will be in handlePhoneSignIn.
-        },
-        'expired-callback': () => {
-          setError("reCAPTCHA expired. Please try again.");
-          window.recaptchaVerifier?.clear();
-        }
-      });
-      window.recaptchaVerifier.render();
-    } else if (formType !== 'phone' && window.recaptchaVerifier) {
-        // Cleanup when switching away from phone form
-        window.recaptchaVerifier.clear();
-        window.recaptchaVerifier = undefined;
-    }
-    
     // Cleanup on component unmount
     return () => {
         if (window.recaptchaVerifier) {
             window.recaptchaVerifier.clear();
         }
     }
-  }, [formType, auth]);
+  }, []);
 
 
   const handleProfilePicChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -193,6 +173,9 @@ export function LoginForm() {
       case "auth/invalid-verification-code":
         message = "Invalid verification code. Please try again.";
         break;
+      case "auth/captcha-check-failed":
+        message = "reCAPTCHA check failed. Please try again.";
+        break;
     }
     setError(message);
     setIsLoading(false);
@@ -209,36 +192,58 @@ export function LoginForm() {
   };
   
     const handlePhoneSignIn = (values: z.infer<typeof phoneFormSchema>) => {
-    if (!auth || !window.recaptchaVerifier) {
+    if (!auth || !recaptchaContainerRef.current) {
       setError("Authentication service not ready. Please wait a moment.");
       return;
     }
     setIsLoading(true);
     setError(null);
 
-    const appVerifier = window.recaptchaVerifier;
-    const phoneNumber = `+${values.phoneNumber}`;
+    // Clear any previous instance
+    if (window.recaptchaVerifier) {
+      window.recaptchaVerifier.clear();
+    }
 
-    signInWithPhoneNumber(auth, phoneNumber, appVerifier)
-      .then((confirmationResult) => {
-        setConfirmationResult(confirmationResult);
-        setFormType("otp");
-      })
-      .catch((error) => {
-        let message = "SMS not sent. Please try again.";
-        if (error.code === 'auth/too-many-requests') {
-            message = "Too many requests. Please try again later.";
-        } else if (error.code === 'auth/invalid-phone-number') {
-            message = "The phone number is not valid.";
+    const appVerifier = new RecaptchaVerifier(auth, recaptchaContainerRef.current, {
+        'size': 'normal',
+        'callback': () => {
+          // This callback is less important now, but good practice to have.
+        },
+        'expired-callback': () => {
+            setError("reCAPTCHA expired. Please try again.");
+            if (window.recaptchaVerifier) {
+                window.recaptchaVerifier.clear();
+            }
         }
-        console.error("Phone sign-in error:", error);
-        setError(message);
-        // Reset reCAPTCHA on error
-        window.grecaptcha?.reset();
-      })
-      .finally(() => {
+    });
+
+    // Render the reCAPTCHA and then sign in
+    appVerifier.render().then((widgetId) => {
+        const phoneNumber = `+${values.phoneNumber}`;
+        signInWithPhoneNumber(auth, phoneNumber, appVerifier)
+            .then((confirmationResult) => {
+                setConfirmationResult(confirmationResult);
+                setFormType("otp");
+                setIsLoading(false);
+            })
+            .catch((error) => {
+                let message = "SMS not sent. Please try again.";
+                if (error.code === 'auth/too-many-requests') {
+                    message = "Too many requests. Please try again later.";
+                } else if (error.code === 'auth/invalid-phone-number') {
+                    message = "The phone number is not valid.";
+                }
+                console.error("Phone sign-in error:", error);
+                setError(message);
+                setIsLoading(false);
+                // Reset reCAPTCHA on error
+                window.grecaptcha?.reset(widgetId);
+            });
+    }).catch(error => {
+        console.error("reCAPTCHA render error:", error);
+        setError("Failed to render reCAPTCHA. Please refresh the page and try again.");
         setIsLoading(false);
-      });
+    });
   };
 
   const handleForgotPassword = async (values: z.infer<typeof forgotPasswordSchema>) => {
