@@ -196,10 +196,9 @@ export function LoginForm() {
   
   const handlePhoneSignIn = (values: z.infer<typeof phoneFormSchema>) => {
     if (!auth) {
-      setError("Authentication service not ready. Please wait a moment.");
+      setError("Authentication service not ready.");
       return;
     }
-     // Ensure the container exists before proceeding.
     if (!recaptchaContainerRef.current) {
         setError("reCAPTCHA container not found. Please refresh and try again.");
         return;
@@ -207,8 +206,7 @@ export function LoginForm() {
     
     setIsLoading(true);
     setError(null);
-
-    // Clear any previous instance
+    
     if (recaptchaVerifierRef.current) {
         recaptchaVerifierRef.current.clear();
     }
@@ -216,7 +214,7 @@ export function LoginForm() {
     const appVerifier = new RecaptchaVerifier(auth, recaptchaContainerRef.current, {
         'size': 'normal',
         'callback': () => {
-          // This callback is less important now, but good practice to have.
+          // reCAPTCHA solved, allow signInWithPhoneNumber.
         },
         'expired-callback': () => {
             setError("reCAPTCHA expired. Please try again.");
@@ -227,7 +225,6 @@ export function LoginForm() {
     });
     recaptchaVerifierRef.current = appVerifier;
 
-    // Render the reCAPTCHA and then sign in
     appVerifier.render().then((widgetId) => {
         widgetIdRef.current = widgetId;
         const phoneNumber = `+${values.phoneNumber}`;
@@ -239,15 +236,16 @@ export function LoginForm() {
             })
             .catch((error) => {
                 let message = "SMS not sent. Please try again.";
-                if (error.code === 'auth/too-many-requests') {
+                 if (error.code === 'auth/too-many-requests') {
                     message = "Too many requests. Please try again later.";
                 } else if (error.code === 'auth/invalid-phone-number') {
                     message = "The phone number is not valid.";
+                } else if (error.code === 'auth/billing-not-enabled') {
+                    message = "Phone sign-in is not enabled for this project. Please contact support.";
                 }
                 console.error("Phone sign-in error:", error);
                 setError(message);
                 setIsLoading(false);
-                // Reset reCAPTCHA on error
                 if (widgetIdRef.current !== null && window.grecaptcha) {
                     window.grecaptcha.reset(widgetIdRef.current);
                 }
@@ -653,4 +651,3 @@ export function LoginForm() {
     </Card>
   );
 }
-
