@@ -1,11 +1,11 @@
 
 "use client";
 
-import { useState, useCallback } from 'react';
+import { useState, useRef } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, Camera, RefreshCw, AlertTriangle, Upload, Eye, ShieldCheck, ListChecks, HelpCircle } from 'lucide-react';
+import { Loader2, RefreshCw, AlertTriangle, Upload, Eye, ListChecks, HelpCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { ocularHealthScan, type OcularHealthScanOutput } from '@/ai/flows/ocular-health-scan';

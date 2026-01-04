@@ -8,12 +8,17 @@ import d15CapsData from './data/d15-caps.json';
 import testsData from './data/tests.json';
 import exercisesData from './data/exercises.json';
 import circuitsData from './data/circuits.json';
+import remindersData from './data/reminders.json';
+import consultationsData from './data/consultations.json';
 import visionScoreHistoryData from './data/vision-score-history.json';
 
 
 // This file contains mock data that might be replaced by a database in a full application.
 
 export const MOCK_VISION_SCORE_HISTORY: {date: string; score: number}[] = visionScoreHistoryData;
+export const MOCK_REMINDERS: Reminder[] = remindersData;
+export const MOCK_CONSULTATIONS: Consultation[] = consultationsData;
+
 
 export const MOCK_HRR_PLATES: HrrPlate[] = hrrPlatesData;
 export const MOCK_D15_CAPS: D15Cap[] = d15CapsData;
