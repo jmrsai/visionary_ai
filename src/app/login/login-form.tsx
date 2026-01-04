@@ -91,29 +91,15 @@ export function LoginForm() {
   const storage = useStorage();
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const recaptchaVerifierRef = useRef<ApplicationVerifier | null>(null);
-
-  // Set up the RecaptchaVerifier once when the component mounts
-  useEffect(() => {
-    if (auth && !recaptchaVerifierRef.current) {
-        // We use a timeout to ensure the container div is in the DOM.
-        setTimeout(() => {
-            const recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-                'size': 'invisible',
-            });
-            recaptchaVerifierRef.current = recaptchaVerifier;
-        }, 100);
+  
+  const getRecaptchaVerifier = () => {
+    if (!window.recaptchaVerifier) {
+      window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+        'size': 'invisible',
+      });
     }
-    
-    // Cleanup function to clear the verifier
-    return () => {
-        if (recaptchaVerifierRef.current) {
-            // This is a type assertion because the 'clear' method exists on the instance
-            (recaptchaVerifierRef.current as any).clear?.();
-            recaptchaVerifierRef.current = null;
-        }
-    }
-  }, [auth]);
+    return window.recaptchaVerifier;
+  };
 
 
   const handleProfilePicChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -196,14 +182,11 @@ export function LoginForm() {
     setIsLoading(true);
     setError(null);
 
-    if (!recaptchaVerifierRef.current) {
-        setError("reCAPTCHA not ready. Please wait a moment and try again.");
-        setIsLoading(false);
-        return;
-    }
-
     try {
-        const appVerifier = recaptchaVerifierRef.current;
+        const appVerifier = getRecaptchaVerifier();
+        // This forces the reCAPTCHA to render and resolve before proceeding
+        const widgetId = await appVerifier.render();
+
         const result = await signInWithPhoneNumber(
             auth,
             `+${values.phoneNumber}`,
@@ -608,5 +591,3 @@ export function LoginForm() {
     </Card>
   );
 }
-
-    
