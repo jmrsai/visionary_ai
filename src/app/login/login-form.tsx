@@ -3,7 +3,7 @@
 
 import "react-phone-input-2/lib/style.css";
 import { useState, useEffect, useRef } from "react";
-import { useForm, Controller } from "react";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useAuth, useStorage } from "@/firebase";
