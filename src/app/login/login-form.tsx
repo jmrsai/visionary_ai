@@ -18,6 +18,7 @@ import {
   UserCredential,
   updateProfile,
   sendPasswordResetEmail,
+  ApplicationVerifier,
 } from "firebase/auth";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import PhoneInput from "react-phone-input-2";
@@ -90,40 +91,17 @@ export function LoginForm() {
   const storage = useStorage();
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const recaptchaVerifierRef = useRef<ApplicationVerifier | null>(null);
 
-  const emailForm = useForm<z.infer<typeof emailFormSchema>>({
-    resolver: zodResolver(emailFormSchema),
-    defaultValues: { email: "", password: "", displayName: "" },
-  });
 
-  const phoneForm = useForm<z.infer<typeof phoneFormSchema>>({
-    resolver: zodResolver(phoneFormSchema),
-    defaultValues: { phoneNumber: "" },
-  });
-
-  const otpForm = useForm<z.infer<typeof otpFormSchema>>({
-    resolver: zodResolver(otpFormSchema),
-    defaultValues: { otp: "" },
-  });
-  
-  const forgotPasswordForm = useForm<z.infer<typeof forgotPasswordSchema>>({
-      resolver: zodResolver(forgotPasswordSchema),
-      defaultValues: { email: "" },
-  });
-
-  useEffect(() => {
-    if (auth && !("recaptchaVerifier" in window)) {
-      setTimeout(() => {
-        (window as any).recaptchaVerifier = new RecaptchaVerifier(
-          auth,
-          "recaptcha-container",
-          {
-            size: "invisible",
-          }
-        );
-      }, 100);
+  const getRecaptchaVerifier = () => {
+    if (!recaptchaVerifierRef.current) {
+      recaptchaVerifierRef.current = new RecaptchaVerifier(auth, 'recaptcha-container', {
+        'size': 'invisible',
+      });
     }
-  }, [auth]);
+    return recaptchaVerifierRef.current;
+  }
 
   const handleProfilePicChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -204,7 +182,7 @@ export function LoginForm() {
   const handlePhoneSignIn = async (values: z.infer<typeof phoneFormSchema>) => {
     setIsLoading(true);
     setError(null);
-    const appVerifier = (window as any).recaptchaVerifier;
+    const appVerifier = getRecaptchaVerifier();
 
     try {
         await appVerifier.render();
@@ -277,6 +255,27 @@ export function LoginForm() {
         .catch(handleAuthError);
     }
   };
+  
+    const emailForm = useForm<z.infer<typeof emailFormSchema>>({
+    resolver: zodResolver(emailFormSchema),
+    defaultValues: { email: "", password: "", displayName: "" },
+  });
+
+  const phoneForm = useForm<z.infer<typeof phoneFormSchema>>({
+    resolver: zodResolver(phoneFormSchema),
+    defaultValues: { phoneNumber: "" },
+  });
+
+  const otpForm = useForm<z.infer<typeof otpFormSchema>>({
+    resolver: zodResolver(otpFormSchema),
+    defaultValues: { otp: "" },
+  });
+  
+  const forgotPasswordForm = useForm<z.infer<typeof forgotPasswordSchema>>({
+      resolver: zodResolver(forgotPasswordSchema),
+      defaultValues: { email: "" },
+  });
+
 
   const renderEmailForm = () => (
     <>
@@ -388,11 +387,17 @@ export function LoginForm() {
             <FormItem>
               <FormLabel>Phone Number</FormLabel>
               <FormControl>
-                <PhoneInput
-                  country={"in"}
-                  value={field.value}
-                  onChange={field.onChange}
-                  inputClass="!w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                <Controller
+                    name="phoneNumber"
+                    control={phoneForm.control}
+                    render={({ field: { onChange, value } }) => (
+                        <PhoneInput
+                            country={"in"}
+                            value={value}
+                            onChange={onChange}
+                            inputClass="!w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        />
+                    )}
                 />
               </FormControl>
               <FormMessage />
