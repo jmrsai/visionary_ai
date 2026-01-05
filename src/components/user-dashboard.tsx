@@ -25,7 +25,7 @@ import { collection, query, orderBy, limit } from "firebase/firestore";
 import type { ActivityLog } from "@/lib/types";
 import { formatDistanceToNow } from "date-fns";
 
-const activityIconMap: Record<ActivityLog['activityType'], React.ElementType> = {
+const activityIconMap: Record<string, React.ElementType> = {
     completed_exercise: EyeGymIcon,
     completed_test: CheckupIcon,
 }
@@ -36,9 +36,9 @@ export function UserDashboard() {
   const firestore = useFirestore();
 
   const activityLogRef = useMemoFirebase(() => {
-    if (!user || !firestore) return null;
-    return query(collection(firestore, `users/${user.uid}/rewards`), orderBy("timestamp", "desc"), limit(5));
-  }, [user, firestore]);
+    if (!user?.id || !firestore) return null;
+    return query(collection(firestore, `users/${user.id}/rewards`), orderBy("timestamp", "desc"), limit(5));
+  }, [user?.id, firestore]);
 
   const { data: activityLogs, isLoading: isLoadingActivity } = useCollection<ActivityLog>(activityLogRef);
 
@@ -143,7 +143,7 @@ export function UserDashboard() {
                                     Completed: {log.activityName}.
                                     </p>
                                     <p className="text-sm text-muted-foreground">
-                                    {formatDistanceToNow(new Date(log.timestamp), { addSuffix: true })}
+                                    {log.timestamp ? formatDistanceToNow(new Date(log.timestamp), { addSuffix: true }) : ''}
                                     </p>
                                 </div>
                                 <Badge variant="outline">+{log.pointsEarned} pts</Badge>

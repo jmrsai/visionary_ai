@@ -137,15 +137,8 @@ export interface AdherenceLog {
 
 export type ActivityLog = {
     id: string;
-    activityType: 'completed_test' | 'completed_exercise';
+    activityType: string;
     activityName: string;
     pointsEarned: number;
     timestamp: string; // ISO string
-};
-
-export type ActivityLog = {
-    id: number;
-    description: string;
-    timestamp: string;
-    score?: string;
 };
