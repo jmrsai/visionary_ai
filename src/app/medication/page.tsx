@@ -94,9 +94,9 @@ export default function MedicationPage() {
     };
 
     const remindersCollectionRef = useMemoFirebase(() => {
-        if (!user || !firestore) return null;
-        return collection(firestore, `users/${user.uid}/medicationReminders`);
-    }, [user, firestore]);
+        if (!user?.id || !firestore) return null;
+        return collection(firestore, `users/${user.id}/medicationReminders`);
+    }, [user?.id, firestore]);
 
     const { data: reminders, isLoading } = useCollection<Reminder>(remindersCollectionRef);
     
