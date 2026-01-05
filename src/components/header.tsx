@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -39,13 +40,16 @@ export function Header() {
     if (pathname.startsWith("/gym/exercise")) return "Guided Exercise";
     if (pathname.startsWith("/tests/")) return "Diagnostic Tests";
     if (pathname.startsWith("/profile/adherence")) return "Adherence History";
+    if (pathname.startsWith("/settings")) return "Settings";
     const navItem = NAV_ITEMS.find((item) => pathname.startsWith(item.href) && item.href !== '/');
     if (navItem) return navItem.label;
     return "Visionary";
   };
 
   const handleLogout = () => {
-    auth.signOut();
+    if (auth) {
+        auth.signOut();
+    }
   }
   
   return (
@@ -56,6 +60,14 @@ export function Header() {
         <h1 className="text-xl font-semibold">{getTitle()}</h1>
       </div>
       <ThemeToggle />
+      {user && (
+          <Button variant="ghost" size="icon" asChild>
+            <Link href="/settings">
+              <Settings className="h-5 w-5" />
+              <span className="sr-only">Settings</span>
+            </Link>
+          </Button>
+      )}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" size="icon" className="overflow-hidden rounded-full">
@@ -103,7 +115,7 @@ export function Header() {
               <DropdownMenuLabel>Welcome</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
-                <Link href="/profile" className="flex w-full items-center">
+                <Link href="/login" className="flex w-full items-center">
                   <LogIn className="mr-2 h-4 w-4" />
                   Login / Sign Up
                 </Link>
