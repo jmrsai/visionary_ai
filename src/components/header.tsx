@@ -60,14 +60,6 @@ export function Header() {
         <h1 className="text-xl font-semibold">{getTitle()}</h1>
       </div>
       <ThemeToggle />
-      {user && (
-          <Button variant="ghost" size="icon" asChild>
-            <Link href="/settings">
-              <Settings className="h-5 w-5" />
-              <span className="sr-only">Settings</span>
-            </Link>
-          </Button>
-      )}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" size="icon" className="overflow-hidden rounded-full">
