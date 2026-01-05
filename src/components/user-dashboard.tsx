@@ -20,29 +20,49 @@ import { Badge } from "@/components/ui/badge";
 import { IllustratedCard } from "@/components/ui/illustrated-card";
 import { EyeGymIcon, CheckupIcon, ProfileIcon } from "@/components/icons";
 import { QuickGuide } from "./quick-guide";
+import { useUser, useFirestore, useCollection, useMemoFirebase } from "@/firebase";
+import { collection, query, orderBy, limit } from "firebase/firestore";
+import type { ActivityLog } from "@/lib/types";
+import { formatDistanceToNow } from "date-fns";
+
+const activityIconMap: Record<ActivityLog['activityType'], React.ElementType> = {
+    completed_exercise: EyeGymIcon,
+    completed_test: CheckupIcon,
+}
 
 export function UserDashboard() {
   const [showQuickGuide, setShowQuickGuide] = useState(false);
+  const { user } = useUser();
+  const firestore = useFirestore();
+
+  const activityLogRef = useMemoFirebase(() => {
+    if (!user || !firestore) return null;
+    return query(collection(firestore, `users/${user.uid}/rewards`), orderBy("timestamp", "desc"), limit(5));
+  }, [user, firestore]);
+
+  const { data: activityLogs, isLoading: isLoadingActivity } = useCollection<ActivityLog>(activityLogRef);
+
 
   useEffect(() => {
-    // Check if the guide has been shown before.
-    const quickGuideShown = localStorage.getItem('visionary_quickGuideShown');
-    if (!quickGuideShown) {
-      setShowQuickGuide(true);
+    if (typeof window !== 'undefined') {
+        const quickGuideShown = localStorage.getItem('visionary_quickGuideShown');
+        if (!quickGuideShown) {
+            setShowQuickGuide(true);
+        }
     }
   }, []);
 
   const handleDismissQuickGuide = () => {
-    localStorage.setItem('visionary_quickGuideShown', 'true');
+    if (typeof window !== 'undefined') {
+        localStorage.setItem('visionary_quickGuideShown', 'true');
+    }
     setShowQuickGuide(false);
   };
   
   return (
     <div className="flex flex-1 flex-col gap-4 md:gap-8">
-      {/* Quick Guide for new users */}
       {showQuickGuide && <QuickGuide onDismiss={handleDismissQuickGuide} />}
 
-      {/* Top Row Cards */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         <div className="lg:col-span-2 grid gap-6 md:grid-cols-2">
           <IllustratedCard 
@@ -81,7 +101,6 @@ export function UserDashboard() {
         </Card>
       </div>
 
-      {/* Bottom Row Cards */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7">
         <Card className="col-span-1 lg:col-span-3 animate-fade-in-up" style={{ animationDelay: '500ms' }}>
            <CardHeader>
@@ -105,38 +124,38 @@ export function UserDashboard() {
           <CardHeader>
             <CardTitle>Recent Activity</CardTitle>
             <CardDescription>
-              An overview of your latest exercises and tests. (Data is currently mocked)
+              Your latest achievements and completed tasks.
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              <div className="flex items-center gap-4">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary">
-                    <Activity className="h-5 w-5 text-secondary-foreground" />
-                  </div>
-                  <div className="flex-1 space-y-1">
-                    <p className="text-sm font-medium leading-none">
-                      Completed: Focus Shift exercise.
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      2 hours ago
-                    </p>
-                  </div>
-                   <Badge variant="outline">+5 pts</Badge>
-                </div>
-                 <div className="flex items-center gap-4">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary">
-                    <Activity className="h-5 w-5 text-secondary-foreground" />
-                  </div>
-                  <div className="flex-1 space-y-1">
-                    <p className="text-sm font-medium leading-none">
-                      New personalized workout available.
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      5 hours ago
-                    </p>
-                  </div>
-                </div>
+                {isLoadingActivity && <p className="text-muted-foreground">Loading activity...</p>}
+                {!isLoadingActivity && activityLogs && activityLogs.length > 0 ? (
+                    activityLogs.map((log) => {
+                        const Icon = activityIconMap[log.activityType] || Activity;
+                        return (
+                            <div key={log.id} className="flex items-center gap-4">
+                                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-secondary">
+                                    <Icon className="h-5 w-5 text-secondary-foreground" />
+                                </div>
+                                <div className="flex-1 space-y-1">
+                                    <p className="text-sm font-medium leading-none">
+                                    Completed: {log.activityName}.
+                                    </p>
+                                    <p className="text-sm text-muted-foreground">
+                                    {formatDistanceToNow(new Date(log.timestamp), { addSuffix: true })}
+                                    </p>
+                                </div>
+                                <Badge variant="outline">+{log.pointsEarned} pts</Badge>
+                            </div>
+                        )
+                    })
+                ) : !isLoadingActivity && (
+                    <div className="text-center py-8 text-muted-foreground">
+                        <Activity className="mx-auto h-12 w-12" />
+                        <p className="mt-4">No recent activity. Go complete a test or exercise!</p>
+                    </div>
+                )}
             </div>
           </CardContent>
         </Card>

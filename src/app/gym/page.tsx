@@ -8,6 +8,7 @@ import { CircuitCard } from "./circuits/circuit-card";
 
 export default function GymPage() {
   const exerciseCategories = [...new Set(MOCK_EXERCISES.map(ex => ex.category))];
+  const kidsGames = MOCK_TESTS.filter(t => t.category === "Kids' Game Zone");
 
   return (
     <div className="space-y-8">
@@ -67,17 +68,17 @@ export default function GymPage() {
        <div>
           <h2 className="text-2xl font-semibold mb-4">Kids' Game Zone</h2>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {MOCK_TESTS.filter(t => t.category === "Kids' Game Zone").map((test) => (
-              <Link key={test.id} href={`/tests/kids-zone`} className="group">
+            {kidsGames.map((game) => (
+              <Link key={game.id} href={`/games/${game.id}`} className="group">
                  <Card className="h-full transition-all group-hover:border-primary group-hover:shadow-lg">
                   <CardHeader>
                     <div className="flex items-start justify-between">
                         <div className="flex items-center gap-4">
                             <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                                <test.icon className="h-6 w-6" />
+                                <game.icon className="h-6 w-6" />
                             </div>
                             <div>
-                                <CardTitle>{test.title}</CardTitle>
+                                <CardTitle>{game.title}</CardTitle>
                                 <CardDescription>Game</CardDescription>
                             </div>
                         </div>
@@ -85,7 +86,7 @@ export default function GymPage() {
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-sm text-muted-foreground">{test.description}</p>
+                    <p className="text-sm text-muted-foreground">{game.description}</p>
                   </CardContent>
                 </Card>
               </Link>

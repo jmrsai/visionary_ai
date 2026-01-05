@@ -9,6 +9,8 @@ import testsData from './data/tests.json';
 import exercisesData from './data/exercises.json';
 import circuitsData from './data/circuits.json';
 import visionScoreHistoryData from './data/vision-score-history.json';
+import remindersData from './data/reminders.json';
+import consultationsData from './data/consultations.json';
 
 
 // This file contains mock data that might be replaced by a database in a full application.
@@ -61,5 +63,5 @@ export const MOCK_EXERCISES: Exercise[] = exercisesData.map(exercise => ({
 }));
 
 // These are exported but will be replaced by Firestore data in the app.
-export const MOCK_REMINDERS: Reminder[] = [];
-export const MOCK_CONSULTATIONS: Consultation[] = [];
+export const MOCK_REMINDERS: Reminder[] = remindersData;
+export const MOCK_CONSULTATIONS: Consultation[] = consultationsData;

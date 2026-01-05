@@ -157,8 +157,16 @@ export function SymptomCheckerForm() {
                 </Alert>
               )}
 
-                <div className="grid gap-4 items-start" style={{gridTemplateColumns: '1fr 220px'}}>
-                    <Card>
+                <div className="grid gap-4 items-start md:grid-cols-2">
+                    <Card className="md:col-span-2">
+                         <CardHeader className="pb-2">
+                            <CardTitle className="text-lg">Visualization</CardTitle>
+                         </CardHeader>
+                         <CardContent>
+                            <AnimatedEyeModel condition={visualizedCondition} showLabels={false} size="large" />
+                         </CardContent>
+                    </Card>
+                    <Card className="md:col-span-2">
                         <CardHeader>
                         <CardTitle>Possible Conditions</CardTitle>
                         <CardDescription className="flex items-center gap-2">
@@ -190,14 +198,7 @@ export function SymptomCheckerForm() {
                             </div>
                         </CardContent>
                     </Card>
-                    <Card className="sticky top-20">
-                         <CardHeader className="pb-2">
-                            <CardTitle className="text-lg">Visualization</CardTitle>
-                         </CardHeader>
-                         <CardContent>
-                            <AnimatedEyeModel condition={visualizedCondition} showLabels={false} size="medium" />
-                         </CardContent>
-                    </Card>
+                    
                 </div>
 
               {result.homeCareAdvice && result.homeCareAdvice.length > 0 && (

@@ -1,12 +1,10 @@
-
-
 "use client";
 
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Check, RefreshCw, X, ArrowLeft, Loader2, Palette, Timer } from 'lucide-react';
+import { Check, RefreshCw, X, ArrowLeft, Loader2, Palette, Timer, Layers } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { HrrTest } from './hrr-test';
@@ -14,6 +12,7 @@ import { Progress } from '../ui/progress';
 import { Badge } from '../ui/badge';
 import { MOCK_D15_CAPS } from '@/lib/data';
 import { IshiharaPlateSVG, type IshiharaPlateData } from './ishihara-plate-svg';
+import { FarnsworthD15Test } from './farnsworth-d15-test';
 
 
 const TOTAL_PLATES = 5; 
@@ -79,7 +78,7 @@ const generateNewPlateData = (usedNumbers: Set<number>): { data: IshiharaPlateDa
 };
 
 
-const IshiharaTest = () => {
+const IshiharaTest = ({ onBack }: { onBack: () => void }) => {
   const [step, setStep] = useState<'instructions' | 'test' | 'results'>('instructions');
   const [currentPlate, setCurrentPlate] = useState(0);
   const [score, setScore] = useState(0);
@@ -87,13 +86,13 @@ const IshiharaTest = () => {
   const [plateData, setPlateData] = useState<IshiharaPlateData | null>(null);
   const [usedNumbers, setUsedNumbers] = useState<Set<number>>(new Set());
 
-  const prepareNextPlate = (currentUsed: Set<number>) => {
+  const prepareNextPlate = useCallback((currentUsed: Set<number>) => {
       const { data, newUsedNumbers } = generateNewPlateData(currentUsed);
       setPlateData(data);
       setUsedNumbers(newUsedNumbers);
-  }
+  }, []);
 
-  const startTest = () => {
+  const startTest = useCallback(() => {
     setCurrentPlate(0);
     setScore(0);
     setUserAnswers([]);
@@ -101,7 +100,7 @@ const IshiharaTest = () => {
     setUsedNumbers(initialUsed);
     prepareNextPlate(initialUsed);
     setStep('test');
-  };
+  }, [prepareNextPlate]);
 
   const handleAnswer = (answer: number) => {
     if (!plateData) return;
@@ -130,6 +129,7 @@ const IshiharaTest = () => {
           You will be shown a series of unique, computer-generated plates. Click the number you see in the plate. If you see nothing, choose one of the options at random. This test primarily screens for red-green color deficiencies.
         </p>
         <div className="flex justify-center gap-4">
+            <Button variant="outline" onClick={onBack}><ArrowLeft className="mr-2 h-4 w-4" />Back</Button>
             <Button onClick={startTest}>Start Test</Button>
         </div>
       </div>
@@ -176,7 +176,7 @@ const IshiharaTest = () => {
             <Button variant="outline" size="lg" onClick={restartTest}>
                 <RefreshCw className="mr-2 h-4 w-4" /> Retake Test
             </Button>
-            <Button size="lg" onClick={restartTest}>
+            <Button size="lg" onClick={onBack}>
                 Done
             </Button>
         </div>
@@ -212,6 +212,52 @@ const IshiharaTest = () => {
   );
 };
 
+
 export function ColorVisionTest() {
-  return <IshiharaTest />;
+  const [testType, setTestType] = useState<'selection' | 'ishihara' | 'hrr' | 'd15'>('selection');
+
+  const handleBackToSelection = () => {
+      setTestType('selection');
+  }
+
+  if (testType === 'ishihara') {
+      return <IshiharaTest onBack={handleBackToSelection} />;
+  }
+
+  if (testType === 'hrr') {
+      return <HrrTest onBack={handleBackToSelection} />;
+  }
+
+  if (testType === 'd15') {
+      return (
+          <div>
+              <Button variant="outline" onClick={handleBackToSelection} className="mb-4"><ArrowLeft className="mr-2 h-4 w-4" />Back to Test Selection</Button>
+              <FarnsworthD15Test />
+          </div>
+      )
+  }
+
+  return (
+      <div className="space-y-4 max-w-lg mx-auto">
+          <h3 className="text-xl font-semibold text-center">Select a Color Vision Test</h3>
+          <Card className="hover:border-primary cursor-pointer transition-all" onClick={() => setTestType('ishihara')}>
+              <CardHeader>
+                  <CardTitle className="flex items-center gap-2"><Palette className="h-5 w-5"/>Ishihara Test</CardTitle>
+                  <CardDescription>Screens for red-green color vision deficiencies using procedurally generated plates.</CardDescription>
+              </CardHeader>
+          </Card>
+          <Card className="hover:border-primary cursor-pointer transition-all" onClick={() => setTestType('hrr')}>
+              <CardHeader>
+                  <CardTitle className="flex items-center gap-2"><Palette className="h-5 w-5"/>Hardy-Rand-Rittler (HRR) Test</CardTitle>
+                  <CardDescription>A more comprehensive test that screens for both red-green and blue-yellow deficiencies.</CardDescription>
+              </CardHeader>
+          </Card>
+           <Card className="hover:border-primary cursor-pointer transition-all" onClick={() => setTestType('d15')}>
+              <CardHeader>
+                  <CardTitle className="flex items-center gap-2"><Layers className="h-5 w-5"/>Farnsworth D-15 Test</CardTitle>
+                  <CardDescription>An advanced test where you arrange colored caps in order to map out your color perception.</CardDescription>
+              </CardHeader>
+          </Card>
+      </div>
+  );
 }
