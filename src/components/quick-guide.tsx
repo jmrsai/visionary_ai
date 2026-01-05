@@ -4,7 +4,7 @@
 import Link from "next/link";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ClipboardList, Dumbbell, Pill, Lightbulb, ChevronRight } from "lucide-react";
+import { ClipboardList, Dumbbell, Pill, Lightbulb, X } from "lucide-react";
 import { motion } from "framer-motion";
 
 const guideItems = [
@@ -56,12 +56,20 @@ const itemVariants = {
   },
 };
 
-export function QuickGuide() {
+export function QuickGuide({ onDismiss }: { onDismiss: () => void }) {
     return (
-        <Card className="bg-muted/50">
+        <Card className="bg-muted/50 relative">
             <CardHeader>
-                <CardTitle>Quick Start Guide</CardTitle>
-                <CardDescription>Welcome to Visionary! Here are a few things you can do to get started.</CardDescription>
+                <div className="flex justify-between items-start">
+                    <div>
+                        <CardTitle>Quick Start Guide</CardTitle>
+                        <CardDescription>Welcome to Visionary! Here are a few things you can do to get started.</CardDescription>
+                    </div>
+                    <Button variant="ghost" size="icon" onClick={onDismiss} className="flex-shrink-0">
+                        <X className="h-4 w-4" />
+                        <span className="sr-only">Dismiss</span>
+                    </Button>
+                </div>
             </CardHeader>
             <CardContent>
                 <motion.div 

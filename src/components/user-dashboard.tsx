@@ -1,4 +1,7 @@
 
+"use client";
+
+import { useState, useEffect } from "react";
 import {
   Activity,
   ChevronRight,
@@ -19,10 +22,25 @@ import { EyeGymIcon, CheckupIcon, ProfileIcon } from "@/components/icons";
 import { QuickGuide } from "./quick-guide";
 
 export function UserDashboard() {
+  const [showQuickGuide, setShowQuickGuide] = useState(false);
+
+  useEffect(() => {
+    // Check if the guide has been shown before.
+    const quickGuideShown = localStorage.getItem('visionary_quickGuideShown');
+    if (!quickGuideShown) {
+      setShowQuickGuide(true);
+    }
+  }, []);
+
+  const handleDismissQuickGuide = () => {
+    localStorage.setItem('visionary_quickGuideShown', 'true');
+    setShowQuickGuide(false);
+  };
+  
   return (
     <div className="flex flex-1 flex-col gap-4 md:gap-8">
       {/* Quick Guide for new users */}
-      <QuickGuide />
+      {showQuickGuide && <QuickGuide onDismiss={handleDismissQuickGuide} />}
 
       {/* Top Row Cards */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
