@@ -37,6 +37,14 @@ service cloud.firestore {
              data.name is string &&
              data.dateJoined is timestamp;
     }
+    
+    function isValidActivityLog(data, userId) {
+        return data.userId == userId &&
+               data.activityType is string &&
+               data.activityName is string &&
+               data.pointsEarned is number &&
+               data.timestamp is timestamp;
+    }
 
     function isValidVisionTestResult(data, userId) {
       return data.userId == userId &&
@@ -98,6 +106,11 @@ service cloud.firestore {
     match /users/{userId}/eyeExerciseLogs/{eyeExerciseLogId} {
       allow read: if isOwner(userId);
       allow write: if isOwner(userId) && isValidEyeExerciseLog(request.resource.data, userId);
+    }
+    
+    match /users/{userId}/rewards/{activityLogId} {
+      allow read: if isOwner(userId);
+      allow write: if isOwner(userId) && isValidActivityLog(request.resource.data, userId);
     }
 
     match /users/{userId}/medicationReminders/{reminderId} {
