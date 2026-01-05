@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -79,7 +79,7 @@ export function WordBuilderGame({ onBack }: { onBack: () => void }) {
             gameTimerRef.current = setInterval(() => {
                 setTimeLeft(prev => {
                     if (prev <= 1) {
-                        clearInterval(gameTimerRef.current);
+                        clearInterval(gameTimerRef.current!);
                         setGameState('complete');
                         return 0;
                     }
@@ -104,6 +104,14 @@ export function WordBuilderGame({ onBack }: { onBack: () => void }) {
         setBuiltWord(prev => prev.slice(0, -1));
         setScrambledLetters(prev => [...prev, lastLetter]);
     };
+    
+    const resetGame = () => {
+        setGameState('intro');
+        setLevel(1);
+        setScore(0);
+        setTimeLeft(GAME_DURATION_S);
+        setWordsInLevel(0);
+    };
 
     useEffect(() => {
         if (currentWord && builtWord.length === currentWord.length) {
@@ -120,10 +128,11 @@ export function WordBuilderGame({ onBack }: { onBack: () => void }) {
                         setLevel(prev => prev + 1);
                         setWordsInLevel(0);
                     }
+                 setTimeout(setupNextWord, 500); // Wait a bit before next word
                 } else {
                     setWordsInLevel(prev => prev + 1);
+                    setTimeout(setupNextWord, 500);
                 }
-                 setTimeout(setupNextWord, 500); // Wait a bit before next word
             } else {
                 // Incorrect, reset
                 setTimeout(() => {
@@ -199,7 +208,7 @@ export function WordBuilderGame({ onBack }: { onBack: () => void }) {
                         </div>
                     </div>
                      <div className="flex flex-col sm:flex-row gap-2 mt-4">
-                        <Button onClick={resetTherapy} className="w-full bg-orange-500 hover:bg-orange-600 text-white">
+                        <Button onClick={resetGame} className="w-full bg-orange-500 hover:bg-orange-600 text-white">
                             <RefreshCw className="mr-2 h-4 w-4" /> Play Again
                         </Button>
                         <Button variant="secondary" className="w-full" onClick={onBack}>
@@ -226,7 +235,7 @@ export function WordBuilderGame({ onBack }: { onBack: () => void }) {
              <AnimatePresence>
                 {scrambledLetters.map((letter, index) => (
                     <motion.div
-                        key={`${letter}-${index}`}
+                        key={`${currentWord}-${letter}-${index}`}
                         initial={{ opacity: 0, y: -20 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.5 }}
