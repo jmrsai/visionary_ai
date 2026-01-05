@@ -10,7 +10,7 @@ import { Switch } from "@/components/ui/switch";
 import type { Reminder } from "@/lib/types";
 import { AddReminderDialog } from "@/components/add-reminder-dialog";
 import { useUser, useFirestore, useCollection, useMemoFirebase } from "@/firebase";
-import { collection, doc } from "firebase/firestore";
+import { collection, doc, Query } from "firebase/firestore";
 import { addDocumentNonBlocking, updateDocumentNonBlocking } from "@/firebase/non-blocking-updates";
 import { Loader2 } from "lucide-react";
 import { AdherenceChart } from "@/components/adherence-chart";
@@ -92,19 +92,21 @@ export default function MedicationPage() {
             });
         }
     };
+    
+    const remindersQuery = useMemoFirebase(() => {
+        if (user && firestore) {
+          return collection(firestore, `users/${user.uid}/medicationReminders`);
+        }
+        return null;
+      }, [user, firestore]);
 
-    const remindersCollectionRef = useMemoFirebase(() => {
-        if (!user?.id || !firestore) return null;
-        return collection(firestore, `users/${user.id}/medicationReminders`);
-    }, [user?.id, firestore]);
-
-    const { data: reminders, isLoading } = useCollection<Reminder>(remindersCollectionRef);
+    const { data: reminders, isLoading } = useCollection<Reminder>(remindersQuery);
     
     const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
 
     const toggleReminder = (id: string, currentStatus: boolean) => {
-        if (!remindersCollectionRef || !reminders) return;
-        const reminderRef = doc(remindersCollectionRef, id!);
+        if (!remindersQuery || !reminders) return;
+        const reminderRef = doc(remindersQuery, id!);
         updateDocumentNonBlocking(reminderRef, { enabled: !currentStatus });
 
          if (!currentStatus) { // If it's being enabled
@@ -116,8 +118,8 @@ export default function MedicationPage() {
     }
     
     const addReminder = (newReminder: Omit<Reminder, "id" | "enabled" | "userId">) => {
-        if (!remindersCollectionRef || !user) return;
-        addDocumentNonBlocking(remindersCollectionRef, { ...newReminder, userId: user.uid, enabled: true }).then(docRef => {
+        if (!remindersQuery || !user) return;
+        addDocumentNonBlocking(remindersQuery, { ...newReminder, userId: user.uid, enabled: true }).then(docRef => {
             if (docRef) {
                 scheduleNotification({ ...newReminder, id: docRef.id, enabled: true });
             }
