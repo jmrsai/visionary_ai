@@ -31,6 +31,27 @@
     --radius: 0.75rem;
   }
 
+  .theme-violet {
+    --primary: 262.1 83.3% 57.8%;
+    --primary-foreground: 210 40% 98%;
+    --ring: 262.1 83.3% 57.8%;
+    --chart-1: 262.1 83.3% 57.8%;
+  }
+
+  .theme-green {
+    --primary: 142.1 76.2% 36.3%;
+    --primary-foreground: 142.1 76.2% 96.3%;
+    --ring: 142.1 76.2% 36.3%;
+    --chart-1: 142.1 76.2% 36.3%;
+  }
+
+  .theme-orange {
+    --primary: 24.6 95% 53.1%;
+    --primary-foreground: 24.6 95% 98.1%;
+    --ring: 24.6 95% 53.1%;
+    --chart-1: 24.6 95% 53.1%;
+  }
+
   .dark {
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
@@ -38,8 +59,6 @@
     --card-foreground: 210 40% 98%;
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
-    --primary: 263.4 95.2% 66.1%;
-    --primary-foreground: 210 40% 98%;
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
     --muted: 217.2 32.6% 17.5%;
@@ -50,9 +69,28 @@
     --destructive-foreground: 210 40% 98%;
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
+    --chart-2: 180 95.2% 66.1%;
+  }
+  
+  .dark.theme-violet {
+    --primary: 263.4 95.2% 66.1%;
+    --primary-foreground: 210 40% 98%;
     --ring: 263.4 95.2% 66.1%;
     --chart-1: 263.4 95.2% 66.1%;
-    --chart-2: 180 95.2% 66.1%;
+  }
+  
+  .dark.theme-green {
+      --primary: 142.1 70.2% 46.3%;
+      --primary-foreground: 142.1 76.2% 96.3%;
+      --ring: 142.1 70.2% 46.3%;
+      --chart-1: 142.1 70.2% 46.3%;
+  }
+
+  .dark.theme-orange {
+      --primary: 24.6 90% 58.1%;
+      --primary-foreground: 24.6 95% 98.1%;
+      --ring: 24.6 90% 58.1%;
+      --chart-1: 24.6 90% 58.1%;
   }
 }
 

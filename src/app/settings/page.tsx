@@ -39,9 +39,29 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import { useEffect, useState } from 'react';
 
 export default function SettingsPage() {
   const { theme, setTheme } = useTheme();
+  const [accent, setAccent] = useState('violet');
+
+   useEffect(() => {
+    // On mount, read the theme from localStorage
+    const savedAccent = localStorage.getItem('visionary-accent-color');
+    if (savedAccent) {
+      setAccent(savedAccent);
+      document.body.classList.remove('theme-violet', 'theme-green', 'theme-orange');
+      document.body.classList.add(`theme-${savedAccent}`);
+    }
+  }, []);
+
+
+  const handleAccentChange = (newAccent: string) => {
+    setAccent(newAccent);
+    document.body.classList.remove('theme-violet', 'theme-green', 'theme-orange');
+    document.body.classList.add(`theme-${newAccent}`);
+    localStorage.setItem('visionary-accent-color', newAccent);
+  }
 
   return (
     <div className="space-y-8 max-w-4xl mx-auto">
@@ -73,6 +93,19 @@ export default function SettingsPage() {
                 <SelectItem value="light">Light</SelectItem>
                 <SelectItem value="dark">Dark</SelectItem>
                 <SelectItem value="system">System</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+           <div className="flex items-center justify-between rounded-lg border p-4">
+            <Label htmlFor="accent-select">Accent Color</Label>
+            <Select value={accent} onValueChange={handleAccentChange}>
+              <SelectTrigger id="accent-select" className="w-[180px]">
+                <SelectValue placeholder="Select accent" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="violet">Violet</SelectItem>
+                <SelectItem value="green">Green</SelectItem>
+                <SelectItem value="orange">Orange</SelectItem>
               </SelectContent>
             </Select>
           </div>
