@@ -1,0 +1,267 @@
+
+{
+  "entities": {
+    "User": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "User",
+      "type": "object",
+      "description": "Represents a user of the Visionary app.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the user.",
+          "format": "uuid"
+        },
+        "email": {
+          "type": "string",
+          "description": "Email address of the user.",
+          "format": "email"
+        },
+        "name": {
+          "type": "string",
+          "description": "User's full name."
+        },
+        "photoURL": {
+            "type": "string",
+            "description": "URL of the user's profile picture.",
+            "format": "uri"
+        },
+        "dateJoined": {
+          "type": "string",
+          "description": "Date and time when the user joined the app.",
+          "format": "date-time"
+        },
+        "points": {
+          "type": "number",
+          "description": "Total points accumulated by the user."
+        },
+        "interests": {
+            "type": "array",
+            "description": "User's selected interests for content personalization.",
+            "items": {
+                "type": "string",
+                "enum": ["strain_reduction", "vision_improvement", "preventative_care", "kids_health"]
+            }
+        }
+      },
+      "required": [
+        "id",
+        "email",
+        "name",
+        "dateJoined"
+      ]
+    },
+    "ActivityLog": {
+      "title": "ActivityLog",
+      "type": "object",
+      "description": "Logs a user's activity and points earned.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the log entry."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User."
+        },
+        "activityType": {
+          "type": "string",
+          "description": "The type of activity performed (e.g., 'completed_test', 'completed_exercise')."
+        },
+        "activityName": {
+          "type": "string",
+          "description": "The name of the test or exercise."
+        },
+        "pointsEarned": {
+          "type": "number",
+          "description": "Points earned for this activity."
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When the activity was completed."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "activityType",
+        "activityName",
+        "pointsEarned",
+        "timestamp"
+      ]
+    },
+    "VisionTestResult": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "VisionTestResult",
+      "type": "object",
+      "description": "Stores the results of a vision test taken by a user.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the vision test result.",
+          "format": "uuid"
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N VisionTestResult)"
+        },
+        "testType": {
+          "type": "string",
+          "description": "Type of vision test taken (e.g., Visual Acuity, Color Vision)."
+        },
+        "testDate": {
+          "type": "string",
+          "description": "Date and time when the vision test was taken.",
+          "format": "date-time"
+        },
+        "score": {
+          "type": "number",
+          "description": "Score obtained on the vision test."
+        },
+        "notes": {
+          "type": "string",
+          "description": "Additional notes or observations about the test."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "testType",
+        "testDate",
+        "score"
+      ]
+    },
+    "EyeExerciseLog": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "EyeExerciseLog",
+      "type": "object",
+      "description": "Stores the logs of eye exercises performed by a user.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the eye exercise log.",
+          "format": "uuid"
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N EyeExerciseLog)"
+        },
+        "exerciseType": {
+          "type": "string",
+          "description": "Type of eye exercise performed (e.g., Palming, Focus Shifts)."
+        },
+        "exerciseDate": {
+          "type": "string",
+          "description": "Date and time when the eye exercise was performed.",
+          "format": "date-time"
+        },
+        "duration": {
+          "type": "number",
+          "description": "Duration of the eye exercise in minutes."
+        },
+        "repetitions": {
+          "type": "number",
+          "description": "Number of repetitions completed during the eye exercise."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "exerciseType",
+        "exerciseDate",
+        "duration"
+      ]
+    },
+    "Reminder": {
+      "title": "Reminder",
+      "type": "object",
+      "description": "Stores user-defined reminders for medications, exercises, or appointments.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the reminder."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User."
+        },
+        "title": {
+          "type": "string",
+          "description": "Name of the reminder (e.g., 'Latanoprost', 'Blinking Exercise')."
+        },
+        "time": {
+          "type": "string",
+          "format": "time",
+          "description": "Time for the reminder."
+        },
+        "type": {
+          "type": "string",
+          "enum": ["exercise", "Eye Drops", "Pill", "Capsule", "Liquid", "appointment"],
+          "description": "The category of the reminder."
+        },
+        "enabled": {
+          "type": "boolean",
+          "description": "Whether the reminder is active."
+        },
+        "dosage": { "type": "string" },
+        "frequency": { "type": "string" },
+        "reason": { "type": "string" },
+        "note": { "type": "string" }
+      },
+      "required": ["id", "userId", "title", "time", "type", "enabled"]
+    },
+    "Consultation": {
+      "title": "Consultation",
+      "type": "object",
+      "description": "Represents a telemedicine consultation between a user and a doctor.",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "doctorId": { "type": "string" },
+        "patientName": { "type": "string" },
+        "scheduledTime": { "type": "string", "format": "date-time" },
+        "duration": { "type": "number" },
+        "type": { "type": "string", "enum": ["routine", "follow_up", "urgent", "second_opinion"] },
+        "status": { "type": "string", "enum": ["scheduled", "in_progress", "completed", "cancelled"] },
+        "meetingLink": { "type": "string", "format": "uri" },
+        "notes": { "type": "string" }
+      },
+      "required": ["id", "userId", "doctorId", "patientName", "scheduledTime", "duration", "type", "status", "meetingLink"]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous",
+      "google.com",
+      "phone"
+    ]
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/User" },
+      "description": "Stores user profiles."
+    },
+    "/users/{userId}/visionTestResults/{visionTestResultId}": {
+      "schema": { "$ref": "#/entities/VisionTestResult" },
+      "description": "Stores vision test results for a user."
+    },
+    "/users/{userId}/eyeExerciseLogs/{eyeExerciseLogId}": {
+      "schema": { "$ref": "#/entities/EyeExerciseLog" },
+      "description": "Stores eye exercise logs for a user."
+    },
+    "/users/{userId}/medicationReminders/{reminderId}": {
+      "schema": { "$ref": "#/entities/Reminder" },
+      "description": "Stores medication reminders for a specific user."
+    },
+    "/users/{userId}/consultations/{consultationId}": {
+        "schema": { "$ref": "#/entities/Consultation" },
+        "description": "Stores telemedicine consultations for a user."
+    },
+    "/users/{userId}/rewards/{activityLogId}": {
+      "schema": { "$ref": "#/entities/ActivityLog" },
+      "description": "Stores the activity log and points earned for a user."
+    }
+  }
+}

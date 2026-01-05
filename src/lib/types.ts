@@ -19,6 +19,7 @@ export interface User {
   photoURL?: string;
   createdAt: Timestamp;
   points?: number;
+  interests?: string[];
   preferences?: {
     darkMode?: boolean;
     notifications?: boolean;

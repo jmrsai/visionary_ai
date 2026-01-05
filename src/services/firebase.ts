@@ -7,7 +7,7 @@ import { errorEmitter } from "@/firebase/error-emitter";
 import { FirestorePermissionError } from "@/firebase/errors";
 import { getSdks } from "@/firebase";
 
-export const getOrCreateUser = async (firebaseUser: FirebaseAuthUser): Promise<User> => {
+export const getOrCreateUser = async (firebaseUser: FirebaseAuthUser, interests?: string[]): Promise<User> => {
   const { firestore } = getSdks(firebaseUser.app);
   const userRef = doc(firestore, "users", firebaseUser.uid);
   
@@ -24,6 +24,7 @@ export const getOrCreateUser = async (firebaseUser: FirebaseAuthUser): Promise<U
         photoURL: firebaseUser.photoURL || undefined,
         createdAt: serverTimestamp() as any, // Cast to any to satisfy type temporarily
         points: 0,
+        interests: interests || []
       };
       
       // Non-blocking write with contextual error handling

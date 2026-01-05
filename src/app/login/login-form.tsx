@@ -42,10 +42,11 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
-import { Loader2, Phone, User as UserIcon, Camera } from "lucide-react";
+import { Loader2, Phone, User as UserIcon, Camera, Sparkles, Eye, Shield, Heart } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { getOrCreateUser } from "@/services/firebase";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Checkbox } from "@/components/ui/checkbox";
 
 declare global {
     interface Window {
@@ -55,6 +56,13 @@ declare global {
     }
 }
 
+const interests = [
+  { id: 'strain_reduction', label: 'Digital Eye Strain', icon: Eye },
+  { id: 'vision_improvement', label: 'Vision Improvement', icon: Sparkles },
+  { id: 'preventative_care', label: 'Preventative Care', icon: Shield },
+  { id: 'kids_health', label: 'Kids\' Eye Health', icon: Heart },
+] as const;
+
 const emailFormSchema = z.object({
   email: z.string().email({
     message: "Please enter a valid email address.",
@@ -63,6 +71,7 @@ const emailFormSchema = z.object({
     message: "Password must be at least 6 characters.",
   }),
   displayName: z.string().optional(),
+  interests: z.array(z.string()).optional(),
 });
 
 const phoneFormSchema = z.object({
@@ -83,7 +92,7 @@ const forgotPasswordSchema = z.object({
     }),
 });
 
-type FormType = "login" | "signup" | "phone" | "otp" | "forgot-password";
+type FormType = "login" | "signup-step1" | "signup-step2" | "phone" | "otp" | "forgot-password";
 
 export function LoginForm() {
   const [formType, setFormType] = useState<FormType>("login");
@@ -122,7 +131,7 @@ export function LoginForm() {
     }
   };
 
-  const handleAuthSuccess = async (userCredential: UserCredential, displayName?: string) => {
+  const handleAuthSuccess = async (userCredential: UserCredential, extraData?: { displayName?: string, interests?: string[] }) => {
     let photoURL = userCredential.user.photoURL;
 
     if (profilePic && storage) {
@@ -132,13 +141,14 @@ export function LoginForm() {
       await uploadBytes(storageRef, profilePic);
       photoURL = await getDownloadURL(storageRef);
     }
-
-    if (displayName || photoURL) {
-       await updateProfile(userCredential.user, { displayName, photoURL });
+    
+    if (extraData?.displayName || photoURL) {
+       await updateProfile(userCredential.user, { displayName: extraData?.displayName, photoURL });
     }
     
-    await getOrCreateUser(userCredential.user);
-    if (formType === "signup") {
+    await getOrCreateUser(userCredential.user, extraData?.interests);
+
+    if (formType.startsWith("signup")) {
       toast({
         title: "Account created!",
         description: "Welcome to Visionary.",
@@ -299,15 +309,18 @@ export function LoginForm() {
     setError(null);
     setSuccessMessage(null);
 
-    if (formType === "signup") {
+    if (formType === "signup-step1") {
         if (!values.displayName) {
             emailForm.setError("displayName", { message: "Display name is required."});
             setIsLoading(false);
             return;
         }
-      createUserWithEmailAndPassword(auth, values.email, values.password)
-        .then((cred) => handleAuthSuccess(cred, values.displayName))
-        .catch(handleAuthError);
+        setFormType("signup-step2");
+        setIsLoading(false);
+    } else if (formType === "signup-step2") {
+        createUserWithEmailAndPassword(auth, values.email, values.password)
+            .then((cred) => handleAuthSuccess(cred, { displayName: values.displayName, interests: values.interests }))
+            .catch(handleAuthError);
     } else {
       signInWithEmailAndPassword(auth, values.email, values.password)
         .then((cred) => handleAuthSuccess(cred))
@@ -317,7 +330,7 @@ export function LoginForm() {
   
     const emailForm = useForm<z.infer<typeof emailFormSchema>>({
     resolver: zodResolver(emailFormSchema),
-    defaultValues: { email: "", password: "", displayName: "" },
+    defaultValues: { email: "", password: "", displayName: "", interests: [] },
   });
 
   const phoneForm = useForm<z.infer<typeof phoneFormSchema>>({
@@ -338,36 +351,6 @@ export function LoginForm() {
 
   const renderEmailForm = () => (
     <>
-     {formType === "signup" && (
-        <div className="space-y-4">
-             <FormItem>
-                <FormLabel>Profile Picture</FormLabel>
-                <div className="flex items-center gap-4">
-                     <Avatar className="h-16 w-16">
-                        {previewUrl && <AvatarImage src={previewUrl} />}
-                        <AvatarFallback><UserIcon className="h-8 w-8 text-muted-foreground"/></AvatarFallback>
-                    </Avatar>
-                    <Button type="button" variant="outline" onClick={() => fileInputRef.current?.click()}>
-                        <Camera className="mr-2 h-4 w-4" /> Upload
-                    </Button>
-                    <input type="file" ref={fileInputRef} onChange={handleProfilePicChange} accept="image/*" className="hidden" />
-                </div>
-            </FormItem>
-            <FormField
-                control={emailForm.control}
-                name="displayName"
-                render={({ field }) => (
-                <FormItem>
-                    <FormLabel>Display Name</FormLabel>
-                    <FormControl>
-                    <Input type="text" placeholder="Jane Doe" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                </FormItem>
-                )}
-            />
-        </div>
-      )}
       <FormField
         control={emailForm.control}
         name="email"
@@ -401,11 +384,98 @@ export function LoginForm() {
           </FormItem>
         )}
       />
-      <Button type="submit" className="w-full" disabled={isLoading}>
-        {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-        {formType === "login" ? "Sign In" : "Sign Up"}
-      </Button>
     </>
+  );
+
+   const renderSignupStep1 = () => (
+     <div className="space-y-6">
+        <FormItem>
+            <FormLabel>Profile Picture</FormLabel>
+            <div className="flex items-center gap-4">
+                    <Avatar className="h-16 w-16">
+                    {previewUrl && <AvatarImage src={previewUrl} />}
+                    <AvatarFallback><UserIcon className="h-8 w-8 text-muted-foreground"/></AvatarFallback>
+                </Avatar>
+                <Button type="button" variant="outline" onClick={() => fileInputRef.current?.click()}>
+                    <Camera className="mr-2 h-4 w-4" /> Upload
+                </Button>
+                <input type="file" ref={fileInputRef} onChange={handleProfilePicChange} accept="image/*" className="hidden" />
+            </div>
+        </FormItem>
+        <FormField
+            control={emailForm.control}
+            name="displayName"
+            render={({ field }) => (
+            <FormItem>
+                <FormLabel>Display Name</FormLabel>
+                <FormControl>
+                <Input type="text" placeholder="Jane Doe" {...field} />
+                </FormControl>
+                <FormMessage />
+            </FormItem>
+            )}
+        />
+        {renderEmailForm()}
+        <Button type="submit" className="w-full" disabled={isLoading}>
+            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Continue
+        </Button>
+    </div>
+  );
+
+  const renderSignupStep2 = () => (
+    <div className="space-y-6">
+        <FormField
+            control={emailForm.control}
+            name="interests"
+            render={() => (
+                <FormItem>
+                    <div className="mb-4">
+                        <FormLabel className="text-base">What are your interests?</FormLabel>
+                        <FormDescription>Select a few areas you'd like to focus on.</FormDescription>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {interests.map((item) => (
+                        <FormField
+                        key={item.id}
+                        control={emailForm.control}
+                        name="interests"
+                        render={({ field }) => {
+                            const Icon = item.icon;
+                            return (
+                            <FormItem key={item.id} className="flex flex-row items-center space-x-3 space-y-0 p-4 border rounded-lg has-[:checked]:border-primary has-[:checked]:bg-primary/10 transition-colors">
+                                <FormControl>
+                                <Checkbox
+                                    checked={field.value?.includes(item.id)}
+                                    onCheckedChange={(checked) => {
+                                    return checked
+                                        ? field.onChange([...(field.value || []), item.id])
+                                        : field.onChange(
+                                            field.value?.filter(
+                                            (value) => value !== item.id
+                                            )
+                                        )
+                                    }}
+                                />
+                                </FormControl>
+                                <FormLabel className="font-normal flex items-center gap-2 cursor-pointer">
+                                   <Icon className="h-5 w-5 text-primary" /> {item.label}
+                                </FormLabel>
+                            </FormItem>
+                            )
+                        }}
+                        />
+                    ))}
+                    </div>
+                    <FormMessage />
+                </FormItem>
+            )}
+        />
+        <Button type="submit" className="w-full" disabled={isLoading}>
+            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Finish Sign Up
+        </Button>
+    </div>
   );
   
   const renderForgotPasswordForm = () => (
@@ -563,15 +633,19 @@ export function LoginForm() {
           </div>
         </div>
         {renderEmailForm()}
+        <Button type="submit" className="w-full" disabled={isLoading}>
+            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Sign In
+        </Button>
         <div className="mt-6 text-center text-sm">
-          {formType === "login" ? "Don't have an account?" : "Already have an account?"}
+          Don't have an account?
           <Button
             variant="link"
             type="button"
             className="px-1"
-            onClick={() => setFormType(formType === "login" ? "signup" : "login")}
+            onClick={() => setFormType("signup-step1")}
           >
-            {formType === "login" ? "Sign Up" : "Sign In"}
+            Sign Up
           </Button>
         </div>
       </form>
@@ -581,7 +655,8 @@ export function LoginForm() {
   const getTitleAndDescription = () => {
       switch (formType) {
           case 'login': return { title: 'Welcome Back', description: 'Sign in to access your profile and progress.'};
-          case 'signup': return { title: 'Create an Account', description: 'Join Visionary to start your journey to better eye health.'};
+          case 'signup-step1': return { title: 'Create an Account', description: 'Join Visionary to start your journey to better eye health.'};
+          case 'signup-step2': return { title: 'Personalize Your Experience', description: "Help us tailor the app to your needs."};
           case 'phone': return { title: 'Sign In with Phone', description: 'Enter your phone number to receive a verification code.'};
           case 'otp': return { title: 'Enter Verification Code', description: 'We sent a code to your phone. Enter it below.'};
           case 'forgot-password': return { title: 'Reset Password', description: "Enter your email to receive a password reset link."};
@@ -606,13 +681,10 @@ export function LoginForm() {
         )}
 
         {formType === "login" && renderInitialLogin()}
-        {formType === "signup" && (
+        {formType === "signup-step1" && (
           <Form {...emailForm}>
-            <form
-              onSubmit={emailForm.handleSubmit(onEmailSubmit)}
-              className="space-y-6"
-            >
-              {renderEmailForm()}
+            <form onSubmit={emailForm.handleSubmit(onEmailSubmit)} className="space-y-6">
+              {renderSignupStep1()}
               <div className="mt-6 text-center text-sm">
                 Already have an account?
                 <Button
@@ -622,6 +694,23 @@ export function LoginForm() {
                   onClick={() => setFormType("login")}
                 >
                   Sign In
+                </Button>
+              </div>
+            </form>
+          </Form>
+        )}
+        {formType === "signup-step2" && (
+          <Form {...emailForm}>
+            <form onSubmit={emailForm.handleSubmit(onEmailSubmit)} className="space-y-6">
+              {renderSignupStep2()}
+              <div className="mt-6 text-center text-sm">
+                <Button
+                  variant="link"
+                  type="button"
+                  className="px-1"
+                  onClick={() => setFormType("signup-step1")}
+                >
+                  &larr; Back
                 </Button>
               </div>
             </form>
