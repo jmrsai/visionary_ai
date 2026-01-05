@@ -10,6 +10,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import { searchWikipediaTool } from '../tools/wikipedia-search-tool';
 
 const EducationContentInputSchema = z.object({
   topic: z.string().describe("The eye health topic to generate content about (e.g., 'Glaucoma')."),
@@ -33,11 +34,14 @@ const prompt = ai.definePrompt({
   name: 'educationContentPrompt',
   input: {schema: EducationContentInputSchema},
   output: {schema: EducationContentOutputSchema},
+  tools: [searchWikipediaTool],
   prompt: `You are a medical writer specializing in ophthalmology for a patient education app.
   
   Your task is to generate a clear, accurate, and easy-to-understand article about the given eye health topic.
   
-  The article MUST be formatted in Markdown and include the following sections:
+  First, use the 'searchWikipedia' tool to gather information about the topic. Then, synthesize that information into a new article.
+  
+  The article MUST be formatted in Markdown and include the following sections based on the retrieved information:
   - An introductory paragraph.
   - A section titled "## Symptoms" with a bulleted list.
   - A section titled "## Causes" explaining the primary causes.

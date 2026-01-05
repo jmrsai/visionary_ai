@@ -50,7 +50,7 @@ export function VisualSnakeGame({ onBack }: { onBack: () => void }) {
         setSnake([ { x: 10, y: 10 }, { x: 10, y: 11 }, { x: 10, y: 12 }]);
         setDirection('UP');
         setScore(0);
-        setFood(getRandomPosition(snake));
+        setFood(getRandomPosition([{ x: 10, y: 10 }, { x: 10, y: 11 }, { x: 10, y: 12 }]));
         setGameState('playing');
     };
 

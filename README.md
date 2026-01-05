@@ -1,4 +1,4 @@
-# Visionary: Your Personal Vision Care App
+pdat# Visionary: Your Personal Vision Care App
 
 Visionary is a comprehensive web application designed to empower users to take control of their eye health. It combines cutting-edge AI technology with a suite of diagnostic tests, guided exercises, and personalized tracking tools to provide a holistic approach to vision care.
 

@@ -15,13 +15,15 @@ export function BlinkingOwlTherapy() {
   const [timeRemaining, setTimeRemaining] = useState(THERAPY_DURATION);
   const [isBlinking, setIsBlinking] = useState(false);
   const therapyIntervalRef = useRef<NodeJS.Timeout>();
+  const timerRef = useRef<NodeJS.Timeout>();
+
 
   useEffect(() => {
     if (therapyPhase === 'therapy') {
-      const timer = setInterval(() => {
+      timerRef.current = setInterval(() => {
         setTimeRemaining(prev => {
           if (prev <= 1) {
-            clearInterval(timer);
+            clearInterval(timerRef.current as NodeJS.Timeout);
             completeTherapy();
             return 0;
           }
@@ -38,14 +40,13 @@ export function BlinkingOwlTherapy() {
       };
 
       startBlinkingPattern();
-
-      return () => {
-        clearInterval(timer);
-        if (therapyIntervalRef.current) {
-          clearInterval(therapyIntervalRef.current);
-        }
-      };
     }
+    return () => {
+      if(timerRef.current) clearInterval(timerRef.current);
+      if (therapyIntervalRef.current) {
+        clearInterval(therapyIntervalRef.current);
+      }
+    };
   }, [therapyPhase]);
 
   const completeTherapy = () => {

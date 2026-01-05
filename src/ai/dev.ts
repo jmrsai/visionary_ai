@@ -18,3 +18,4 @@ import '@/ai/tools/image-analysis-tool.ts';
 import '@/ai/flows/medication-ocr.ts';
 import '@/ai/flows/education-content-generator.ts';
 import '@/ai/flows/ocular-health-scan.ts';
+import '@/ai/tools/wikipedia-search-tool.ts';
