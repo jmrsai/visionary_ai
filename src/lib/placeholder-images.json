@@ -1,6 +1,12 @@
 {
   "placeholderImages": [
     {
+      "id": "landing-hero",
+      "description": "Abstract hero image for the landing page",
+      "imageUrl": "https://i.ibb.co/3sL6bgr/landing-hero.jpg",
+      "imageHint": "abstract eye illustration"
+    },
+    {
       "id": "user-avatar",
       "description": "User avatar",
       "imageUrl": "https://i.ibb.co/6n21bQ8/user-avatar.png",
