@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -79,7 +79,7 @@ export function WordBuilderGame({ onBack }: { onBack: () => void }) {
             gameTimerRef.current = setInterval(() => {
                 setTimeLeft(prev => {
                     if (prev <= 1) {
-                        clearInterval(gameTimerRef.current);
+                        clearInterval(gameTimerRef.current as NodeJS.Timeout);
                         setGameState('complete');
                         return 0;
                     }

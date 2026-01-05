@@ -44,7 +44,7 @@ The output must be the image only, with no other text or artifacts.`;
         prompt: prompt,
       });
 
-      if (!media.url) {
+      if (!media?.url) {
         throw new Error('Image generation failed for Amsler grid.');
       }
 

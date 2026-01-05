@@ -337,7 +337,7 @@ export function FloatingChatbot() {
             </SheetTrigger>
             <SheetContent 
                 side={isMobile ? "bottom" : "right"} 
-                className={`p-0 ${isMobile ? 'h-[80%] rounded-t-lg' : 'w-[400px] sm:max-w-md'} bg-transparent border-none shadow-none`}
+                className={`p-0 ${isMobile ? 'h-[80%]' : 'w-[400px] sm:max-w-md'} bg-transparent border-none shadow-none`}
             >
                 <ChatInterface />
             </SheetContent>
