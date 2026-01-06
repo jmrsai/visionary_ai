@@ -1,6 +1,5 @@
 
 import { doc, runTransaction, collection, serverTimestamp } from "firebase/firestore";
-import { firestore } from "@/firebase/config"; // Assuming you have a client-side firebase config
 import { addDocumentNonBlocking } from "@/firebase/non-blocking-updates";
 import type { ActivityLog } from "./types";
 import { getFirestore } from "firebase/firestore";

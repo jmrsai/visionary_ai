@@ -17,18 +17,17 @@ export const getOrCreateUser = async (firebaseUser: FirebaseAuthUser, interests?
     if (userDoc.exists()) {
       return userDoc.data() as User;
     } else {
-      const newUser: User = {
+      const newUser: Omit<User, 'id'> & { id: string } = {
         id: firebaseUser.uid,
         email: firebaseUser.email || "",
         displayName: firebaseUser.displayName || "Anonymous User",
         photoURL: firebaseUser.photoURL || undefined,
-        createdAt: serverTimestamp() as any, // Cast to any to satisfy type temporarily
         points: 0,
         interests: interests || []
       };
       
       // Non-blocking write with contextual error handling
-      setDoc(userRef, newUser).catch(error => {
+      setDoc(userRef, {...newUser, dateJoined: serverTimestamp()}).catch(error => {
           errorEmitter.emit(
               'permission-error',
               new FirestorePermissionError({
@@ -39,7 +38,7 @@ export const getOrCreateUser = async (firebaseUser: FirebaseAuthUser, interests?
           );
       });
       
-      return newUser;
+      return newUser as User;
     }
   } catch (error) {
      errorEmitter.emit(

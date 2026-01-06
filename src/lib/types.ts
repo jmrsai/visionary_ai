@@ -17,7 +17,6 @@ export interface User {
   email: string;
   displayName: string;
   photoURL?: string;
-  createdAt: Timestamp;
   points?: number;
   interests?: string[];
   preferences?: {

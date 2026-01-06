@@ -82,10 +82,10 @@ export function UserDashboard() {
   }, []);
 
   const handleDismissQuickGuide = () => {
+    setShowQuickGuide(false);
     if (typeof window !== 'undefined') {
         localStorage.setItem('visionary_quickGuideShown', 'true');
     }
-    setShowQuickGuide(false);
   };
   
   return (
