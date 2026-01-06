@@ -1,4 +1,4 @@
-import { ai } from 'genkit';
+import { ai } from '@/ai/genkit';
 import { defineTool } from 'genkit/tools';
 import z from 'zod';
 import { listFiles, readFile } from '@/services/file-system';
