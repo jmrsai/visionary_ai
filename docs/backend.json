@@ -1,3 +1,4 @@
+
 {
   "entities": {
     "User": {
@@ -20,6 +21,11 @@
           "type": "string",
           "description": "User's full name."
         },
+        "photoURL": {
+            "type": "string",
+            "description": "URL of the user's profile picture.",
+            "format": "uri"
+        },
         "dateJoined": {
           "type": "string",
           "description": "Date and time when the user joined the app.",
@@ -28,14 +34,21 @@
         "points": {
           "type": "number",
           "description": "Total points accumulated by the user."
+        },
+        "interests": {
+            "type": "array",
+            "description": "User's selected interests for content personalization.",
+            "items": {
+                "type": "string",
+                "enum": ["strain_reduction", "vision_improvement", "preventative_care", "kids_health"]
+            }
         }
       },
       "required": [
         "id",
         "email",
         "name",
-        "dateJoined",
-        "points"
+        "dateJoined"
       ]
     },
     "ActivityLog": {
@@ -252,3 +265,5 @@
     }
   }
 }
+
+    

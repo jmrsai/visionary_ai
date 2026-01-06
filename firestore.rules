@@ -37,7 +37,8 @@ service cloud.firestore {
              data.email is string &&
              data.name is string &&
              data.dateJoined is timestamp &&
-             (!('interests' in data) || data.interests is list);
+             (!('interests' in data) || data.interests is list) &&
+             (!('photoURL' in data) || data.photoURL is string);
     }
     
     function isValidActivityLog(data, userId) {
@@ -135,3 +136,5 @@ service cloud.firestore {
     }
   }
 }
+
+    

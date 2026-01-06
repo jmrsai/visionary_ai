@@ -143,3 +143,5 @@ export type ActivityLog = {
     pointsEarned: number;
     timestamp: string; // ISO string
 };
+
+    
