@@ -153,11 +153,11 @@ const chatFlow = ai.defineFlow(
   },
   async input => {
     // Map the mock data to the format expected by the prompt
-    const visionScoreHistory = MOCK_VISION_SCORE_HISTORY.map(item => ({ date: item.date, score: item.score }));
+    const visionScoreHistory = JSON.stringify(MOCK_VISION_SCORE_HISTORY.map(item => ({ date: item.date, score: item.score })));
     
     const {output} = await prompt({
         ...input,
-        visionScoreHistory: JSON.stringify(visionScoreHistory)
+        visionScoreHistory: visionScoreHistory
     });
 
     // If the model doesn't return structured output for some reason, provide a safe default.
