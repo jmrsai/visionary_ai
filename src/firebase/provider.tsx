@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { DependencyList, createContext, useContext, ReactNode, useMemo, useState, useEffect } from 'react';
@@ -90,7 +91,7 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
             const userDocRef = doc(firestore, "users", firebaseUser.uid);
             const unsubscribeDoc = onSnapshot(userDocRef, (doc) => {
                 if (doc.exists()) {
-                    setUserAuthState({ user: doc.data() as User, isUserLoading: false, userError: null });
+                    setUserAuthState({ user: {id: doc.id, ...doc.data()} as User, isUserLoading: false, userError: null });
                 } else {
                     // This can happen briefly during user creation
                     setUserAuthState({ user: null, isUserLoading: false, userError: null });

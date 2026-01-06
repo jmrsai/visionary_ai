@@ -15,10 +15,9 @@ export const getOrCreateUser = async (firebaseUser: FirebaseAuthUser, interests?
     const userDoc = await getDoc(userRef);
 
     if (userDoc.exists()) {
-      return userDoc.data() as User;
+      return { id: userDoc.id, ...userDoc.data() } as User;
     } else {
-      const newUser: Omit<User, 'id' | 'dateJoined'> & { id: string, dateJoined: any } = {
-        id: firebaseUser.uid,
+      const newUser: Omit<User, 'id' | 'dateJoined'> & { dateJoined: any } = {
         email: firebaseUser.email || "",
         displayName: firebaseUser.displayName || "Anonymous User",
         photoURL: firebaseUser.photoURL || undefined,
@@ -41,6 +40,7 @@ export const getOrCreateUser = async (firebaseUser: FirebaseAuthUser, interests?
       
       return {
           ...newUser,
+          id: firebaseUser.uid,
           dateJoined: new Date().toISOString() // Return a client-side version immediately
       } as User;
     }

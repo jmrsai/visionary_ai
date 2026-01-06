@@ -17,7 +17,7 @@
           "description": "Email address of the user.",
           "format": "email"
         },
-        "name": {
+        "displayName": {
           "type": "string",
           "description": "User's full name."
         },
@@ -47,7 +47,7 @@
       "required": [
         "id",
         "email",
-        "name",
+        "displayName",
         "dateJoined"
       ]
     },
