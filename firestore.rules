@@ -37,6 +37,7 @@ service cloud.firestore {
              data.email is string &&
              data.name is string &&
              data.dateJoined is timestamp &&
+             (!('points' in data) || data.points is number) &&
              (!('interests' in data) || data.interests is list) &&
              (!('photoURL' in data) || data.photoURL is string);
     }
@@ -65,12 +66,17 @@ service cloud.firestore {
                (!('repetitions' in data) || data.repetitions is number);
     }
     
+    function isValidReminderAppearance(data) {
+        return data.shape is string && data.color is string;
+    }
+
     function isValidReminder(data, userId) {
         return data.userId == userId &&
                data.title is string &&
                data.time is string &&
                data.type is string && ['exercise', 'Eye Drops', 'Pill', 'Capsule', 'Liquid', 'appointment'].hasAny([data.type]) &&
-               data.enabled is bool;
+               data.enabled is bool &&
+               (!('appearance' in data) || isValidReminderAppearance(data.appearance));
     }
 
     function isValidConsultation(data, userId) {
@@ -136,5 +142,3 @@ service cloud.firestore {
     }
   }
 }
-
-    
