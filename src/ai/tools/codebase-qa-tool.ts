@@ -1,8 +1,7 @@
-
 import { ai } from 'genkit';
 import { defineTool } from 'genkit/tools';
 import z from 'zod';
-import { listFiles, readFile } from '../../services/file-system';
+import { listFiles, readFile } from '@/services/file-system';
 
 const codebaseQASchema = z.object({
   question: z.string().describe('The question to ask about the codebase'),

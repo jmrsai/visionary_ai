@@ -1,61 +1,33 @@
-'use server';
+import { ai } from 'genkit';
+import { defineTool } from 'genkit/tools';
+import z from 'zod';
+import { listFiles, readFile } from '@/services/file-system';
 
-/**
- * @fileOverview An AI flow for generating an Amsler grid image.
- *
- * - generateAmslerGrid - A function that creates an Amsler grid image.
- * - AmslerGridOutput - The return type for the generateAmslerGrid function.
- */
-
-import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
-
-const AmslerGridOutputSchema = z.object({
-  gridImageUri: z
-    .string()
-    .describe(
-      "A data URI of the generated Amsler grid image. It must include a MIME type and use Base64 encoding. Expected format: 'data:image/png;base64,<encoded_data>'."
-    ),
+const codebaseQASchema = z.object({
+  question: z.string().describe('The question to ask about the codebase'),
 });
-export type AmslerGridOutput = z.infer<typeof AmslerGridOutputSchema>;
 
-// This flow is no longer used by the interactive component, but is kept for reference.
-export async function generateAmslerGrid(): Promise<AmslerGridOutput> {
-  return amslerGridFlow();
-}
-
-
-const amslerGridFlow = ai.defineFlow(
+export const codebaseQATool = ai.defineTool(
   {
-    name: 'amslerGridFlow',
-    outputSchema: AmslerGridOutputSchema,
+    name: 'codebaseQA',
+    description: 'Ask questions about the codebase',
+    inputSchema: codebaseQASchema,
+    outputSchema: z.string(),
   },
-  async () => {
-    const prompt = `Generate a standard Amsler grid used for eye tests.
-The image should be a perfect square.
-It must consist of a grid of straight, evenly spaced horizontal and vertical lines against a white background.
-There must be a single, small black dot in the exact center of the grid.
-The lines should be black.
-The output must be the image only, with no other text or artifacts.`;
+  async ({ question }) => {
+    const files = await listFiles('.');
+    const fileContents = await Promise.all(
+      files.map(async (file) => {
+        const content = await readFile(file);
+        return { file, content };
+      })
+    );
 
-    try {
-      const {media} = await ai.generate({
-        model: 'googleai/imagen-4.0-fast-generate-001',
-        prompt: prompt,
-      });
+    const prompt = `You are a helpful AI assistant that can answer questions about a codebase. The user has the following files in their project:\n\n${fileContents
+      .map(({ file, content }) => `**${file}**\n\`\`\`\n${content}\n\`\`\`\n`)
+      .join('\n')};`
 
-      if (!media?.url) {
-        throw new Error('Image generation failed for Amsler grid.');
-      }
-
-      return {
-        gridImageUri: media.url,
-      };
-    } catch (error) {
-      console.error('AI Generation Error in amslerGridFlow:', error);
-      throw new Error(
-        'The AI service is currently unavailable. Please try again later.'
-      );
-    }
+    const { text } = await ai.generate({ prompt });
+    return text;
   }
 );
