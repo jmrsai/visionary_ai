@@ -122,7 +122,7 @@ export function CosmicRacerGame() {
                             🚀 Race Again
                         </Button>
                         <Button variant="secondary" className="w-full" asChild>
-                           <Link href="/tests/kids-zone"><ArrowLeft className="mr-2 h-4 w-4" />Back to Games</Link>
+                           <Link href="/gym"><ArrowLeft className="mr-2 h-4 w-4" />Back to Gym</Link>
                         </Button>
                     </div>
                 </CardContent>
@@ -155,7 +155,7 @@ export function CosmicRacerGame() {
                     </div>
                     <div className="flex gap-4">
                         <Button variant="outline" asChild className="w-full">
-                           <Link href="/tests/kids-zone"><ArrowLeft className="mr-2 h-4 w-4" /> Back</Link>
+                           <Link href="/gym"><ArrowLeft className="mr-2 h-4 w-4" /> Back</Link>
                         </Button>
                         <Button onClick={startGame} size="lg" className="w-full bg-blue-600 hover:bg-blue-700">
                             Launch Mission

@@ -1,22 +1,18 @@
-import Link from "next/link";
-import { notFound } from "next/navigation";
-import { MOCK_TESTS } from "@/lib/data";
-import { CosmicRacerGame } from "@/components/games/cosmic-racer-game";
-import { JungleExplorerGame } from "@/components/games/jungle-explorer-game";
-import { VisualSnakeGame } from "@/components/games/visual-snake-game";
-import { WordBuilderGame } from "@/components/games/word-builder-game";
-import { Card, CardHeader, CardContent } from "@/components/ui/card";
+"use client";
 
-export async function generateStaticParams() {
-  const games = MOCK_TESTS.filter((test) => test.category === "Kids' Game Zone");
-  return games.map((game) => ({
-    slug: game.id,
-  }));
-}
+import Link from "next/link";
+import { notFound, useParams } from "next/navigation";
+import { MOCK_TESTS } from "@/lib/data";
+import { CosmicRacerGame } from "@/components/tests/cosmic-racer-game";
+import { JungleExplorerGame } from "@/components/tests/jungle-explorer-game";
+import { VisualSnakeGame } from "@/components/tests/visual-snake-game";
+import { WordBuilderGame } from "@/components/tests/word-builder-game";
+import { useRouter } from "next/navigation";
+
 
 const GameComponent = ({ slug, onBack }: { slug: string; onBack: () => void }) => {
     switch (slug) {
-        case "cosmic-racer": return <CosmicRacerGame onBack={onBack} />;
+        case "cosmic-racer": return <CosmicRacerGame />;
         case "jungle-explorer": return <JungleExplorerGame onBack={onBack} />;
         case "visual-snake-game": return <VisualSnakeGame onBack={onBack} />;
         case "word-builder": return <WordBuilderGame onBack={onBack} />;
@@ -24,17 +20,19 @@ const GameComponent = ({ slug, onBack }: { slug: string; onBack: () => void }) =
     }
 }
 
-export default function GamePage({ params }: { params: { slug: string } }) {
-  const game = MOCK_TESTS.find((g) => g.id === params.slug);
+export default function GamePage() {
+  const params = useParams();
+  const slug = params.slug as string;
+  const router = useRouter();
+
+  const game = MOCK_TESTS.find((g) => g.id === slug);
 
   if (!game || game.category !== "Kids' Game Zone") {
     notFound();
   }
-
+  
   const handleBack = () => {
-    "use server";
-    // This is a placeholder for a server action if needed,
-    // but we can just rely on the link for navigation.
+    router.push('/gym');
   };
 
   return (
@@ -42,7 +40,7 @@ export default function GamePage({ params }: { params: { slug: string } }) {
       <Link href="/gym" className="text-sm text-muted-foreground hover:text-primary mb-4 inline-block">
         &larr; Back to Eye Gym
       </Link>
-      <GameComponent slug={params.slug} onBack={handleBack}/>
+      <GameComponent slug={slug} onBack={handleBack}/>
     </div>
   );
 }
