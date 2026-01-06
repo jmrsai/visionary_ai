@@ -50,9 +50,9 @@ const getPersonalizedContent = (interests: string[] = []) => {
         content.items.push(...MOCK_TESTS.filter(t => t.category === "Kids' Game Zone"));
     }
 
-    // Deduplicate
+    // Deduplicate and limit
     content.items = Array.from(new Set(content.items.map(item => item.id)))
-        .map(id => content.items.find(item => item.id === id));
+        .map(id => content.items.find(item => item.id === id)).slice(0, 3);
         
     return content;
 }
@@ -92,6 +92,7 @@ export function UserDashboard() {
     <div className="flex flex-1 flex-col gap-4 md:gap-8">
       {showQuickGuide && <QuickGuide onDismiss={handleDismissQuickGuide} />}
 
+      {personalizedContent.items.length > 0 && (
        <Card>
           <CardHeader>
               <CardTitle>{personalizedContent.title}</CardTitle>
@@ -126,14 +127,9 @@ export function UserDashboard() {
                       </Link>
                   )
               })}
-
-              {personalizedContent.items.length === 0 && (
-                  <div className="col-span-full text-center py-12 text-muted-foreground">
-                      <p>No specific recommendations based on your interests. Go to your <Link href="/profile" className="text-primary underline">profile</Link> to update them!</p>
-                  </div>
-              )}
           </CardContent>
       </Card>
+      )}
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         <div className="lg:col-span-2 grid gap-6 md:grid-cols-2">
@@ -215,7 +211,7 @@ export function UserDashboard() {
                                     Completed: {log.activityName}.
                                     </p>
                                     <p className="text-sm text-muted-foreground">
-                                    {log.timestamp ? formatDistanceToNow(new Date(log.timestamp), { addSuffix: true }) : ''}
+                                    {log.timestamp ? formatDistanceToNow(new Date((log.timestamp as any).seconds * 1000), { addSuffix: true }) : ''}
                                     </p>
                                 </div>
                                 <Badge variant="outline">+{log.pointsEarned} pts</Badge>
