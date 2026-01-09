@@ -15,6 +15,9 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { MOCK_VISION_SCORE_HISTORY } from "@/lib/data";
+import type { CheckupReport } from "@/lib/types";
+import { format } from "date-fns";
+import { Loader2 } from "lucide-react";
 
 
 const chartConfig = {
@@ -24,12 +27,43 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export function VisionScoreChart() {
+interface VisionScoreChartProps {
+    history: CheckupReport[] | null;
+    isLoading: boolean;
+}
+
+export function VisionScoreChart({ history, isLoading }: VisionScoreChartProps) {
+
+  if (isLoading) {
+      return (
+          <div className="flex items-center justify-center h-full">
+              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+          </div>
+      )
+  }
+
+  if (!history || history.length === 0) {
+      return (
+          <div className="flex items-center justify-center h-full">
+              <p className="text-sm text-muted-foreground">No data available.</p>
+          </div>
+      )
+  }
+  
+  const chartData = history.map(report => {
+      const score2020 = parseInt(report.results.find(r => r.testId === 'visual-acuity')?.value.split('/')[1] || '0', 10);
+      return {
+          date: format(new Date(report.date), "MMM d"),
+          score: 100 - (score2020 - 20), // Simple conversion for chart
+      }
+  }).reverse(); // Reverse to show chronological order
+
+
   return (
     <ChartContainer config={chartConfig} className="h-full w-full">
       <ResponsiveContainer>
         <AreaChart
-          data={MOCK_VISION_SCORE_HISTORY}
+          data={chartData}
           margin={{ top: 5, right: 10, left: -20, bottom: 0 }}
         >
           <defs>

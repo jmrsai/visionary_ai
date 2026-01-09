@@ -16,8 +16,6 @@ import {imageAnalysisTool} from '@/ai/tools/image-analysis-tool';
 import { searchYouTubeForRemedy } from '@/ai/tools/youtube-search-tool';
 import {z} from 'zod';
 import * as wav from 'wav';
-import { MOCK_VISION_SCORE_HISTORY } from '@/lib/data';
-
 
 const MessageSchema = z.object({
   role: z.enum(['user', 'model']),
@@ -28,6 +26,7 @@ const ChatInputSchema = z.object({
   message: z.string().describe("The user's message or question."),
   history: z.array(MessageSchema).optional().describe("The history of the conversation."),
   imageDataUri: z.string().optional().describe("An optional image provided by the user as a data URI."),
+  userId: z.string().optional().describe("The user's unique ID, if they are logged in."),
 });
 export type ChatInput = z.infer<typeof ChatInputSchema>;
 
@@ -54,7 +53,7 @@ export async function chat(input: ChatInput): Promise<ChatOutput> {
 
 const prompt = ai.definePrompt({
   name: 'chatPrompt',
-  input: {schema: z.object({ message: z.string(), history: z.any().optional(), visionScoreHistory: z.string(), imageDataUri: z.string().optional() })},
+  input: {schema: z.object({ message: z.string(), history: z.any().optional(), userId: z.string().optional(), imageDataUri: z.string().optional() })},
   output: {schema: z.object({
       response: z.string().describe("The AI's text response to the user's message."),
       chartData: ChartDataSchema.optional().describe('Structured data for rendering a chart in the UI, if the user requested one.'),
@@ -86,15 +85,10 @@ const prompt = ai.definePrompt({
       - Present the home care advice AND the exercise recommendations to the user in a clear, helpful way. Link directly to the exercise pages.
       - **When presenting home care advice, you MUST format each piece of advice as a clear instruction followed by its YouTube link on a new line. For example: "For your dry eyes, you can try applying a warm compress. You can watch a video on how to do that here: [YouTube Link]"**
   3.  **Medication Assistant:**
-      - If the user asks about their medications (e.g., "When is my next dose?", "What medications am I taking?"), use the 'getMedicationReminders' tool to fetch their medication schedule.
+      - If the user asks about their medications (e.g., "When is my next dose?", "What medications am I taking?"), use the 'getMedicationReminders' tool. You MUST pass the user's ID to this tool: {{{userId}}}.
       - Answer their question based on the data returned by the tool. Be specific (e.g., "Your next dose of Latanoprost is at 9:00 PM.").
-  4.  **Professional Chart Analyst:**
-      - If the user asks for a chart or a graph of their progress (e.g., "Show me my vision score history"), you MUST respond with a chart object.
-      - Use the provided data to populate the 'dataPoints' field.
-      - **Perform a professional analysis:** Calculate the average score, identify the trend (upward, downward, stable), and note the most recent change.
-      - Generate a 'summaryText' that communicates this analysis clearly and professionally (e.g., "Here is your vision score history. Over the last several months, your average score is 86, with a positive upward trend. Your most recent score of 92 is a 2-point increase from the previous month, which is excellent progress.").
-      - Set the 'response' field to a brief confirmation message (e.g., "Here is your vision score history.").
-      - **Example Data:** Vision Score History: {{{visionScoreHistory}}}
+  4.  **Chart Analyst:**
+      - If the user asks for a chart or a graph of their progress, politely inform them that you can't display charts in the chat, but they can view their full progress history on their main dashboard.
   5.  **General Questions:**
       - If the user asks a general question (e.g., "What is glaucoma?"), answer it clearly and concisely.
 
@@ -152,13 +146,7 @@ const chatFlow = ai.defineFlow(
     outputSchema: ChatOutputSchema,
   },
   async input => {
-    // Map the mock data to the format expected by the prompt
-    const visionScoreHistory = JSON.stringify(MOCK_VISION_SCORE_HISTORY.map(item => ({ date: item.date, score: item.score })));
-    
-    const {output} = await prompt({
-        ...input,
-        visionScoreHistory: visionScoreHistory
-    });
+    const {output} = await prompt(input);
 
     // If the model doesn't return structured output for some reason, provide a safe default.
     if (!output) {

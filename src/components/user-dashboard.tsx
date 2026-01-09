@@ -22,7 +22,7 @@ import { EyeGymIcon, CheckupIcon, ProfileIcon } from "@/components/icons";
 import { QuickGuide } from "./quick-guide";
 import { useUser, useFirestore, useCollection, useMemoFirebase } from "@/firebase";
 import { collection, query, orderBy, limit } from "firebase/firestore";
-import type { ActivityLog } from "@/lib/types";
+import type { ActivityLog, CheckupReport } from "@/lib/types";
 import { formatDistanceToNow } from "date-fns";
 import { MOCK_TESTS, MOCK_EXERCISES } from "@/lib/data";
 
@@ -69,7 +69,16 @@ export function UserDashboard() {
 
   const { data: activityLogs, isLoading: isLoadingActivity } = useCollection<ActivityLog>(activityLogRef);
 
+  const visionHistoryRef = useMemoFirebase(() => {
+    if (!user?.id || !firestore) return null;
+    return query(collection(firestore, `users/${user.id}/visionTestResults`), orderBy("date", "desc"), limit(7));
+  }, [user?.id, firestore]);
+  
+  const { data: visionHistory, isLoading: isLoadingVision } = useCollection<CheckupReport>(visionHistoryRef);
+
   const personalizedContent = getPersonalizedContent(user?.interests);
+
+  const latestScore = visionHistory?.[0]?.results.find(r => r.testId === 'visual-acuity')?.value || "N/A";
   
   return (
     <div className="flex flex-1 flex-col gap-4 md:gap-8">
@@ -138,15 +147,15 @@ export function UserDashboard() {
         <Card className="animate-fade-in-up" style={{ animationDelay: '400ms' }}>
           <CardHeader className="pb-2">
             <CardTitle>Vision Score</CardTitle>
-            <CardDescription>Your progress over time. (Data is currently mocked)</CardDescription>
+            <CardDescription>Your progress over time.</CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col items-center justify-center gap-4">
             <div className="text-center">
-              <div className="text-6xl font-bold text-accent">92<span className="text-3xl text-muted-foreground">/100</span></div>
-              <p className="text-xs text-muted-foreground mt-1">+2 since last month</p>
+              <div className="text-6xl font-bold text-accent">{latestScore}<span className="text-3xl text-muted-foreground"></span></div>
+              <p className="text-xs text-muted-foreground mt-1">Latest Test Result</p>
             </div>
             <div className="h-[100px] w-full">
-              <VisionScoreChart />
+              <VisionScoreChart history={visionHistory} isLoading={isLoadingVision} />
             </div>
           </CardContent>
         </Card>
