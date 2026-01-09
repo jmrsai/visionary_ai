@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --hostname 0.0.0.0",
+    "dev": "next dev",
     "genkit:dev": "genkit dev",
     "genkit:watch": "genkit watch",
     "build": "NODE_ENV=production next build",
