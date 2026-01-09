@@ -1,5 +1,6 @@
 
 import { Activity, BookOpen, Brain, Dumbbell, Eye, Glasses, HeartPulse, Target, Video, View, Wind, Sparkles, CalendarCheck, ScanEye, Zap, ListTodo, Contrast, Layers, Palette, Rocket, Move, Orbit, Grid, CircleDot, EyeOff, Disc, Puzzle, Gamepad2, Bird } from "lucide-react";
+import { StereopsisIcon } from "@/components/icons";
 import type { Test, Exercise, Circuit, HrrPlate, D15Cap, GameCharacter } from "./types";
 
 import hrrPlatesData from './data/hrr-plates.json';

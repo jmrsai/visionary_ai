@@ -3,10 +3,10 @@
 import Link from "next/link";
 import { notFound, useParams } from "next/navigation";
 import { MOCK_TESTS } from "@/lib/data";
-import { CosmicRacerGame } from "@/components/tests/cosmic-racer-game";
-import { JungleExplorerGame } from "@/components/tests/jungle-explorer-game";
-import { VisualSnakeGame } from "@/components/tests/visual-snake-game";
-import { WordBuilderGame } from "@/components/tests/word-builder-game";
+import { CosmicRacerGame } from "@/components/games/cosmic-racer-game";
+import { JungleExplorerGame } from "@/components/games/jungle-explorer-game";
+import { VisualSnakeGame } from "@/components/games/visual-snake-game";
+import { WordBuilderGame } from "@/components/games/word-builder-game";
 import { useRouter } from "next/navigation";
 
 
