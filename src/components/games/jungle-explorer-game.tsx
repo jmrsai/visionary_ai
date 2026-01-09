@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
@@ -5,7 +6,6 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft, Play, RefreshCw, Star, Trophy } from 'lucide-react';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { MOCK_GAME_CHARACTERS } from '@/lib/data';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -15,7 +15,6 @@ const GAME_DURATION_S = 30;
 interface Animal {
   id: string;
   character: typeof MOCK_GAME_CHARACTERS[0];
-  image: typeof PlaceHolderImages[0];
   isNear: boolean;
   position: { x: number; y: number };
   scale: number;
@@ -29,21 +28,17 @@ export function JungleExplorerGame({ onBack }: { onBack: () => void }) {
   const [animalsFound, setAnimalsFound] = useState(0);
   const [currentAnimal, setCurrentAnimal] = useState<Animal | null>(null);
 
-  const jungleBg = useMemo(() => PlaceHolderImages.find(img => img.id === 'jungle-background'), []);
+  const jungleBg = MOCK_GAME_CHARACTERS[0].image;
   const gameTimerRef = useRef<NodeJS.Timeout>();
   const animalTimerRef = useRef<NodeJS.Timeout>();
 
   const showNextAnimal = useCallback(() => {
     const characterData = MOCK_GAME_CHARACTERS[Math.floor(Math.random() * MOCK_GAME_CHARACTERS.length)];
     const isNear = Math.random() > 0.5;
-    const animalImage = PlaceHolderImages.find(img => img.id === characterData.id);
-
-    if (!animalImage) return;
 
     const newAnimal: Animal = {
       id: Date.now().toString(),
       character: characterData,
-      image: animalImage,
       isNear,
       position: {
         x: Math.random() * 80 + 10, // 10% to 90%
@@ -230,11 +225,11 @@ export function JungleExplorerGame({ onBack }: { onBack: () => void }) {
                     onClick={handleAnimalClick}
                 >
                     <Image 
-                        src={currentAnimal.image.imageUrl} 
-                        alt={currentAnimal.image.description} 
+                        src={currentAnimal.character.image.imageUrl} 
+                        alt={currentAnimal.character.image.description} 
                         layout="fill" 
                         objectFit="contain" 
-                        data-ai-hint={currentAnimal.image.imageHint}
+                        data-ai-hint={currentAnimal.character.image.imageHint}
                     />
                 </motion.div>
             )}

@@ -107,6 +107,17 @@ export interface Consultation {
   notes?: string;
 }
 
+export interface GameCharacter {
+    id: string;
+    name: string;
+    image: {
+        id: string;
+        description: string;
+        imageUrl: string;
+        imageHint: string;
+    }
+}
+
 
 // --- App-specific Helper Types ---
 

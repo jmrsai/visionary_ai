@@ -1,6 +1,43 @@
+
 [
-    { "id": "monkey-character", "name": "Monkey" },
-    { "id": "parrot-character", "name": "Parrot" },
-    { "id": "frog-character", "name": "Frog" },
-    { "id": "toucan-character", "name": "Toucan" }
+    { 
+        "id": "monkey-character", 
+        "name": "Monkey",
+        "image": {
+            "id": "monkey-character",
+            "description": "A cartoon monkey character",
+            "imageUrl": "https://images.unsplash.com/photo-1758498564085-7117e846e2b0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8bW9ua2V5JTIwY2FydG9vbnxlbnwwfHx8fDE3Njc5MjI4NzB8MA&ixlib=rb-4.1.0&q=80&w=1080",
+            "imageHint": "monkey cartoon"
+        }
+    },
+    { 
+        "id": "parrot-character", 
+        "name": "Parrot",
+        "image": {
+            "id": "parrot-character",
+            "description": "A cartoon parrot character",
+            "imageUrl": "https://i.ibb.co/mR4jQdJ/parrot.png",
+            "imageHint": "parrot cartoon"
+        }
+    },
+    { 
+        "id": "frog-character", 
+        "name": "Frog",
+        "image": {
+            "id": "frog-character",
+            "description": "A cartoon frog character",
+            "imageUrl": "https://i.ibb.co/YPMY1P0/frog.png",
+            "imageHint": "frog cartoon"
+        }
+    },
+    { 
+        "id": "toucan-character", 
+        "name": "Toucan",
+        "image": {
+            "id": "toucan-character",
+            "description": "A cartoon toucan character",
+            "imageUrl": "https://i.ibb.co/7jZqWz4/toucan.png",
+            "imageHint": "toucan cartoon"
+        }
+    }
 ]
