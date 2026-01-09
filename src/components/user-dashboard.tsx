@@ -59,7 +59,6 @@ const getPersonalizedContent = (interests: string[] = []) => {
 
 
 export function UserDashboard() {
-  const [showQuickGuide, setShowQuickGuide] = useState(false);
   const { user } = useUser();
   const firestore = useFirestore();
 
@@ -71,26 +70,10 @@ export function UserDashboard() {
   const { data: activityLogs, isLoading: isLoadingActivity } = useCollection<ActivityLog>(activityLogRef);
 
   const personalizedContent = getPersonalizedContent(user?.interests);
-
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-        const quickGuideShown = localStorage.getItem('visionary_quickGuideShown');
-        if (!quickGuideShown) {
-            setShowQuickGuide(true);
-        }
-    }
-  }, []);
-
-  const handleDismissQuickGuide = () => {
-    setShowQuickGuide(false);
-    if (typeof window !== 'undefined') {
-        localStorage.setItem('visionary_quickGuideShown', 'true');
-    }
-  };
   
   return (
     <div className="flex flex-1 flex-col gap-4 md:gap-8">
-      {showQuickGuide && <QuickGuide onDismiss={handleDismissQuickGuide} />}
+      <QuickGuide />
 
       {personalizedContent.items.length > 0 && (
        <Card>
