@@ -1,3 +1,4 @@
+
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { MOCK_TESTS } from "@/lib/data";
 import Link from "next/link";
@@ -9,9 +10,9 @@ export default function TestsPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold">Diagnostic Tests</h1>
-        <p className="text-muted-foreground">
-          A suite of tests to screen for various eye conditions.
+        <h1 className="text-4xl font-bold tracking-tight">Diagnostic Tests</h1>
+        <p className="mt-2 text-lg text-muted-foreground">
+          A comprehensive suite of tests to screen for various eye conditions and track your visual acuity.
         </p>
       </div>
 

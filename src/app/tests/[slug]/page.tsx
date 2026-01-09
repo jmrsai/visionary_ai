@@ -59,7 +59,7 @@ export default function TestPage({ params }: { params: { slug: string } }) {
     <div className="space-y-6">
        <div>
         <Link href="/tests" className="text-sm text-muted-foreground hover:text-primary">&larr; Back to All Tests</Link>
-        <h1 className="text-4xl font-bold tracking-tight">{test.title}</h1>
+        <h1 className="text-4xl font-bold tracking-tight mt-1">{test.title}</h1>
         <p className="mt-2 max-w-2xl text-lg text-muted-foreground">
           {test.description}
         </p>

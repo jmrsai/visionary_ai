@@ -26,7 +26,7 @@ export default function ExercisePage({ params }: { params: { slug: string } }) {
     <div className="space-y-6">
        <div>
         <Link href="/gym" className="text-sm text-muted-foreground hover:text-primary">&larr; Back to Gym</Link>
-        <h1 className="text-4xl font-bold tracking-tight">{exercise.title}</h1>
+        <h1 className="text-4xl font-bold tracking-tight mt-1">{exercise.title}</h1>
         <p className="mt-2 max-w-2xl text-lg text-muted-foreground">
           {exercise.description}
         </p>

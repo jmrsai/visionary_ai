@@ -83,7 +83,11 @@ export function JungleExplorerGame({ onBack }: { onBack: () => void }) {
         setTimeLeft(t => t - 1);
       }, 1000);
     }
-    return () => clearInterval(gameTimerRef.current);
+    return () => {
+      if (gameTimerRef.current) {
+        clearInterval(gameTimerRef.current);
+      }
+    }
   }, [step, timeLeft]);
 
   useEffect(() => {
@@ -124,34 +128,36 @@ export function JungleExplorerGame({ onBack }: { onBack: () => void }) {
   if (step === 'complete') {
     const starsEarned = Math.floor(score / 20);
     return (
-        <Card className="mx-auto w-full max-w-lg text-center border-green-500 border-2 shadow-lg">
-            <CardHeader className="bg-green-500 text-primary-foreground rounded-t-lg">
-                <CardTitle>Amazing Explorer! 🎉</CardTitle>
+      <div className="bg-gradient-to-br from-green-300 via-teal-300 to-blue-300 p-4 sm:p-8 rounded-2xl max-w-2xl mx-auto">
+        <Card className="bg-white/80 border-green-400/30 text-center text-gray-800">
+            <CardHeader>
+                <CardTitle className="text-3xl">Amazing Explorer! 🎉</CardTitle>
+                 <CardDescription className="text-teal-700">Jungle Mission Complete!</CardDescription>
             </CardHeader>
             <CardContent className="p-6 space-y-4">
                  <Trophy className="w-16 h-16 text-yellow-400 mx-auto animate-pulse" />
-                 <h3 className="text-xl font-bold">Jungle Mission Complete!</h3>
-                 <p className="text-muted-foreground">
+                 <h3 className="text-xl font-bold">You did it!</h3>
+                 <p className="text-teal-800">
                     Wow! You found {animalsFound} animals! Your eyes are getting stronger every day!
                  </p>
-                <div className="flex justify-around bg-muted p-4 rounded-lg">
+                <div className="flex justify-around bg-white/50 p-4 rounded-lg">
                     <div className="text-center">
                         <div className="flex items-center justify-center gap-1">
                             <Star className="w-6 h-6 text-yellow-500" />
                             <p className="text-2xl font-bold">{starsEarned}</p>
                         </div>
-                        <p className="text-xs text-muted-foreground">Stars Earned</p>
+                        <p className="text-xs text-gray-600">Stars Earned</p>
                     </div>
                      <div className="text-center">
                         <div className="flex items-center justify-center gap-1">
-                            <Trophy className="w-6 h-6 text-primary" />
+                            <Trophy className="w-6 h-6 text-orange-500" />
                             <p className="text-2xl font-bold">{score}</p>
                         </div>
-                        <p className="text-xs text-muted-foreground">Total Points</p>
+                        <p className="text-xs text-gray-600">Total Points</p>
                     </div>
                 </div>
                  <div className="flex flex-col sm:flex-row gap-2 mt-4">
-                    <Button onClick={resetGame} className="w-full">
+                    <Button onClick={resetGame} className="w-full bg-green-600 hover:bg-green-700 text-white">
                         <RefreshCw className="mr-2 h-4 w-4" /> Play Again
                     </Button>
                     <Button variant="secondary" className="w-full" onClick={onBack}>
@@ -160,24 +166,27 @@ export function JungleExplorerGame({ onBack }: { onBack: () => void }) {
                 </div>
             </CardContent>
         </Card>
+      </div>
     );
   }
 
   if (step === 'intro') {
     return (
-        <Card className="text-center w-full max-w-lg mx-auto">
+      <div className="bg-gradient-to-br from-green-300 via-teal-300 to-blue-300 p-4 sm:p-8 rounded-2xl max-w-2xl mx-auto">
+        <Card className="bg-white/80 border-green-400/30 text-center text-gray-800">
             <CardHeader>
-                <CardTitle className="text-2xl">Jungle Explorer 🦋</CardTitle>
-                <CardDescription>Welcome to the Kambalakonda Wildlife Sanctuary!</CardDescription>
+                <CardTitle className="text-3xl">Jungle Explorer 🦋</CardTitle>
+                <CardDescription className="text-teal-700">Welcome to the Kambalakonda Wildlife Sanctuary!</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-                <p className="text-muted-foreground">
+                 <p className="text-5xl">🌴🐒🦜🐸</p>
+                <p className="text-teal-800">
                     You're a brave jungle explorer! Your mission is to spot all the amazing animals 
                     hiding in our beautiful sanctuary.
                 </p>
-                <div className="text-left bg-muted p-4 rounded-lg">
-                    <h4 className="font-semibold mb-2">🎯 How to Play:</h4>
-                    <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
+                <div className="bg-white/50 p-4 rounded-lg text-left">
+                    <h4 className="font-semibold mb-2 text-gray-900">🎯 How to Play:</h4>
+                    <ul className="list-disc list-inside text-sm text-gray-700 space-y-1">
                         <li>Look carefully at the jungle scene.</li>
                         <li>Some animals are close (BIG), others are far (small).</li>
                         <li>Quickly click on them when you see them clearly.</li>
@@ -188,12 +197,13 @@ export function JungleExplorerGame({ onBack }: { onBack: () => void }) {
                     <Button variant="outline" onClick={onBack} className="w-full">
                         <ArrowLeft className="mr-2 h-5 w-5" /> Back
                     </Button>
-                    <Button onClick={startGame} size="lg" className="w-full">
+                    <Button onClick={startGame} size="lg" className="w-full bg-green-600 hover:bg-green-700 text-white">
                         <Play className="mr-2 h-5 w-5" /> Start Adventure
                     </Button>
                 </div>
             </CardContent>
         </Card>
+      </div>
     );
   }
 

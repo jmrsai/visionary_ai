@@ -13,9 +13,9 @@ export default function GymPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold">Eye Gym</h1>
-        <p className="text-muted-foreground">
-          Strengthen your eyes and reduce strain with guided exercises and tools.
+        <h1 className="text-4xl font-bold tracking-tight">Eye Gym</h1>
+        <p className="mt-2 text-lg text-muted-foreground">
+          Strengthen your eyes and reduce strain with guided exercises, circuits, and tools.
         </p>
       </div>
       
