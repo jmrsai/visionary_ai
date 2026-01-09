@@ -15,7 +15,7 @@ import {searchExercisesTool} from '@/ai/tools/exercise-search-tool';
 import {imageAnalysisTool} from '@/ai/tools/image-analysis-tool';
 import { searchYouTubeForRemedy } from '@/ai/tools/youtube-search-tool';
 import {z} from 'zod';
-import wav from 'wav';
+import * as wav from 'wav';
 import { MOCK_VISION_SCORE_HISTORY } from '@/lib/data';
 
 
