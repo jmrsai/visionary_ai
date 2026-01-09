@@ -583,7 +583,7 @@ export function LoginForm() {
         onSubmit={emailForm.handleSubmit(onEmailSubmit)}
         className="space-y-6"
       >
-        <div className="space-y-4">
+        <div className="grid grid-cols-2 gap-4">
           <Button
             onClick={handleGoogleSignIn}
             variant="outline"
@@ -609,7 +609,7 @@ export function LoginForm() {
                 d="M43.611 20.083H24v8h11.303c-.792 2.237-2.231 4.166-4.087 5.571l6.19 5.238C44.592 35.931 48 29.696 48 24c0-1.341-.138-2.65-.389-3.917z"
               ></path>
             </svg>
-            Sign in with Google
+            Google
           </Button>
           <Button
             onClick={() => setFormType("phone")}
@@ -619,10 +619,10 @@ export function LoginForm() {
             disabled={isLoading}
           >
             <Phone className="mr-2 h-4 w-4" />
-            Sign in with Phone
+            Phone
           </Button>
         </div>
-        <div className="relative my-6">
+        <div className="relative my-4">
           <div className="absolute inset-0 flex items-center">
             <span className="w-full border-t" />
           </div>
@@ -637,7 +637,7 @@ export function LoginForm() {
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Sign In
         </Button>
-        <div className="mt-6 text-center text-sm">
+        <div className="mt-4 text-center text-sm">
           Don't have an account?
           <Button
             variant="link"
@@ -740,5 +740,3 @@ export function LoginForm() {
     </Card>
   );
 }
-
-    

@@ -84,11 +84,13 @@ export function CheckupResultCard({
         </div>
       </CardHeader>
       <CardContent className="space-y-6">
-        <div className="space-y-2 rounded-lg border p-2">
-          {report.results.map((result) => (
-            <ResultRow key={result.testId} result={result} />
-          ))}
-        </div>
+        <Card>
+          <CardContent className="p-2">
+            {report.results.map((result) => (
+              <ResultRow key={result.testId} result={result} />
+            ))}
+          </CardContent>
+        </Card>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-center">
             <Button variant="outline" onClick={onRestart}><RefreshCw className="mr-2"/>Restart</Button>

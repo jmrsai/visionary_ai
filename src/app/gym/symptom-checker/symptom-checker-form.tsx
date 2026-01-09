@@ -89,6 +89,7 @@ export function SymptomCheckerForm() {
 
   return (
     <div className="grid gap-8 md:grid-cols-1 lg:grid-cols-2">
+      <div className="space-y-4">
       <Card>
         <CardHeader>
           <CardTitle>Describe Your Symptoms</CardTitle>
@@ -128,6 +129,15 @@ export function SymptomCheckerForm() {
           </Form>
         </CardContent>
       </Card>
+      <Card>
+           <CardHeader className="pb-2">
+              <CardTitle className="text-lg">Visualization</CardTitle>
+           </CardHeader>
+           <CardContent>
+              <AnimatedEyeModel condition={visualizedCondition} showLabels={false} size="large" />
+           </CardContent>
+      </Card>
+      </div>
       
       <div className="space-y-4">
         {isLoading && (
@@ -157,16 +167,8 @@ export function SymptomCheckerForm() {
                 </Alert>
               )}
 
-                <div className="grid gap-4 items-start md:grid-cols-2">
-                    <Card className="md:col-span-2">
-                         <CardHeader className="pb-2">
-                            <CardTitle className="text-lg">Visualization</CardTitle>
-                         </CardHeader>
-                         <CardContent>
-                            <AnimatedEyeModel condition={visualizedCondition} showLabels={false} size="large" />
-                         </CardContent>
-                    </Card>
-                    <Card className="md:col-span-2">
+                <div className="grid gap-4 items-start">
+                    <Card>
                         <CardHeader>
                         <CardTitle>Possible Conditions</CardTitle>
                         <CardDescription className="flex items-center gap-2">
