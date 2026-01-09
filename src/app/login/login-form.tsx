@@ -108,19 +108,29 @@ export function LoginForm() {
   const storage = useStorage();
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const recaptchaContainerRef = useRef<HTMLDivElement>(null);
-  const recaptchaVerifierRef = useRef<RecaptchaVerifier | null>(null);
-  const widgetIdRef = useRef<number | null>(null);
-
 
   useEffect(() => {
-    // Cleanup on component unmount
-    return () => {
-        if (recaptchaVerifierRef.current) {
-            recaptchaVerifierRef.current.clear();
+    if (formType === 'phone' && auth && !window.recaptchaVerifier) {
+      // Use an invisible reCAPTCHA
+      window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+        'size': 'invisible',
+        'callback': (response: any) => {
+          // reCAPTCHA solved, you can now send the phone number.
+        },
+        'expired-callback': () => {
+          // Reset reCAPTCHA
+          window.recaptchaVerifier?.clear();
         }
+      });
     }
-  }, []);
+
+    // Cleanup on component unmount or when formType changes
+    return () => {
+      if (window.recaptchaVerifier) {
+        window.recaptchaVerifier.clear();
+      }
+    };
+  }, [formType, auth]);
 
 
   const handleProfilePicChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -205,66 +215,36 @@ export function LoginForm() {
   };
   
   const handlePhoneSignIn = (values: z.infer<typeof phoneFormSchema>) => {
-    if (!auth) {
-      setError("Authentication service not ready.");
+    if (!auth || !window.recaptchaVerifier) {
+      setError("Authentication service not ready. Please try again.");
       return;
-    }
-    if (!recaptchaContainerRef.current) {
-        setError("reCAPTCHA container not found. Please refresh and try again.");
-        return;
     }
     
     setIsLoading(true);
     setError(null);
     
-    if (recaptchaVerifierRef.current) {
-        recaptchaVerifierRef.current.clear();
-    }
-
-    const appVerifier = new RecaptchaVerifier(auth, recaptchaContainerRef.current, {
-        'size': 'normal',
-        'callback': () => {
-          // reCAPTCHA solved, allow signInWithPhoneNumber.
-        },
-        'expired-callback': () => {
-            setError("reCAPTCHA expired. Please try again.");
-            if (widgetIdRef.current !== null && window.grecaptcha) {
-                window.grecaptcha.reset(widgetIdRef.current);
+    const appVerifier = window.recaptchaVerifier;
+    const phoneNumber = `+${values.phoneNumber}`;
+    
+    signInWithPhoneNumber(auth, phoneNumber, appVerifier)
+        .then((confirmationResult) => {
+            setConfirmationResult(confirmationResult);
+            setFormType("otp");
+            setIsLoading(false);
+        })
+        .catch((error) => {
+            let message = "SMS not sent. Please try again.";
+             if (error.code === 'auth/too-many-requests') {
+                message = "Too many requests. Please try again later.";
+            } else if (error.code === 'auth/invalid-phone-number') {
+                message = "The phone number is not valid.";
+            } else if (error.code === 'auth/billing-not-enabled') {
+                message = "Phone sign-in is not enabled for this project. Please contact support.";
             }
-        }
-    });
-    recaptchaVerifierRef.current = appVerifier;
-
-    appVerifier.render().then((widgetId) => {
-        widgetIdRef.current = widgetId;
-        const phoneNumber = `+${values.phoneNumber}`;
-        signInWithPhoneNumber(auth, phoneNumber, appVerifier)
-            .then((confirmationResult) => {
-                setConfirmationResult(confirmationResult);
-                setFormType("otp");
-                setIsLoading(false);
-            })
-            .catch((error) => {
-                let message = "SMS not sent. Please try again.";
-                 if (error.code === 'auth/too-many-requests') {
-                    message = "Too many requests. Please try again later.";
-                } else if (error.code === 'auth/invalid-phone-number') {
-                    message = "The phone number is not valid.";
-                } else if (error.code === 'auth/billing-not-enabled') {
-                    message = "Phone sign-in is not enabled for this project. Please contact support.";
-                }
-                console.error("Phone sign-in error:", error);
-                setError(message);
-                setIsLoading(false);
-                if (widgetIdRef.current !== null && window.grecaptcha) {
-                    window.grecaptcha.reset(widgetIdRef.current);
-                }
-            });
-    }).catch(error => {
-        console.error("reCAPTCHA render error:", error);
-        setError("Failed to render reCAPTCHA. Please refresh the page and try again.");
-        setIsLoading(false);
-    });
+            console.error("Phone sign-in error:", error);
+            setError(message);
+            setIsLoading(false);
+        });
   };
 
   const handleForgotPassword = async (values: z.infer<typeof forgotPasswordSchema>) => {
@@ -533,7 +513,6 @@ export function LoginForm() {
             </FormItem>
           )}
         />
-        <div ref={recaptchaContainerRef} className="flex justify-center"/>
         <Button id="send-code-button" type="submit" className="w-full" disabled={isLoading}>
           {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
           Send Verification Code
@@ -673,6 +652,7 @@ export function LoginForm() {
         <CardDescription>{description}</CardDescription>
       </CardHeader>
       <CardContent>
+        <div id="recaptcha-container"></div>
         {error && (
           <p className="text-sm font-medium text-destructive mb-4">{error}</p>
         )}
