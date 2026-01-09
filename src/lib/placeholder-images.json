@@ -61,6 +61,12 @@
       "imageHint": "frog cartoon"
     },
     {
+      "id": "toucan-character",
+      "description": "A cartoon toucan character",
+      "imageUrl": "https://i.ibb.co/7jZqWz4/toucan.png",
+      "imageHint": "toucan cartoon"
+    },
+    {
       "id": "hrr-rg-triangle",
       "description": "HRR Plate for Red-Green, Triangle",
       "imageUrl": "https://i.ibb.co/1MjvL0w/hrr-rg-triangle.png",

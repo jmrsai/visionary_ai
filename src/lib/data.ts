@@ -1,5 +1,5 @@
 
-import { Activity, BookOpen, Brain, Dumbbell, Eye, Glasses, HeartPulse, Target, Video, View, Wind, Sparkles, CalendarCheck, ScanEye, Zap, ListTodo, Contrast, Layers, Palette, Rocket, Move, Orbit, Grid, CircleDot, EyeOff, Disc, Puzzle, Gamepad2 } from "lucide-react";
+import { Activity, BookOpen, Brain, Dumbbell, Eye, Glasses, HeartPulse, Target, Video, View, Wind, Sparkles, CalendarCheck, ScanEye, Zap, ListTodo, Contrast, Layers, Palette, Rocket, Move, Orbit, Grid, CircleDot, EyeOff, Disc, Puzzle, Gamepad2, Bird } from "lucide-react";
 import type { Test, Exercise, Circuit, HrrPlate, D15Cap, Reminder, Consultation } from "./types";
 import { StereopsisIcon } from "@/components/icons";
 
@@ -11,6 +11,7 @@ import circuitsData from './data/circuits.json';
 import visionScoreHistoryData from './data/vision-score-history.json';
 import remindersData from './data/reminders.json';
 import consultationsData from './data/consultations.json';
+import gameCharactersData from './data/game-characters.json';
 
 
 // This file contains mock data that might be replaced by a database in a full application.
@@ -20,6 +21,7 @@ export const MOCK_VISION_SCORE_HISTORY: {date: string; score: number}[] = vision
 export const MOCK_HRR_PLATES: HrrPlate[] = hrrPlatesData;
 export const MOCK_D15_CAPS: D15Cap[] = d15CapsData;
 export const MOCK_CIRCUITS: Circuit[] = circuitsData;
+export const MOCK_GAME_CHARACTERS: {id: string; name: string}[] = gameCharactersData;
 
 
 const iconMapping: { [key: string]: React.ElementType } = {
@@ -50,6 +52,7 @@ const iconMapping: { [key: string]: React.ElementType } = {
     Layers,
     Puzzle,
     Gamepad2,
+    Bird,
 };
 
 export const MOCK_TESTS: Test[] = testsData.map(test => ({

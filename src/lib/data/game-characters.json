@@ -1,0 +1,6 @@
+[
+    { "id": "monkey-character", "name": "Monkey" },
+    { "id": "parrot-character", "name": "Parrot" },
+    { "id": "frog-character", "name": "Frog" },
+    { "id": "toucan-character", "name": "Toucan" }
+]
