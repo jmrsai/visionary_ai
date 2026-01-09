@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
@@ -56,6 +57,8 @@ export function InteractiveExercise({ id, title }: { id: string, title: string }
   const [feedback, setFeedback] = useState("AI feedback will appear here.");
   const [isFeedbackLoading, setIsFeedbackLoading] = useState(false);
   const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
+  const [hasCompleted, setHasCompleted] = useState(false);
+
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const timerRef = useRef<NodeJS.Timeout>();
@@ -64,14 +67,15 @@ export function InteractiveExercise({ id, title }: { id: string, title: string }
   const { user } = useUser();
 
   const onExerciseComplete = useCallback(() => {
-    if (user) {
+    if (user && !hasCompleted) {
         awardPointsForActivity(user.uid, 'completed_exercise', title);
         toast({
             title: "Exercise Complete!",
             description: `You've earned points for completing the ${title} exercise.`,
-        })
+        });
+        setHasCompleted(true);
     }
-  }, [user, title, toast]);
+  }, [user, title, toast, hasCompleted]);
 
   useEffect(() => {
     const getCameraPermission = async () => {
@@ -184,6 +188,7 @@ export function InteractiveExercise({ id, title }: { id: string, title: string }
     setFeedback("AI feedback will appear here.");
     clearInterval(timerRef.current);
     if(feedbackTimerRef.current) clearInterval(feedbackTimerRef.current);
+    setHasCompleted(false);
   };
 
   const instruction = getInstruction(id, progress);
@@ -259,3 +264,4 @@ export function InteractiveExercise({ id, title }: { id: string, title: string }
     </div>
   );
 }
+

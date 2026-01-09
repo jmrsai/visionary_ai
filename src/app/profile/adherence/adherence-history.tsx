@@ -6,7 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { AdherenceLog } from "@/lib/types";
 import { CheckCircle, XCircle, Clock, Loader2 } from "lucide-react";
 import { useCollection, useUser, useFirestore, useMemoFirebase } from "@/firebase";
-import { collection, query, orderBy } from "firebase/firestore";
+import { collection, query, orderBy, Timestamp } from "firebase/firestore";
+import { format } from "date-fns";
 
 const statusIcons = {
   taken: <CheckCircle className="h-5 w-5 text-green-500" />,
@@ -17,10 +18,10 @@ const statusIcons = {
 
 const groupHistoryByDate = (history: AdherenceLog[]) => {
   return history.reduce((acc, log) => {
-    // This is a simplified date grouping. A real app would use date-fns for robust grouping.
-    const date = new Date(log.timestamp).toLocaleDateString(undefined, {
-        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
-    });
+    // Convert Firestore Timestamp to JS Date for formatting
+    const logDate = (log.timestamp as any)?.toDate ? (log.timestamp as any).toDate() : new Date(log.timestamp);
+    const date = format(logDate, "eeee, MMMM d, yyyy");
+    
     if (!acc[date]) {
       acc[date] = [];
     }
@@ -35,6 +36,8 @@ export function AdherenceHistory() {
 
   const adherenceCollectionRef = useMemoFirebase(() => {
     if (!user || !firestore) return null;
+    // Note: This collection group query would require a composite index in a real production app
+    // For now, it queries a sub-collection, which doesn't need a special index.
     return query(collection(firestore, `users/${user.uid}/adherenceLogs`), orderBy("timestamp", "desc"));
   }, [user, firestore]);
 
@@ -65,22 +68,25 @@ export function AdherenceHistory() {
                 {date}
               </h3>
               <div className="space-y-4 ml-4 border-l-2 pl-8 relative">
-                {groupedHistory[date].map((log) => (
-                  <div key={log.id} className="flex items-start gap-4">
-                    <div className="absolute -left-[1.1rem] top-1 flex h-10 w-10 items-center justify-center rounded-full bg-secondary">
-                        {statusIcons[log.status]}
-                    </div>
-                    <div className="flex-1">
-                      <p className="font-medium">{log.medication}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {log.status === 'upcoming' ? 'Scheduled for ' : 'Logged at '} {new Date(log.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                      </p>
-                    </div>
-                    <div className="text-sm font-medium capitalize">
-                        {log.status.replace('_', ' ')}
-                    </div>
-                  </div>
-                ))}
+                {groupedHistory[date].map((log) => {
+                    const logDate = (log.timestamp as any)?.toDate ? (log.timestamp as any).toDate() : new Date(log.timestamp);
+                    return (
+                        <div key={log.id} className="flex items-start gap-4">
+                            <div className="absolute -left-[1.1rem] top-1 flex h-10 w-10 items-center justify-center rounded-full bg-secondary">
+                                {statusIcons[log.status]}
+                            </div>
+                            <div className="flex-1">
+                            <p className="font-medium">{log.medication}</p>
+                            <p className="text-sm text-muted-foreground">
+                                {log.status === 'upcoming' ? 'Scheduled for ' : 'Logged at '} {format(logDate, "p")}
+                            </p>
+                            </div>
+                            <div className="text-sm font-medium capitalize">
+                                {log.status.replace('_', ' ')}
+                            </div>
+                        </div>
+                    )
+                })}
               </div>
             </div>
           )) : (

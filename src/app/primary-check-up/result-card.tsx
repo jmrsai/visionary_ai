@@ -17,9 +17,11 @@ import {
 } from "@/components/ui/accordion";
 import { MOCK_TESTS } from "@/lib/data";
 import type { CheckupReport, TestResult } from "@/lib/types";
-import { Check, AlertTriangle, RefreshCw, Share2, Download, MessageSquare } from "lucide-react";
+import { Check, AlertTriangle, RefreshCw, Share2, Download, MessageSquare, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
+import { useUser, useFirestore, useCollection, useMemoFirebase } from "@/firebase";
+import { collection, query, orderBy, limit } from "firebase/firestore";
 
 const getStatus = (result: TestResult) => {
   if (result.status === "good")
@@ -57,6 +59,42 @@ const ResultRow = ({ result }: { result: TestResult }) => {
     </div>
   );
 };
+
+const PastCheckups = () => {
+    const { user } = useUser();
+    const firestore = useFirestore();
+
+    const historyQuery = useMemoFirebase(() => {
+        if (!user || !firestore) return null;
+        return query(
+            collection(firestore, `users/${user.uid}/visionTestResults`),
+            orderBy("date", "desc"),
+            limit(5)
+        );
+    }, [user, firestore]);
+
+    const { data: pastReports, isLoading } = useCollection<CheckupReport>(historyQuery);
+
+    if (isLoading) {
+        return <div className="flex justify-center items-center p-4"><Loader2 className="h-5 w-5 animate-spin"/></div>
+    }
+
+    if (!pastReports || pastReports.length === 0) {
+        return <p className="text-sm text-muted-foreground p-4">No past check-up history found.</p>
+    }
+
+    return (
+        <div className="space-y-2 p-2">
+            {pastReports.map(report => (
+                <Card key={report.id} className="bg-background/50">
+                    <CardHeader className="p-3">
+                        <CardTitle className="text-sm">Report from {format(parseISO(report.date), "MMMM d, yyyy")}</CardTitle>
+                    </CardHeader>
+                </Card>
+            ))}
+        </div>
+    )
+}
 
 
 export function CheckupResultCard({
@@ -101,9 +139,9 @@ export function CheckupResultCard({
 
         <Accordion type="single" collapsible className="w-full">
           <AccordionItem value="history">
-            <AccordionTrigger>View Past Check-ups (Mock Data)</AccordionTrigger>
-            <AccordionContent className="space-y-4">
-              <p className="text-sm text-muted-foreground">This section shows mock data for demonstration. In a full app, your real history would appear here.</p>
+            <AccordionTrigger>View Past Check-ups</AccordionTrigger>
+            <AccordionContent>
+              <PastCheckups />
             </AccordionContent>
           </AccordionItem>
         </Accordion>
@@ -111,3 +149,4 @@ export function CheckupResultCard({
     </Card>
   );
 }
+
