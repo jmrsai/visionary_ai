@@ -35,8 +35,8 @@ const scheduleNotification = (reminder: Reminder) => {
 
     if (delay > 0) {
         const timeoutId = setTimeout(() => {
-            new Notification(`Time for your reminder: ${reminder.title}`, {
-                body: `It's ${reminder.time}. Don't forget your ${reminder.type}!`,
+            new Notification(`Time for your reminder: ${'${reminder.title}'}`, {
+                body: `It's ${'${reminder.time}'}. Don't forget your ${'${reminder.type}'}!`,
                 icon: 'https://firebasestorage.googleapis.com/v0/b/studio-4426725626-6840a.firebasestorage.app/o/Icon.png?alt=media&token=76082f00-62a6-4d64-8202-9c462ab06c91',
             });
         }, delay);
@@ -95,7 +95,7 @@ export default function MedicationPage() {
     
     const remindersQuery = useMemoFirebase(() => {
         if (user && firestore) {
-          return collection(firestore, `users/${user.uid}/medicationReminders`);
+          return collection(firestore, `users/${'${user.uid}'}/medicationReminders`);
         }
         return null;
       }, [user, firestore]);
@@ -181,56 +181,58 @@ export default function MedicationPage() {
         )}
 
 
-        <Card>
-            <CardHeader>
-            <CardTitle>Your Reminders</CardTitle>
-            <CardDescription>Stay on track with your eye care routine.</CardDescription>
-            </CardHeader>
-            <CardContent>
-            <div className="space-y-4">
-                {isLoading && (
-                    <div className="flex justify-center items-center h-40">
-                        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-                    </div>
-                )}
-                {!isLoading && reminders && reminders.length > 0 ? (
-                    reminders.map((reminder) => (
-                        <div key={reminder.id} className="flex items-center justify-between rounded-lg border p-4">
-                            <div className="flex items-center gap-4">
-                            <div className="text-muted-foreground">
-                                {getIcon(reminder.type)}
-                            </div>
-                            <div>
-                                <p className="font-semibold">{reminder.title}</p>
-                                <p className="text-sm text-muted-foreground">{reminder.time}</p>
-                            </div>
-                            </div>
-                            <Switch 
-                                checked={reminder.enabled}
-                                onCheckedChange={() => toggleReminder(reminder.id!, reminder.enabled)}
-                                aria-label={`Toggle reminder for ${reminder.title}`}
-                                disabled={notificationPermission !== 'granted'}
-                            />
+        <div className="grid gap-6 md:grid-cols-2">
+            <Card>
+                <CardHeader>
+                <CardTitle>Your Reminders</CardTitle>
+                <CardDescription>Stay on track with your eye care routine.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                <div className="space-y-4">
+                    {isLoading && (
+                        <div className="flex justify-center items-center h-40">
+                            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
                         </div>
-                    ))
-                ) : !isLoading && (
-                <div className="text-center py-12 text-muted-foreground">
-                    <Bell className="mx-auto h-12 w-12" />
-                    <p className="mt-4">You have no reminders set.</p>
+                    )}
+                    {!isLoading && reminders && reminders.length > 0 ? (
+                        reminders.map((reminder) => (
+                            <div key={reminder.id} className="flex items-center justify-between rounded-lg border p-4">
+                                <div className="flex items-center gap-4">
+                                <div className="text-muted-foreground">
+                                    {getIcon(reminder.type)}
+                                </div>
+                                <div>
+                                    <p className="font-semibold">{reminder.title}</p>
+                                    <p className="text-sm text-muted-foreground">{reminder.time}</p>
+                                </div>
+                                </div>
+                                <Switch 
+                                    checked={reminder.enabled}
+                                    onCheckedChange={() => toggleReminder(reminder.id!, reminder.enabled)}
+                                    aria-label={`Toggle reminder for ${'${reminder.title}'}`}
+                                    disabled={notificationPermission !== 'granted'}
+                                />
+                            </div>
+                        ))
+                    ) : !isLoading && (
+                    <div className="text-center py-12 text-muted-foreground">
+                        <Bell className="mx-auto h-12 w-12" />
+                        <p className="mt-4">You have no reminders set.</p>
+                    </div>
+                    )}
                 </div>
-                )}
-            </div>
-            </CardContent>
-        </Card>
-        <Card>
-            <CardHeader>
-                <CardTitle>Weekly Adherence Chart</CardTitle>
-                <CardDescription>A visual summary of your medication adherence this week.</CardDescription>
-            </CardHeader>
-            <CardContent>
-                <AdherenceChart />
-            </CardContent>
-        </Card>
+                </CardContent>
+            </Card>
+            <Card>
+                <CardHeader>
+                    <CardTitle>Weekly Adherence Chart</CardTitle>
+                    <CardDescription>A visual summary of your medication adherence this week.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <AdherenceChart />
+                </CardContent>
+            </Card>
+        </div>
       </div>
       <AddReminderDialog 
         open={isAddDialogOpen}
