@@ -147,7 +147,7 @@ export function LoginForm() {
     if (profilePic && storage) {
       setIsLoading(true);
       setError("Creating profile...");
-      const storageRef = ref(storage, `profile-pictures/${userCredential.user.uid}`);
+      const storageRef = ref(storage, `profile-pictures/${'${userCredential.user.uid}'}`);
       await uploadBytes(storageRef, profilePic);
       photoURL = await getDownloadURL(storageRef);
     }
@@ -224,7 +224,7 @@ export function LoginForm() {
     setError(null);
     
     const appVerifier = window.recaptchaVerifier;
-    const phoneNumber = `+${values.phoneNumber}`;
+    const phoneNumber = `+${'${values.phoneNumber}'}`;
     
     signInWithPhoneNumber(auth, phoneNumber, appVerifier)
         .then((confirmationResult) => {
@@ -238,8 +238,8 @@ export function LoginForm() {
                 message = "Too many requests. Please try again later.";
             } else if (error.code === 'auth/invalid-phone-number') {
                 message = "The phone number is not valid.";
-            } else if (error.code === 'auth/billing-not-enabled') {
-                message = "Phone sign-in is not enabled for this project. Please contact support.";
+            } else if (error.code === 'auth/missing-client-identifier' || (error.message && error.message.includes('auth/missing-client-identifier'))) {
+                message = "SMS not sent. This project may not have billing enabled, which is required for sending SMS. Please check your Firebase project settings.";
             }
             console.error("Phone sign-in error:", error);
             setError(message);
