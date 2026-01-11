@@ -1,37 +1,9 @@
-/**
- * Core Philosophy: This ruleset enforces a strict, user-centric data ownership model.
- * All personal user data is isolated within a dedicated path structure, ensuring
- * that a user can only ever access their own information.
- *
- * Data Structure: All private user data, including profiles, eye tests, workouts,
- * and reminders, is nested under the `/users/{userId}` path. This path-based
- * ownership is the cornerstone of the security model. A separate top-level
- * collection, `/workouts`, stores globally accessible workout templates.
- *
- * Key Security Decisions:
- * - User Privacy: Listing all users from the `/users` collection is explicitly disallowed
- *   to protect user privacy.
- * - Strict Ownership: All subcollections under `/users/{userId}` inherit the
- *   ownership rules of their parent, meaning only the authenticated user matching
- *   `{userId}` can read or write their own data.
- * - Public Read-Only Data: The `/workouts` collection is public and can be read by
- *   any client, including unauthenticated ones. Writes to this collection are
- *   currently disabled pending the implementation of an admin role system.
- *
- * Denormalization for Authorization: The rules rely on the `{userId}` wildcard in
- * the path to authorize requests. For documents within user subcollections, the
- * rules also validate that an internal `userId` field matches the path on creation,
- * ensuring relational integrity without costly `get()` calls.
- *
- * Structural Segregation: The system uses two distinct top-level collections: `/users`
- * for all private, user-specific data, and `/workouts` for public, shared data.
- * This separation simplifies rules and improves query performance and security.
- */
+
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    // Helper functions for reusable logic
+    
     function isSignedIn() {
       return request.auth != null;
     }
@@ -39,118 +11,31 @@ service cloud.firestore {
     function isOwner(userId) {
       return isSignedIn() && request.auth.uid == userId;
     }
-    
-    // Checks if a document exists. For use with update and delete operations.
-    function docExists() {
-      return resource != null;
-    }
 
-    // Checks if the user is the owner of an existing document.
-    function isExistingOwner(userId) {
-      return isOwner(userId) && docExists();
-    }
-    
-    // On CREATE: Validates that the incoming document's ID field matches its path ID.
-    function incomingProfileIdMatchesPath(userId) {
-      return request.resource.data.id == userId;
-    }
-
-    // On UPDATE: Ensures the document's primary ID field is immutable.
-    function profileIdIsImmutable() {
-      return request.resource.data.id == resource.data.id;
-    }
-    
-    // On CREATE: Validates that the incoming document's `userId` field matches the user's path.
-    function incomingUserIdMatchesPath(userId) {
-      return request.resource.data.userId == userId;
-    }
-
-    // On UPDATE: Ensures the document's `userId` ownership field is immutable.
-    function userIdIsImmutable() {
-      return request.resource.data.userId == resource.data.userId;
-    }
-
-    /**
-     * @description Controls access to a user's own profile document.
-     * @path /users/{userId}
-     * @allow (get) An authenticated user reads their own profile: `auth.uid == 'user_abc'`, `get /users/user_abc`
-     * @allow (create) A new user creates their own profile document: `auth.uid == 'user_xyz'`, `create /users/user_xyz`
-     * @deny (list) Any user, authenticated or not, attempts to list all user profiles.
-     * @deny (get) An authenticated user tries to read another user's profile: `auth.uid == 'user_abc'`, `get /users/user_xyz`
-     * @principle Restricts access to a user's own data tree and prevents enumeration of all users.
-     */
+    // --- User Profile Rules ---
     match /users/{userId} {
-      allow get: if isOwner(userId);
-      allow list: if false;
-      allow create: if isOwner(userId) && incomingProfileIdMatchesPath(userId);
-      allow update: if isExistingOwner(userId) && profileIdIsImmutable();
-      allow delete: if isExistingOwner(userId);
-
-      /**
-       * @description Controls access to a user's private eye test results.
-       * @path /users/{userId}/eyeTests/{eyeTestId}
-       * @allow (list) An authenticated user lists their own eye tests: `auth.uid == 'user_abc'`, `list /users/user_abc/eyeTests`
-       * @allow (create) An authenticated user creates a new eye test result for themself: `auth.uid == 'user_abc'`, `create /users/user_abc/eyeTests/test_123`
-       * @deny (get) An authenticated user tries to read another user's eye test: `auth.uid == 'user_abc'`, `get /users/user_xyz/eyeTests/test_456`
-       * @principle Enforces document ownership for all operations within a user's private subcollection.
-       */
-      match /eyeTests/{eyeTestId} {
-        allow get: if isOwner(userId);
-        allow list: if isOwner(userId);
-        allow create: if isOwner(userId) && incomingUserIdMatchesPath(userId);
-        allow update: if isExistingOwner(userId) && userIdIsImmutable();
-        allow delete: if isExistingOwner(userId);
-      }
-
-      /**
-       * @description Controls access to a user's workout history.
-       * @path /users/{userId}/userWorkouts/{userWorkoutId}
-       * @allow (list) An authenticated user lists their own completed workouts: `auth.uid == 'user_abc'`, `list /users/user_abc/userWorkouts`
-       * @allow (create) An authenticated user saves a new completed workout: `auth.uid == 'user_abc'`, `create /users/user_abc/userWorkouts/workout_123`
-       * @deny (update) An authenticated user tries to modify another user's workout history: `auth.uid == 'user_abc'`, `update /users/user_xyz/userWorkouts/workout_456`
-       * @principle Enforces document ownership for all operations within a user's private subcollection.
-       */
-      match /userWorkouts/{userWorkoutId} {
-        allow get: if isOwner(userId);
-        allow list: if isOwner(userId);
-        allow create: if isOwner(userId) && incomingUserIdMatchesPath(userId);
-        allow update: if isExistingOwner(userId) && userIdIsImmutable();
-        allow delete: if isExistingOwner(userId);
-      }
-
-      /**
-       * @description Controls access to a user's private reminders.
-       * @path /users/{userId}/reminders/{reminderId}
-       * @allow (list) An authenticated user lists their own reminders: `auth.uid == 'user_abc'`, `list /users/user_abc/reminders`
-       * @allow (create) An authenticated user creates a new reminder for themself: `auth.uid == 'user_abc'`, `create /users/user_abc/reminders/rem_123`
-       * @deny (delete) An authenticated user tries to delete another user's reminder: `auth.uid == 'user_abc'`, `delete /users/user_xyz/reminders/rem_456`
-       * @principle Enforces document ownership for all operations within a user's private subcollection.
-       */
-      match /reminders/{reminderId} {
-        allow get: if isOwner(userId);
-        allow list: if isOwner(userId);
-        allow create: if isOwner(userId) && incomingUserIdMatchesPath(userId);
-        allow update: if isExistingOwner(userId) && userIdIsImmutable();
-        allow delete: if isExistingOwner(userId);
-      }
+      allow read, write: if isOwner(userId);
+    }
+    
+    // --- Subcollection Rules for User Data ---
+    match /users/{userId}/{collection}/{docId} {
+      allow read, write, delete: if isOwner(userId);
     }
 
-    /**
-     * @description Controls access to global, public workout templates.
-     * @path /workouts/{workoutId}
-     * @allow (get) Any user, authenticated or not, can read a workout template.
-     * @allow (list) Any user, authenticated or not, can list all workout templates.
-     * @deny (create) All write operations are denied, as there is no admin role system defined yet.
-     * @principle Provides public read access for global data while restricting writes to prevent unauthorized modification.
-     */
-    match /workouts/{workoutId} {
-      allow get: if true;
-      allow list: if true;
-      // CRITICAL: Cannot implement admin-only writes. The 'Workout' entity is missing an 'ownerId' or admin role check.
-      // Disabling all writes until the application schema or an admin role system is implemented.
-      allow create: if false; // TODO: Add admin validation once an admin role system is implemented.
-      allow update: if false; // TODO: Add admin validation once an admin role system is implemented.
-      allow delete: if false; // TODO: Add admin validation once an admin role system is implemented.
+    // --- Specific Rules for Consultations (if needed) ---
+    // This allows a doctor to read a patient's consultation, but not other data.
+    // This requires your data structure to have a `doctorId` field.
+    match /users/{patientId}/consultations/{consultationId} {
+      allow get: if isSignedIn() && (isOwner(patientId) || resource.data.doctorId == request.auth.uid);
+      allow list: if isOwner(patientId);
+      // Create/Update/Delete should still be restricted to the user/patient
+      allow write, delete: if isOwner(patientId);
+    }
+    
+     // --- Specific Rules for Doctor Roles ---
+    // A simple role-based access control.
+    match /roles_doctor/{userId} {
+      allow get: if isSignedIn();
     }
   }
 }

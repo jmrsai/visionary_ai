@@ -138,20 +138,21 @@ export interface Reminder {
     note?: string;
 }
 
-export interface AdherenceLog {
-    id: string;
-    medication: string;
-    type: 'Eye Drops' | 'Pill' | 'Capsule' | 'Liquid';
-    status: 'taken' | 'skipped' | 'upcoming' | 'taken_late';
-    timestamp: string; // ISO string
+export type AdherenceLog = {
+  id: string;
+  userId: string;
+  reminderId: string;
+  medication: string;
+  type: 'Eye Drops' | 'Pill' | 'Capsule' | 'Liquid';
+  status: 'taken' | 'skipped' | 'upcoming' | 'taken_late';
+  timestamp: Timestamp | string; // Can be a server timestamp or an ISO string
 };
+
 
 export type ActivityLog = {
     id: string;
     activityType: string;
     activityName: string;
     pointsEarned: number;
-    timestamp: string; // ISO string
+    timestamp: Timestamp | string;
 };
-
-    
