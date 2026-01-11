@@ -2,9 +2,9 @@
 
 import { firebaseConfig } from '@/firebase/config';
 import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
-import { getAuth, RecaptchaVerifier, ConfirmationResult } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
-import { getStorage } from 'firebase/storage';
+import { getAuth, RecaptchaVerifier, ConfirmationResult, Auth } from 'firebase/auth';
+import { getFirestore, Firestore } from 'firebase/firestore';
+import { getStorage, FirebaseStorage } from 'firebase/storage';
 
 // Extend the Window interface to include our recaptcha verifier
 declare global {
@@ -15,44 +15,49 @@ declare global {
     }
 }
 
+// A singleton to hold the initialized Firebase services.
+let firebaseServices: {
+  firebaseApp: FirebaseApp;
+  auth: Auth;
+  firestore: Firestore;
+  storage: FirebaseStorage;
+} | null = null;
+
 
 // IMPORTANT: DO NOT MODIFY THIS FUNCTION
 export function initializeFirebase() {
+  if (firebaseServices) {
+    return firebaseServices;
+  }
+
+  let firebaseApp: FirebaseApp;
   if (getApps().length) {
-    return getSdks(getApp());
-  }
-  
-  // Important! initializeApp() is called without any arguments because Firebase App Hosting
-  // integrates with the initializeApp() function to provide the environment variables needed to
-  // populate the FirebaseOptions in production. It is critical that we attempt to call initializeApp()
-  // without arguments.
-  let firebaseApp;
-  try {
-    // Attempt to initialize via Firebase App Hosting environment variables
-    firebaseApp = initializeApp();
-  } catch (e) {
-    // Only warn in production because it's normal to use the firebaseConfig to initialize
-    // during development
-    if (process.env.NODE_ENV === "production") {
-      console.warn('Automatic initialization failed. Falling back to firebase config object.', e);
+    firebaseApp = getApp();
+  } else {
+    try {
+      // Attempt to initialize via Firebase App Hosting environment variables
+      firebaseApp = initializeApp();
+    } catch (e) {
+      if (process.env.NODE_ENV === "production") {
+        console.warn('Automatic initialization failed. Falling back to firebase config object.', e);
+      }
+      firebaseApp = initializeApp(firebaseConfig);
     }
-    firebaseApp = initializeApp(firebaseConfig);
   }
 
-  return getSdks(firebaseApp);
-}
-
-export function getSdks(firebaseApp: FirebaseApp) {
   const auth = getAuth(firebaseApp);
   auth.languageCode = 'en';
-  
-  return {
+
+  firebaseServices = {
     firebaseApp,
-    auth: auth,
+    auth,
     firestore: getFirestore(firebaseApp),
     storage: getStorage(firebaseApp)
   };
+  
+  return firebaseServices;
 }
+
 
 export * from './provider';
 export * from './client-provider';

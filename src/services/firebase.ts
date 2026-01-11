@@ -5,10 +5,10 @@ import { Firestore, doc, setDoc, getDoc, serverTimestamp } from "firebase/firest
 import type { User } from "@/lib/types";
 import { errorEmitter } from "@/firebase/error-emitter";
 import { FirestorePermissionError } from "@/firebase/errors";
-import { getSdks } from "@/firebase";
+import { initializeFirebase } from "@/firebase";
 
 export const getOrCreateUser = async (firebaseUser: FirebaseAuthUser, interests?: string[]): Promise<User> => {
-  const { firestore } = getSdks(firebaseUser.app);
+  const { firestore } = initializeFirebase();
   const userRef = doc(firestore, "users", firebaseUser.uid);
   
   try {

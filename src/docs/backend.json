@@ -17,7 +17,7 @@
           "description": "Email address of the user.",
           "format": "email"
         },
-        "name": {
+        "displayName": {
           "type": "string",
           "description": "User's full name."
         },
@@ -47,7 +47,7 @@
       "required": [
         "id",
         "email",
-        "name",
+        "displayName",
         "dateJoined"
       ]
     },
@@ -207,7 +207,14 @@
         "dosage": { "type": "string" },
         "frequency": { "type": "string" },
         "reason": { "type": "string" },
-        "note": { "type": "string" }
+        "note": { "type": "string" },
+        "appearance": {
+            "type": "object",
+            "properties": {
+                "shape": {"type": "string"},
+                "color": {"type": "string"}
+            }
+        }
       },
       "required": ["id", "userId", "title", "time", "type", "enabled"]
     },
