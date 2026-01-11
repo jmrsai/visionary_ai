@@ -329,7 +329,7 @@ export function FloatingChatbot() {
                 <Button
                     variant="default"
                     size="icon"
-                    className="fixed bottom-6 right-6 h-16 w-16 rounded-full shadow-lg z-50 bg-primary hover:bg-primary/90"
+                    className="fixed bottom-20 right-6 h-16 w-16 rounded-full shadow-lg z-50 bg-primary hover:bg-primary/90 md:bottom-6"
                 >
                     <MessageCircle className="h-8 w-8" />
                     <span className="sr-only">Open Chat</span>
