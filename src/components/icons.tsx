@@ -1,14 +1,14 @@
 import type { SVGProps } from "react";
 import Image from 'next/image';
 
-export function VisionaryLogo(props: SVGProps<SVGSVGElement>) {
+export function VisionaryLogo(props: React.ImgHTMLAttributes<HTMLImageElement>) {
   return (
     <Image 
       src="https://firebasestorage.googleapis.com/v0/b/studio-4426725626-6840a.firebasestorage.app/o/eye-protection.png?alt=media&token=8db3c112-f7a7-4aaa-b171-2a7fcb70a44e" 
       alt="Visionary App Icon"
       width={24}
       height={24}
-      className={props.className}
+      {...props}
     />
   );
 }
