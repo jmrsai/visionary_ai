@@ -12,13 +12,13 @@ export default function AdherencePage() {
           &larr; Back to Profile
         </Link>
         <div className="flex items-start gap-4 mt-2">
-          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
+          <div className="flex-shrink-0 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
             <CheckCircle className="h-6 w-6" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold">Adherence History</h1>
-            <p className="text-muted-foreground">
-              A complete log of your medication schedule. Data is currently mocked.
+            <h1 className="text-2xl sm:text-3xl font-bold">Adherence History</h1>
+            <p className="text-muted-foreground mt-1">
+              A complete log of your medication schedule.
             </p>
           </div>
         </div>

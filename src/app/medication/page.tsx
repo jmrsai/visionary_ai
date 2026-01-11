@@ -37,7 +37,7 @@ const scheduleNotification = (reminder: Reminder) => {
         const timeoutId = setTimeout(() => {
             new Notification(`Time for your reminder: ${reminder.title}`, {
                 body: `It's ${reminder.time}. Don't forget your ${reminder.type}!`,
-                icon: '/icons/icon-192x192.png',
+                icon: 'https://firebasestorage.googleapis.com/v0/b/studio-4426725626-6840a.firebasestorage.app/o/Icon.png?alt=media&token=76082f00-62a6-4d64-8202-9c462ab06c91',
             });
         }, delay);
         
@@ -106,7 +106,7 @@ export default function MedicationPage() {
 
     const toggleReminder = (id: string, currentStatus: boolean) => {
         if (!remindersQuery || !reminders) return;
-        const reminderRef = doc(remindersQuery, id!);
+        const reminderRef = doc(remindersQuery.firestore, remindersQuery.path, id!);
         updateDocumentNonBlocking(reminderRef, { enabled: !currentStatus });
 
          if (!currentStatus) { // If it's being enabled
@@ -156,14 +156,14 @@ export default function MedicationPage() {
   return (
     <>
       <div className="space-y-8">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
                 <h1 className="text-3xl font-bold">Medication & Reminders</h1>
-                <p className="text-muted-foreground">
+                <p className="text-muted-foreground mt-1">
                     Manage your exercise, medication, and appointment reminders.
                 </p>
             </div>
-            <Button onClick={() => setIsAddDialogOpen(true)} disabled={!user}>
+            <Button onClick={() => setIsAddDialogOpen(true)} disabled={!user} className="w-full sm:w-auto">
                 <PlusCircle className="mr-2 h-4 w-4" />
                 Add Reminder
             </Button>

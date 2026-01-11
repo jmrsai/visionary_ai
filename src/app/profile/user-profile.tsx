@@ -22,15 +22,15 @@ export function UserProfile({ user }: { user: User }) {
 
   return (
     <div className="space-y-8">
-      <div className="flex justify-between items-start">
+      <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
         <div>
-            <h1 className="text-3xl font-bold">Welcome, {user.displayName || user.email}!</h1>
-            <p className="text-muted-foreground">
+            <h1 className="text-2xl sm:text-3xl font-bold">Welcome, {user.displayName || user.email}!</h1>
+            <p className="text-muted-foreground mt-1">
               Track your journey to better vision health.
             </p>
         </div>
-        <Card className="p-2 px-4 bg-amber-300/20 border-amber-400">
-            <div className="flex items-center gap-2">
+        <Card className="p-2 px-4 bg-amber-300/20 border-amber-400 w-full sm:w-auto">
+            <div className="flex items-center gap-2 justify-center">
                 <Star className="h-5 w-5 text-amber-500" />
                 <span className="text-lg font-bold text-amber-700 dark:text-amber-300">{user.points || 0}</span>
                 <span className="text-sm text-muted-foreground">Points</span>
