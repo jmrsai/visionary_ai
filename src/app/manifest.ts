@@ -51,7 +51,8 @@ export default function manifest(): MetadataRoute.Manifest {
       {
         src: iconUrl,
         sizes: '512x512',
-        type: 'image/png'
+        type: 'image/png',
+        purpose: 'any maskable'
       }
     ]
   }
