@@ -12,7 +12,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Visionary - Your Personal Vision Care App",
   description: "An application for eye health, exercises, and therapies.",
-  manifest: "/manifest.json",
+  manifest: "/manifest.webmanifest",
   icons: {
     apple: "/icons/icon-192x192.png",
   },
