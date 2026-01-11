@@ -150,7 +150,7 @@ export function InteractiveExercise({ id, title }: { id: string, title: string }
       setProgress((prev) => {
         const newProgress = prev + (100 / duration);
         if (newProgress >= 100) {
-          clearInterval(timerRef.current);
+          clearInterval(timerRef.current!);
           if (feedbackTimerRef.current) clearInterval(feedbackTimerRef.current);
           setExerciseState("finished");
           onExerciseComplete();
@@ -173,7 +173,7 @@ export function InteractiveExercise({ id, title }: { id: string, title: string }
 
   const handlePause = () => {
     setExerciseState("paused");
-    clearInterval(timerRef.current);
+    clearInterval(timerRef.current!);
     if(feedbackTimerRef.current) clearInterval(feedbackTimerRef.current);
   };
 
@@ -186,7 +186,7 @@ export function InteractiveExercise({ id, title }: { id: string, title: string }
     setExerciseState("idle");
     setProgress(0);
     setFeedback("AI feedback will appear here.");
-    clearInterval(timerRef.current);
+    clearInterval(timerRef.current!);
     if(feedbackTimerRef.current) clearInterval(feedbackTimerRef.current);
     setHasCompleted(false);
   };
@@ -264,4 +264,3 @@ export function InteractiveExercise({ id, title }: { id: string, title: string }
     </div>
   );
 }
-
