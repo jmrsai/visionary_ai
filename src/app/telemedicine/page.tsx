@@ -170,7 +170,7 @@ export default function TeleMedicine() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold">
             TeleMedicine Platform
@@ -179,12 +179,12 @@ export default function TeleMedicine() {
             {isDoctor ? "Doctor Dashboard" : "Your secure video consultations"}
           </p>
         </div>
-        <div className="flex items-center space-x-3">
-          <Button variant="outline">
+        <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-3 w-full sm:w-auto">
+          <Button variant="outline" className="w-full sm:w-auto">
             <Calendar className="h-4 w-4 mr-2" />
             <span>Schedule</span>
           </Button>
-          <Button>
+          <Button className="w-full sm:w-auto">
             <Video className="h-4 w-4 mr-2" />
             <span>Start Instant Call</span>
           </Button>

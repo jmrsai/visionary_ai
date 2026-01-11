@@ -19,9 +19,9 @@ export default function TestsPage() {
       {categories.map(category => (
         <div key={category}>
           <h2 className="text-2xl font-semibold mb-4">{category}</h2>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {MOCK_TESTS.filter(test => test.category === category).map((test) => (
-              <Link key={test.id} href={`/tests/${test.id}`} className="group">
+              <Link key={test.id} href={`/tests/${'${test.id}'}`} className="group">
                 <Card className="h-full transition-all group-hover:border-primary group-hover:shadow-lg">
                   <CardHeader>
                     <div className="flex items-start justify-between">

@@ -21,7 +21,7 @@ export default function GymPage() {
       
       <div>
           <h2 className="text-2xl font-semibold mb-4">Eye Movement Circuits</h2>
-           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {MOCK_CIRCUITS.map((circuit) => (
               <CircuitCard key={circuit.id} circuit={circuit} />
             ))}
@@ -32,11 +32,11 @@ export default function GymPage() {
       {exerciseCategories.map(category => (
         <div key={category}>
           <h2 className="text-2xl font-semibold mb-4">{category}</h2>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {MOCK_EXERCISES.filter(ex => ex.category === category).map((exercise) => {
               const exercisePath = exercise.id === 'symptom-checker' || exercise.id === 'personalized-workouts'
-                ? `/gym/${exercise.id}` 
-                : `/gym/exercise/${exercise.id}`;
+                ? `/gym/${'${exercise.id}'}` 
+                : `/gym/exercise/${'${exercise.id}'}`;
               
               return (
               <Link key={exercise.id} href={exercisePath} className="group">
@@ -67,9 +67,9 @@ export default function GymPage() {
       
        <div>
           <h2 className="text-2xl font-semibold mb-4">Kids' Game Zone</h2>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {kidsGames.map((game) => (
-              <Link key={game.id} href={`/games/${game.id}`} className="group">
+              <Link key={game.id} href={`/games/${'${game.id}'}`} className="group">
                  <Card className="h-full transition-all group-hover:border-primary group-hover:shadow-lg">
                   <CardHeader>
                     <div className="flex items-start justify-between">
