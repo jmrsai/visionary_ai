@@ -14,7 +14,7 @@ export const metadata: Metadata = {
   description: "An application for eye health, exercises, and therapies.",
   manifest: "/manifest.webmanifest",
   icons: {
-    apple: "/icons/icon-192x192.png",
+    apple: "https://firebasestorage.googleapis.com/v0/b/studio-4426725626-6840a.firebasestorage.app/o/eye-protection.png?alt=media&token=8db3c112-f7a7-4aaa-b171-2a7fcb70a44e",
   },
 };
 
