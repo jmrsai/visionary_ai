@@ -224,7 +224,7 @@ export function LoginForm() {
     setError(null);
     
     const appVerifier = window.recaptchaVerifier;
-    const phoneNumber = `+${'${values.phoneNumber}'}`;
+    const phoneNumber = `+${values.phoneNumber}`;
     
     signInWithPhoneNumber(auth, phoneNumber, appVerifier)
         .then((confirmationResult) => {
