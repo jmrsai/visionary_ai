@@ -1,0 +1,39 @@
+
+[
+    {
+        "id": "morning-warm-up",
+        "title": "Morning Warm-up",
+        "description": "A quick 1-minute circuit to wake up your eyes and prepare them for the day.",
+        "icon": "ListTodo",
+        "totalDuration": "1 min",
+        "exercises": [
+            { "id": "blinking-exercise", "title": "Blinking Exercise", "duration": 20 },
+            { "id": "saccades", "title": "Saccades", "duration": 20 },
+            { "id": "focus-shift", "title": "Focus Shift", "duration": 20 }
+        ]
+    },
+    {
+        "id": "digital-detox",
+        "title": "Digital Detox",
+        "description": "Designed to relieve digital eye strain after long hours of screen time.",
+        "icon": "ListTodo",
+        "totalDuration": "2 min",
+        "exercises": [
+            { "id": "20-20-20-rule", "title": "20-20-20 Rule", "duration": 30 },
+            { "id": "blinking-owl-therapy", "title": "Blinking Owl Therapy", "duration": 60 },
+            { "id": "focus-shift", "title": "Focus Shift", "duration": 30 }
+        ]
+    },
+    {
+        "id": "focus-booster",
+        "title": "Focus Booster",
+        "description": "An intense workout to improve focus speed and flexibility.",
+        "icon": "ListTodo",
+        "totalDuration": "1.5 min",
+        "exercises": [
+            { "id": "saccades", "title": "Saccades", "duration": 30 },
+            { "id": "accommodation-flexibility", "title": "Accommodation Flexibility", "duration": 30 },
+            { "id": "shape-tracer", "title": "Shape Tracer", "duration": 30 }
+        ]
+    }
+]
