@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next'
  
 export default function manifest(): MetadataRoute.Manifest {
-  const iconUrl = "https://raw.githubusercontent.com/jmrsai/visionary_ai/main/public/icons/eye-protection.png";
+  const iconUrl = "https://raw.githubusercontent.com/jmrsai/visionary_ai/main/src/Icon.png";
   
   return {
     name: 'Visionary - Your Personal Vision Care App',

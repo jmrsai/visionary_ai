@@ -14,7 +14,7 @@ export const metadata: Metadata = {
   description: "An application for eye health, exercises, and therapies.",
   manifest: "/manifest.webmanifest",
   icons: {
-    apple: "https://raw.githubusercontent.com/jmrsai/visionary_ai/main/public/icons/eye-protection.png",
+    apple: "https://raw.githubusercontent.com/jmrsai/visionary_ai/main/src/Icon.png",
   },
 };
 
