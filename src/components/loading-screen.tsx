@@ -24,12 +24,13 @@ export function LoadingScreen() {
         className="space-y-6"
       >
         <Image
-          src="https://firebasestorage.googleapis.com/v0/b/studio-4426725626-6840a.firebasestorage.app/o/Icon.png?alt=media&token=76082f00-62a6-4d64-8202-9c462ab06c91"
+          src="https://raw.githubusercontent.com/jmrsai/visionary_ai/main/public/icons/iris.gif"
           alt="Visionary App Icon"
           width={150}
           height={150}
           className="mx-auto"
           priority
+          unoptimized={true}
         />
         <div className="space-y-4">
             <h1 className="text-2xl font-bold tracking-widest text-gray-700 dark:text-gray-300">LOADING...</h1>

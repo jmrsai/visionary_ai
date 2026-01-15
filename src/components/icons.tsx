@@ -4,7 +4,7 @@ import Image from 'next/image';
 export function VisionaryLogo(props: React.ImgHTMLAttributes<HTMLImageElement>) {
   return (
     <Image 
-      src="https://firebasestorage.googleapis.com/v0/b/studio-4426725626-6840a.firebasestorage.app/o/Icon.png?alt=media&token=76082f00-62a6-4d64-8202-9c462ab06c91" 
+      src="https://raw.githubusercontent.com/jmrsai/visionary_ai/main/public/icons/eye-protection.png" 
       alt="Visionary App Icon"
       width={24}
       height={24}

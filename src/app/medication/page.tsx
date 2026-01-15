@@ -37,7 +37,7 @@ const scheduleNotification = (reminder: Reminder) => {
         const timeoutId = setTimeout(() => {
             new Notification(`Time for your reminder: ${'${reminder.title}'}`, {
                 body: `It's ${'${reminder.time}'}. Don't forget your ${'${reminder.type}'}!`,
-                icon: 'https://firebasestorage.googleapis.com/v0/b/studio-4426725626-6840a.firebasestorage.app/o/Icon.png?alt=media&token=76082f00-62a6-4d64-8202-9c462ab06c91',
+                icon: 'https://raw.githubusercontent.com/jmrsai/visionary_ai/main/public/icons/eye-protection.png',
             });
         }, delay);
         

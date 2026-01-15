@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next'
  
 export default function manifest(): MetadataRoute.Manifest {
-  const iconUrl = "https://firebasestorage.googleapis.com/v0/b/studio-4426725626-6840a.firebasestorage.app/o/Icon.png?alt=media&token=76082f00-62a6-4d64-8202-9c462ab06c91";
+  const iconUrl = "https://raw.githubusercontent.com/jmrsai/visionary_ai/main/public/icons/eye-protection.png";
   
   return {
     name: 'Visionary - Your Personal Vision Care App',
