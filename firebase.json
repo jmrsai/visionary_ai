@@ -1,5 +1,6 @@
 {
   "hosting": {
+    "site": "visionary-ai-jmr",
     "source": ".",
     "ignore": [
       "firebase.json",
