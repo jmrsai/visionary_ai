@@ -1,53 +1,73 @@
-'use server';
-
 import * as tf from '@tensorflow/tfjs';
 
-// Define a simple model for demonstration purposes
-let model: tf.LayersModel | null = null;
+/**
+ * Offline AI Agent: Game Difficulty Recommender
+ * Uses a small neural network to recommend the next game's difficulty
+ * based on the user's performance in previous sessions.
+ */
 
-async function loadModel() {
-  if (model) {
-    return model;
-  }
+// Model architecture: 2 inputs (score, duration_seconds) -> 8 hidden -> 1 output (difficulty 1-10)
+let recommenderModel: tf.Sequential | null = null;
 
-  // Define a simple sequential model: input layer, dense layer, output layer
-  model = tf.sequential();
-  model.add(tf.layers.dense({ units: 10, activation: 'relu', inputShape: [1] }));
-  model.add(tf.layers.dense({ units: 1, activation: 'sigmoid' })); // Output between 0 and 1
+async function createModel() {
+  const m = tf.sequential();
+  m.add(tf.layers.dense({ inputShape: [2], units: 8, activation: 'relu' }));
+  m.add(tf.layers.dense({ units: 4, activation: 'relu' }));
+  m.add(tf.layers.dense({ units: 1, activation: 'linear' }));
 
-  // Compile the model
-  model.compile({ optimizer: 'adam', loss: 'binaryCrossentropy', metrics: ['accuracy'] });
+  m.compile({
+    optimizer: tf.train.adam(0.01),
+    loss: 'meanSquaredError'
+  });
 
-  // For demonstration, we'll "train" it with some dummy data to make it return
-  // 'positive' for longer texts and 'negative' for shorter ones.
-  // In a real scenario, this would be a pre-trained model loaded from storage.
-  const xs = tf.tensor2d([10, 20, 30, 40, 50, 5, 15, 25, 35, 45], [10, 1]); // Text lengths
-  const ys = tf.tensor2d([1, 1, 1, 1, 1, 0, 0, 0, 0, 0], [10, 1]); // 1 for 'positive', 0 for 'negative'
-
-  await model.fit(xs, ys, { epochs: 100, verbose: 0 });
-
-  return model;
+  return m;
 }
 
-export async function analyzeTextOffline(text: string): Promise<string> {
-  const loadedModel = await loadModel();
+export async function trainRecommender(data: { score: number, duration: number, difficultyReached: number }[]) {
+  if (!recommenderModel) recommenderModel = await createModel();
 
-  // Convert text length to a tensor
-  const inputTensor = tf.tensor2d([text.length], [1, 1]);
+  const xs = tf.tensor2d(data.map(d => [d.score, d.duration]));
+  const ys = tf.tensor2d(data.map(d => [d.difficultyReached]));
 
-  // Make a prediction
-  const prediction = loadedModel.predict(inputTensor) as tf.Tensor;
-  const predictionValue = (await prediction.data())[0];
+  await recommenderModel.fit(xs, ys, {
+    epochs: 50,
+    verbose: 0
+  });
 
-  let sentiment = '';
-  if (predictionValue > 0.5) {
-    sentiment = 'positive';
-  } else {
-    sentiment = 'negative';
+  xs.dispose();
+  ys.dispose();
+}
+
+export async function recommendDifficulty(currentScore: number, currentDuration: number): Promise<number> {
+  if (!recommenderModel) {
+    // Initial heuristic if no model is trained
+    return Math.min(10, Math.max(1, Math.floor(currentScore / 100) + 1));
   }
 
-  prediction.dispose(); // Clean up tensor from memory
-  inputTensor.dispose(); // Clean up tensor from memory
+  const input = tf.tensor2d([[currentScore, currentDuration]]);
+  const prediction = recommenderModel.predict(input) as tf.Tensor;
+  const result = await prediction.data();
 
-  return `Offline AI analysis (TensorFlow.js): Text length ${text.length} classified as '${sentiment}' (raw prediction: ${predictionValue.toFixed(4)}).`;
+  input.dispose();
+  prediction.dispose();
+
+  // Return clamped value between 1 and 10
+  return Math.min(10, Math.max(1, Math.round(result[0])));
+}
+
+// Mock initial training on export (wrapped in a safer check if needed for the environment)
+if (typeof window !== 'undefined') {
+  (async () => {
+    try {
+      const initialData = [
+        { score: 10, duration: 10, difficultyReached: 1 },
+        { score: 100, duration: 60, difficultyReached: 3 },
+        { score: 500, duration: 120, difficultyReached: 7 },
+        { score: 1000, duration: 180, difficultyReached: 9 }
+      ];
+      await trainRecommender(initialData);
+    } catch (e) {
+      console.warn('TF.js initialization skipped or failed:', e);
+    }
+  })();
 }

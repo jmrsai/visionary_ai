@@ -18,14 +18,14 @@ export default function GymPage() {
           Strengthen your eyes and reduce strain with guided exercises, circuits, and tools.
         </p>
       </div>
-      
+
       <div>
-          <h2 className="text-2xl font-semibold mb-4">Eye Movement Circuits</h2>
-           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {MOCK_CIRCUITS.map((circuit) => (
-              <CircuitCard key={circuit.id} circuit={circuit} />
-            ))}
-          </div>
+        <h2 className="text-2xl font-semibold mb-4">Eye Movement Circuits</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {MOCK_CIRCUITS.map((circuit) => (
+            <CircuitCard key={circuit.id} circuit={circuit} />
+          ))}
+        </div>
       </div>
 
 
@@ -35,64 +35,94 @@ export default function GymPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {MOCK_EXERCISES.filter(ex => ex.category === category).map((exercise) => {
               const exercisePath = exercise.id === 'symptom-checker' || exercise.id === 'personalized-workouts'
-                ? `/gym/${'${exercise.id}'}` 
+                ? `/gym/${'${exercise.id}'}`
                 : `/gym/exercise/${'${exercise.id}'}`;
-              
+
               return (
-              <Link key={exercise.id} href={exercisePath} className="group">
-                <Card className="h-full transition-all group-hover:border-primary group-hover:shadow-lg">
-                  <CardHeader>
-                    <div className="flex items-start justify-between">
+                <Link key={exercise.id} href={exercisePath} className="group">
+                  <Card className="h-full transition-all group-hover:border-primary group-hover:shadow-lg">
+                    <CardHeader>
+                      <div className="flex items-start justify-between">
                         <div className="flex items-center gap-4">
-                            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                                <exercise.icon className="h-6 w-6" />
-                            </div>
-                            <div>
-                                <CardTitle>{exercise.title}</CardTitle>
-                                <CardDescription>{exercise.duration}</CardDescription>
-                            </div>
+                          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                            <exercise.icon className="h-6 w-6" />
+                          </div>
+                          <div>
+                            <CardTitle>{exercise.title}</CardTitle>
+                            <CardDescription>{exercise.duration}</CardDescription>
+                          </div>
                         </div>
                         <ChevronRight className="h-5 w-5 text-muted-foreground transition-transform group-hover:translate-x-1" />
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm text-muted-foreground">{exercise.description}</p>
-                  </CardContent>
-                </Card>
-              </Link>
-            )})}
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-muted-foreground">{exercise.description}</p>
+                    </CardContent>
+                  </Card>
+                </Link>
+              )
+            })}
           </div>
         </div>
       ))}
-      
-       <div>
-          <h2 className="text-2xl font-semibold mb-4">Kids' Game Zone</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {kidsGames.map((game) => (
-              <Link key={game.id} href={`/games/${'${game.id}'}`} className="group">
-                 <Card className="h-full transition-all group-hover:border-primary group-hover:shadow-lg">
-                  <CardHeader>
-                    <div className="flex items-start justify-between">
-                        <div className="flex items-center gap-4">
-                            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                                <game.icon className="h-6 w-6" />
-                            </div>
-                            <div>
-                                <CardTitle>{game.title}</CardTitle>
-                                <CardDescription>Game</CardDescription>
-                            </div>
-                        </div>
-                        <ChevronRight className="h-5 w-5 text-muted-foreground transition-transform group-hover:translate-x-1" />
+
+      <div>
+        <h2 className="text-2xl font-semibold mb-4">Vision Therapy</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {MOCK_TESTS.filter(t => t.category === "Vision Therapy").map((game) => (
+            <Link key={game.id} href={`/games/${'${game.id}'}`} className="group">
+              <Card className="h-full transition-all group-hover:border-primary group-hover:shadow-lg glass-card border-primary/20">
+                <CardHeader>
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary group-hover:scale-110 transition-transform">
+                        <game.icon className="h-6 w-6" />
+                      </div>
+                      <div>
+                        <CardTitle>{game.title}</CardTitle>
+                        <CardDescription>Therapy</CardDescription>
+                      </div>
                     </div>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm text-muted-foreground">{game.description}</p>
-                  </CardContent>
-                </Card>
-              </Link>
-            ))}
-          </div>
+                    <ChevronRight className="h-5 w-5 text-muted-foreground transition-transform group-hover:translate-x-1" />
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground">{game.description}</p>
+                </CardContent>
+              </Card>
+            </Link>
+          ))}
         </div>
+      </div>
+
+      <div>
+        <h2 className="text-2xl font-semibold mb-4">Kids' Game Zone</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {kidsGames.map((game) => (
+            <Link key={game.id} href={`/games/${'${game.id}'}`} className="group">
+              <Card className="h-full transition-all group-hover:border-primary group-hover:shadow-lg">
+                <CardHeader>
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-4">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                        <game.icon className="h-6 w-6" />
+                      </div>
+                      <div>
+                        <CardTitle>{game.title}</CardTitle>
+                        <CardDescription>Game</CardDescription>
+                      </div>
+                    </div>
+                    <ChevronRight className="h-5 w-5 text-muted-foreground transition-transform group-hover:translate-x-1" />
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground">{game.description}</p>
+                </CardContent>
+              </Card>
+            </Link>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

@@ -18,6 +18,8 @@ import { CoverTest } from "@/components/tests/cover-test";
 import { PlacidoDiskTest } from "@/components/tests/placido-disk-test";
 import { OcularHealthScan } from "@/components/tests/ocular-health-scan";
 import { FarnsworthD15Test } from "@/components/tests/farnsworth-d15-test";
+import { ColorBlindnessTest } from "@/components/tests/color-blindness-test";
+import { DryEyeDetector } from "@/components/tools/dry-eye-detector";
 
 
 export async function generateStaticParams() {
@@ -27,25 +29,26 @@ export async function generateStaticParams() {
 }
 
 const TestComponent = ({ testId }: { testId: string }) => {
-    switch (testId) {
-      case "visual-acuity": return <VisualAcuityTest isNearTest={false} />;
-      case "near-vision-acuity": return <VisualAcuityTest isNearTest={true} />;
-      case "macular-health": return <MacularHealthTest />;
-      case "color-vision": return <ColorVisionTest />;
-      case "astigmatism": return <AstigmatismTest />;
-      case "contrast-sensitivity": return <ContrastSensitivityTest />;
-      case "pupil-response": return <PupilResponseTest />;
-      case "visual-field": return <VisualFieldTest />;
-      case "redness-scan": return <RednessIrritationScan />;
-      case "stereopsis": return <StereopsisTest />;
-      case "reading-speed": return <ReadingSpeedTest />;
-      case "accommodation-flexibility": return <AccommodationFlexibilityTest />;
-      case "cover-test": return <CoverTest />;
-      case "placido-disk": return <PlacidoDiskTest />;
-      case "ocular-health-scan": return <OcularHealthScan />;
-      case "farnsworth-d15": return <FarnsworthD15Test />;
-      default: return <p>Test not found.</p>;
-    }
+  switch (testId) {
+    case "visual-acuity": return <VisualAcuityTest isNearTest={false} />;
+    case "near-vision-acuity": return <VisualAcuityTest isNearTest={true} />;
+    case "macular-health": return <MacularHealthTest />;
+    case "color-vision": return <ColorVisionTest />;
+    case "astigmatism": return <AstigmatismTest />;
+    case "contrast-sensitivity": return <ContrastSensitivityTest />;
+    case "pupil-response": return <PupilResponseTest />;
+    case "visual-field": return <VisualFieldTest />;
+    case "redness-scan": return <RednessIrritationScan />;
+    case "stereopsis": return <StereopsisTest />;
+    case "reading-speed": return <ReadingSpeedTest />;
+    case "accommodation-flexibility": return <AccommodationFlexibilityTest />;
+    case "cover-test": return <CoverTest />;
+    case "placido-disk": return <PlacidoDiskTest />;
+    case "ocular-health-scan": return <OcularHealthScan />;
+    case "color-blindness": return <ColorBlindnessTest />;
+    case "dry-eye-detector": return <DryEyeDetector />;
+    default: return <p>Test not found.</p>;
+  }
 }
 
 export default function TestPage({ params }: { params: { slug: string } }) {
@@ -57,14 +60,14 @@ export default function TestPage({ params }: { params: { slug: string } }) {
 
   return (
     <div className="space-y-6">
-       <div>
+      <div>
         <Link href="/tests" className="text-sm text-muted-foreground hover:text-primary">&larr; Back to All Tests</Link>
         <h1 className="text-4xl font-bold tracking-tight mt-1">{test.title}</h1>
         <p className="mt-2 max-w-2xl text-lg text-muted-foreground">
           {test.description}
         </p>
       </div>
-      
+
       <Card>
         <CardHeader>
           <CardTitle>Interactive Test</CardTitle>

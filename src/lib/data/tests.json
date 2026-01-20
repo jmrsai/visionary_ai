@@ -1,4 +1,3 @@
-
 [
     {
         "id": "visual-acuity",
@@ -7,7 +6,7 @@
         "icon": "Eye",
         "category": "Core Diagnostics"
     },
-     {
+    {
         "id": "near-vision-acuity",
         "title": "Near Vision Acuity",
         "description": "Test your near vision clarity, important for reading and other close-up tasks.",
@@ -56,7 +55,7 @@
         "icon": "View",
         "category": "Advanced Screening"
     },
-     {
+    {
         "id": "cover-test",
         "title": "Cover Test for Strabismus",
         "description": "A guided self-test to screen for eye misalignment (strabismus).",
@@ -70,7 +69,7 @@
         "icon": "Disc",
         "category": "Advanced Screening"
     },
-     {
+    {
         "id": "ocular-health-scan",
         "title": "Ocular Health Scan",
         "description": "AI-powered analysis of an eye photo for cataracts, pterygium, and more.",
@@ -112,7 +111,7 @@
         "icon": "Zap",
         "category": "Visual Processing"
     },
-     {
+    {
         "id": "jungle-explorer",
         "title": "Jungle Explorer",
         "description": "A fun game for kids! Help the jungle explorer spot all the animals by quickly changing your focus.",
@@ -139,5 +138,33 @@
         "description": "The classic snake game, designed to improve peripheral vision and reaction time.",
         "icon": "Gamepad2",
         "category": "Kids' Game Zone"
+    },
+    {
+        "id": "puzzle-fusion",
+        "title": "Puzzle Fusion",
+        "description": "Dichoptic training for amblyopia and binocular vision.",
+        "icon": "Puzzle",
+        "category": "Vision Therapy"
+    },
+    {
+        "id": "laser-maze",
+        "title": "Laser Maze",
+        "description": "Smooth pursuit eye tracking training.",
+        "icon": "Move",
+        "category": "Vision Therapy"
+    },
+    {
+        "id": "brock-string",
+        "title": "Brock String",
+        "description": "Digital convergence and divergence training.",
+        "icon": "Activity",
+        "category": "Vision Therapy"
+    },
+    {
+        "id": "dry-eye-detector",
+        "title": "Dry Eye Detector",
+        "description": "Monitor your blink rate to identify digital eye strain.",
+        "icon": "Droplets",
+        "category": "Core Diagnostics"
     }
 ]

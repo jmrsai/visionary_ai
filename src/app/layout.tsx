@@ -10,19 +10,20 @@ import { FirebaseClientProvider } from "@/firebase";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Visionary - Your Personal Vision Care App",
-  description: "An application for eye health, exercises, and therapies.",
-  manifest: "/manifest.webmanifest",
+  title: "Visionary - AI Eye Care",
+  description: "AI-powered vision screening, management, and therapy.",
+  manifest: "/manifest.json",
   icons: {
-    apple: "https://raw.githubusercontent.com/jmrsai/visionary_ai/main/src/Icon.png",
+    apple: "/icons/icon-512x512.png",
   },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#FFFFFF",
+  themeColor: "#7c3aed",
   initialScale: 1,
   width: "device-width",
   userScalable: false,
+  viewportFit: "cover",
 };
 
 
@@ -58,24 +59,24 @@ export default function RootLayout({
       </head>
       <body className="font-body antialiased">
         <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
         >
           <FirebaseClientProvider>
             <SidebarProvider>
               <Sidebar>
-                  <SidebarNav />
+                <SidebarNav />
               </Sidebar>
               <SidebarInset>
-                  <div className="relative flex min-h-screen w-full flex-col bg-background pb-16 md:pb-0">
-                    <Header />
-                    <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
-                      {children}
-                    </main>
-                  </div>
-                  <MobileNav />
+                <div className="relative flex min-h-screen w-full flex-col bg-background pb-16 md:pb-0">
+                  <Header />
+                  <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
+                    {children}
+                  </main>
+                </div>
+                <MobileNav />
               </SidebarInset>
             </SidebarProvider>
             <FloatingChatbot />
